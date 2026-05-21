@@ -7,7 +7,14 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "#Utilities": ["src/Utilities/index.ts"],
+      "#Database": ["src/Database/index.ts"],
+      "#Assets": ["Assets/"]
+    }
   },
   "include": ["src", "index.ts", "eslint.config.js"]
 }
