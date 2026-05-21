@@ -19,6 +19,11 @@
     "discord.js": "^14.26.4",
     "dotenv": "^17.4.2"
   },
+  "imports": {
+    "#Utilities": "./src/Utilities/index.js",
+    "#Database": "./src/Database/index.js",
+    "#Assets": "./Assets/"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.9.1",
