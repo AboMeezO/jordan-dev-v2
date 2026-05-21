@@ -1,0 +1,36 @@
+import { CommandKit } from "commandkit";
+import { Client, GatewayIntentBits } from "discord.js";
+import path from "path";
+
+export class Bot {
+  private client: Client;
+
+  constructor() {
+    this.client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+      ],
+    });
+  }
+
+  public initialize(): void {
+    new CommandKit({
+      client: this.client,
+      commandsPath: path.resolve("src/Commands"),
+      eventsPath: path.resolve("src/Events"),
+      validationsPath: path.resolve("src/Validations"),
+      devGuildIds: [process.env.DEV_GUILD_ID!],
+      bulkRegister: true,
+    });
+  }
+
+  public async login(token: string): Promise<void> {
+    await this.client.login(token);
+  }
+
+  public getClient(): Client {
+    return this.client;
+  }
+}
