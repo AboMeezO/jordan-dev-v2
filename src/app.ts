@@ -7,16 +7,15 @@ export class Bot {
 
   constructor() {
     this.client = new Client({
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-      ],
+      intents: Object.values(GatewayIntentBits).filter(
+        (intent): intent is GatewayIntentBits => typeof intent === "number",
+      ),
     });
   }
 
   public initialize(): void {
     new CommandKit({
+      // @ts-expect-error - discord.js ESM/CJS type mismatch in NodeNext
       client: this.client,
       commandsPath: path.resolve("src/Commands"),
       eventsPath: path.resolve("src/Events"),
