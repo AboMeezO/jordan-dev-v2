@@ -8,6 +8,8 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
+    "outDir": "./dist",
+    "rootDir": ".",
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "paths": {
