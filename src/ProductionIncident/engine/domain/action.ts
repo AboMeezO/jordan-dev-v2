@@ -26,6 +26,7 @@ export interface ActionEffect {
 
 export interface Action {
   readonly allowedRoleIds?: readonly RoleId[];
+  readonly emojiKey?: string;
   readonly failure: ActionEffect;
   readonly id: ActionId;
   readonly kind: ActionKind;

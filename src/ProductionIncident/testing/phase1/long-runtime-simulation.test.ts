@@ -23,7 +23,7 @@ for (const name of ["mohammad", "ahmed", "rami", "hakem"]) {
 
 requireOk(await kernel.sessionManager.startSession({ minimumPlayers: 4, sessionId }));
 
-for (let index = 0; index < 55; index += 1) {
+for (let index = 0; index < 10; index += 1) {
   const incident = requireOk(
     await kernel.gameplayManager.generateIncident({
       sessionId,
@@ -59,29 +59,17 @@ for (let index = 0; index < 55; index += 1) {
 }
 
 const session = kernel.stateManager.getSnapshot(sessionId);
-assertSessionStatus(session, "running");
-assert.equal(session.state.activeIncidents.size, 0);
-assert.equal(session.state.voteWindows.size, 0);
-assert.equal(session.state.incidentHistory.size, 55);
+assertSessionStatus(session, "ended");
+assert.equal(session.state.endReason, "survived");
 assert.equal(events.some((event) => event.type === "incident.failed"), true);
 assert.equal(events.some((event) => event.type === "chainReaction.scheduled"), true);
 assert.equal(events.some((event) => event.type === "escalation.updated"), true);
-assert.equal(scheduler.activeTasks.every((task) => task.sessionId === sessionId), true);
-assert.equal(scheduler.activeTasks.length <= 10, true);
-
-requireOk(
-  await kernel.sessionManager.endSession({
-    reason: "survived",
-    sessionId,
-  }),
-);
 assert.equal(scheduler.activeTasks.length, 0);
 
 console.log("\n=== LONG RUNTIME SIMULATION ===");
 console.log({
-  activeIncidents: session.state.activeIncidents.size,
   eventCount: events.length,
-  history: session.state.incidentHistory.size,
+  reason: session.state.endReason,
   scheduledTasks: scheduler.activeTasks.length,
   stats: session.stats,
 });

@@ -31,6 +31,8 @@ import {
 } from "./systems/index.js";
 
 const DEFAULT_VOTE_WINDOW_MS = 30_000;
+const MAX_INCIDENTS_PER_SESSION = 10;
+const MAX_SESSION_DURATION_MS = 10 * 60 * 1_000;
 
 const SEVERITY_PENALTY: Readonly<Record<IncidentSeverity, number>> = {
   low: 0,
@@ -82,6 +84,11 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
     );
 
     this.dependencies.eventBus.subscribe("session.started", (event) => {
+      this.dependencies.scheduler.scheduleOnce(
+        MAX_SESSION_DURATION_MS,
+        () => this.endActiveSession(event.sessionId, "timed-out").then(() => undefined),
+        event.sessionId,
+      );
       this.scheduleIncidentTick(event.sessionId, 2_000);
     });
     this.dependencies.eventBus.subscribe("session.ended", (event) => {
@@ -146,6 +153,7 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
         expiredIncident,
       );
       await this.dependencies.eventBus.publish(voteClosed);
+      await this.endSessionIfNeeded(input.sessionId, expired.value);
       return {
         ok: true,
         result: {
@@ -161,6 +169,7 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
     const resolved = await this.resolveIncident(input.sessionId, incident, selectedAction);
     const events = [voteClosed, ...resolved.events];
     await this.dependencies.eventBus.publishAll(events);
+    await this.endSessionIfNeeded(input.sessionId, resolved.session);
 
     return {
       ok: true,
@@ -195,6 +204,15 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       return this.failure(
         "invalid-session-state",
         "An incident is already active for this session.",
+        input.sessionId,
+      );
+    }
+
+    if (session.state.incidentHistory.size >= MAX_INCIDENTS_PER_SESSION) {
+      await this.endActiveSession(input.sessionId, "survived");
+      return this.failure(
+        "invalid-session-state",
+        "Session already reached the incident limit.",
         input.sessionId,
       );
     }
@@ -515,6 +533,50 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       },
       sessionId,
     );
+  }
+
+  private async endSessionIfNeeded(sessionId: SessionId, session: GameSession): Promise<void> {
+    if (!isActiveSession(session)) {
+      return;
+    }
+
+    if (
+      session.stats.serverStability <= 0 ||
+      session.stats.developerSanity <= 0 ||
+      session.stats.userHappiness <= 0
+    ) {
+      await this.endActiveSession(sessionId, "failed");
+      return;
+    }
+
+    if (session.state.incidentHistory.size >= MAX_INCIDENTS_PER_SESSION) {
+      await this.endActiveSession(sessionId, "survived");
+    }
+  }
+
+  private async endActiveSession(
+    sessionId: SessionId,
+    reason: "failed" | "survived" | "timed-out",
+  ): Promise<void> {
+    const session = this.dependencies.stateManager.getSnapshot(sessionId);
+
+    if (session === undefined || session.state.status === "ended") {
+      return;
+    }
+
+    this.dependencies.scheduler.cancelBySession(sessionId);
+    this.clearVoteTimersForSession(sessionId);
+
+    const endedAt = this.dependencies.clock.now();
+    await this.dependencies.stateManager.endSession(sessionId, reason, endedAt);
+    await this.dependencies.eventBus.publish({
+      endedAt,
+      eventId: this.dependencies.idGenerator.createEventId(),
+      occurredAt: endedAt,
+      reason,
+      sessionId,
+      type: "session.ended",
+    });
   }
 
   private successChance(action: Action, incident: Incident): number {
