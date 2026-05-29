@@ -9,14 +9,23 @@ export type ActionTag =
   | "cache"
   | "database"
   | "deploy"
+  | "fallback"
+  | "frontend"
   | "hotfix"
   | "ignore"
   | "inspect"
   | "metrics"
+  | "oauth"
+  | "payments"
+  | "provider"
+  | "queue"
+  | "rate-limit"
   | "rollback"
   | "scale"
   | "security"
   | "trace"
+  | "webhook"
+  | "workers"
   | "restart";
 
 export interface ActionEffect {

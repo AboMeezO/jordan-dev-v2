@@ -332,5 +332,244 @@ export const ACTION_CATALOG: readonly Action[] = [
     successRate: 1,
     tags: ["trace", "inspect", "auth", "deploy"],
   },
+  {
+    emojiKey: "backend",
+    failure: {
+      immediate: {
+        developerSanity: -7,
+        infrastructureCost: 6,
+        serverStability: -12,
+        userHappiness: -8,
+      },
+    },
+    id: "action-restart-api" as ActionId,
+    kind: "vote",
+    label: "Restart API",
+    risk: "medium",
+    success: {
+      immediate: {
+        infrastructureCost: 3,
+        serverStability: 13,
+        userHappiness: 4,
+      },
+    },
+    successRate: 0.7,
+    tags: ["restart", "rate-limit", "scale"],
+  },
+  {
+    emojiKey: "backend",
+    failure: {
+      immediate: {
+        developerSanity: -8,
+        infrastructureCost: 8,
+        serverStability: -14,
+        userHappiness: -7,
+      },
+    },
+    id: "action-scale-workers" as ActionId,
+    kind: "vote",
+    label: "Scale workers",
+    risk: "low",
+    success: {
+      immediate: {
+        infrastructureCost: 10,
+        serverStability: 12,
+        userHappiness: 5,
+      },
+    },
+    successRate: 0.74,
+    tags: ["workers", "queue", "scale"],
+  },
+  {
+    emojiKey: "backend",
+    failure: {
+      immediate: {
+        developerSanity: -6,
+        infrastructureCost: 5,
+        serverStability: -10,
+        userHappiness: -9,
+      },
+    },
+    id: "action-drain-queue" as ActionId,
+    kind: "vote",
+    label: "Drain queue",
+    risk: "medium",
+    success: {
+      immediate: {
+        infrastructureCost: 5,
+        serverStability: 10,
+        userHappiness: 8,
+      },
+    },
+    successRate: 0.69,
+    tags: ["queue", "workers"],
+  },
+  {
+    emojiKey: "database",
+    failure: {
+      immediate: {
+        developerSanity: -10,
+        infrastructureCost: 9,
+        serverStability: -18,
+        userHappiness: -10,
+      },
+    },
+    id: "action-promote-replica" as ActionId,
+    kind: "vote",
+    label: "Promote replica",
+    risk: "high",
+    success: {
+      immediate: {
+        infrastructureCost: 8,
+        serverStability: 18,
+        userHappiness: 6,
+      },
+    },
+    successRate: 0.6,
+    tags: ["database", "fallback"],
+  },
+  {
+    emojiKey: "frontend",
+    failure: {
+      immediate: {
+        developerSanity: -7,
+        infrastructureCost: 4,
+        serverStability: -8,
+        userHappiness: -14,
+      },
+    },
+    id: "action-rebuild-frontend" as ActionId,
+    kind: "vote",
+    label: "Rebuild frontend",
+    risk: "medium",
+    success: {
+      immediate: {
+        serverStability: 9,
+        userHappiness: 13,
+      },
+    },
+    successRate: 0.71,
+    tags: ["frontend", "deploy", "hotfix"],
+  },
+  {
+    emojiKey: "deploy",
+    failure: {
+      immediate: {
+        developerSanity: -8,
+        infrastructureCost: 3,
+        serverStability: -10,
+        userHappiness: -8,
+      },
+    },
+    id: "action-enable-fallback" as ActionId,
+    kind: "vote",
+    label: "Enable fallback",
+    risk: "low",
+    success: {
+      immediate: {
+        infrastructureCost: 5,
+        serverStability: 10,
+        userHappiness: 7,
+      },
+    },
+    successRate: 0.77,
+    tags: ["fallback", "provider", "payments"],
+  },
+  {
+    emojiKey: "deploy",
+    failure: {
+      immediate: {
+        developerSanity: -6,
+        infrastructureCost: 6,
+        serverStability: -9,
+        userHappiness: -12,
+      },
+    },
+    id: "action-switch-provider" as ActionId,
+    kind: "vote",
+    label: "Switch provider",
+    risk: "high",
+    success: {
+      immediate: {
+        infrastructureCost: 10,
+        serverStability: 14,
+        userHappiness: 10,
+      },
+    },
+    successRate: 0.57,
+    tags: ["provider", "payments", "fallback"],
+  },
+  {
+    emojiKey: "backend",
+    failure: {
+      immediate: {
+        developerSanity: -8,
+        infrastructureCost: 4,
+        serverStability: -11,
+        userHappiness: -9,
+      },
+    },
+    id: "action-retry-failed-jobs" as ActionId,
+    kind: "vote",
+    label: "Retry failed jobs",
+    risk: "medium",
+    success: {
+      immediate: {
+        infrastructureCost: 3,
+        serverStability: 9,
+        userHappiness: 7,
+      },
+    },
+    successRate: 0.68,
+    tags: ["queue", "webhook", "workers"],
+  },
+  {
+    emojiKey: "security",
+    failure: {
+      immediate: {
+        developerSanity: -8,
+        serverStability: -10,
+        userHappiness: -9,
+      },
+    },
+    id: "action-reissue-tokens" as ActionId,
+    kind: "vote",
+    label: "Reissue tokens",
+    risk: "medium",
+    success: {
+      immediate: {
+        developerSanity: -3,
+        serverStability: 11,
+        userHappiness: 8,
+      },
+    },
+    successRate: 0.66,
+    tags: ["auth", "oauth", "security"],
+  },
+  {
+    emojiKey: "database",
+    failure: {
+      immediate: {
+        developerSanity: -12,
+        infrastructureCost: 6,
+        serverStability: -18,
+        userHappiness: -10,
+      },
+    },
+    id: "action-patch-migration" as ActionId,
+    kind: "vote",
+    label: "Patch migration",
+    risk: "high",
+    success: {
+      immediate: {
+        developerSanity: -6,
+        infrastructureCost: 4,
+        serverStability: 17,
+        userHappiness: 7,
+      },
+    },
+    successRate: 0.55,
+    tags: ["database", "deploy", "hotfix"],
+  },
 ];
 
