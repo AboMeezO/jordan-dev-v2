@@ -10,4 +10,10 @@ export {
 export type * from "./domain/index.js";
 export type * from "./events/index.js";
 export { assertNever, InMemoryEventBus } from "./events/index.js";
+export {
+  NodeClock,
+  NodeScheduler,
+  RuntimeIdGenerator,
+  SeededRandomSource,
+} from "./infrastructure/index.js";
 export type * from "./ports/index.js";
