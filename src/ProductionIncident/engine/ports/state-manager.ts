@@ -1,4 +1,4 @@
-import type { IncidentId, PlayerId, SessionId, UnixMillis } from "../domain/ids.js";
+import type { IncidentId, PlayerId, RoleId, SessionId, UnixMillis } from "../domain/ids.js";
 import type { Incident } from "../domain/incident.js";
 import type {
   GameSession,
@@ -22,6 +22,10 @@ export interface StateManager {
   applyStatDelta(
     sessionId: SessionId,
     delta: StatDelta,
+  ): Promise<StateMutationResult<GameSession>>;
+  assignRoles(
+    sessionId: SessionId,
+    assignments: ReadonlyMap<PlayerId, RoleId>,
   ): Promise<StateMutationResult<GameSession>>;
   closeVoteWindow(
     sessionId: SessionId,

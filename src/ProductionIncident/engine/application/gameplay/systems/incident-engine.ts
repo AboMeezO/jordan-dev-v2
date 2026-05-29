@@ -28,6 +28,7 @@ export class IncidentEngine {
     createdAt: UnixMillis,
     severity: IncidentSeverity,
     actionOptions: readonly Action[],
+    instantActionOptions: readonly Action[],
     voteWindowMs: number,
   ): Incident {
     return {
@@ -37,6 +38,7 @@ export class IncidentEngine {
       createdAt,
       description: this.pick(template.descriptions),
       id: this.idGenerator.createIncidentId(),
+      instantActionOptions,
       rootCause: this.pick(template.rootCauses),
       severity,
       status: "voting",

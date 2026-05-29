@@ -1,4 +1,4 @@
-import type { IncidentId, PlayerId, SessionId, UnixMillis } from "../../domain/ids.js";
+import type { IncidentId, PlayerId, RoleId, SessionId, UnixMillis } from "../../domain/ids.js";
 import type { Incident } from "../../domain/incident.js";
 import type {
   Action,
@@ -92,6 +92,43 @@ export class InMemoryStateManager implements StateManager {
         userHappiness: this.clampStat(
           session.stats.userHappiness + (delta.userHappiness ?? 0),
         ),
+      },
+    };
+
+    this.sessions.set(sessionId, updated);
+    return Promise.resolve(this.withoutEvents(updated));
+  }
+
+  public assignRoles(
+    sessionId: SessionId,
+    assignments: ReadonlyMap<PlayerId, RoleId>,
+  ): Promise<StateMutationResult<GameSession>> {
+    const session = this.requireSession(sessionId);
+
+    if (session.state.status === "ended") {
+      throw new Error("Cannot assign roles after a session has ended.");
+    }
+
+    const players = new Map<PlayerId, Player>();
+
+    for (const [playerId, player] of session.state.players.entries()) {
+      const roleId = assignments.get(playerId);
+      players.set(
+        playerId,
+        roleId === undefined
+          ? player
+          : {
+              ...player,
+              roleId,
+            },
+      );
+    }
+
+    const updated: GameSession = {
+      ...session,
+      state: {
+        ...session.state,
+        players,
       },
     };
 
@@ -498,6 +535,7 @@ function cloneIncident(incident: Incident): Incident {
     ...incident,
     actionOptions: incident.actionOptions.map(cloneAction),
     affectedServices: [...incident.affectedServices],
+    instantActionOptions: incident.instantActionOptions.map(cloneAction),
   };
 
   return incident.selectedActionId === undefined

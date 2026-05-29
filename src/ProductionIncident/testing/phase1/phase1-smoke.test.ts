@@ -51,6 +51,7 @@ assertEventTypes(events, [
   "session.created",
   "player.joined",
   "player.joined",
+  "roles.assigned",
   "session.started",
   "session.ended",
 ]);

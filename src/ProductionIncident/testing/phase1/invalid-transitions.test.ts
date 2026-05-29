@@ -124,6 +124,7 @@ assertSessionStatus(
 assertEventTypes(endedSessionHarness.events, [
   "session.created",
   "player.joined",
+  "roles.assigned",
   "session.started",
   "session.ended",
 ]);

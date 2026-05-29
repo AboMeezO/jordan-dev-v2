@@ -53,6 +53,7 @@ const expectedTypes: readonly GameEventType[] = [
   "session.created",
   "player.joined",
   "player.joined",
+  "roles.assigned",
   "session.started",
   "session.ended",
 ];
@@ -61,7 +62,7 @@ assertEventTypes(events, expectedTypes);
 assert.equal(new Set(events.map((event) => event.eventId)).size, events.length);
 assert.deepEqual(
   events.map((event) => event.sessionId),
-  [sessionId, sessionId, sessionId, sessionId, sessionId],
+  [sessionId, sessionId, sessionId, sessionId, sessionId, sessionId],
 );
 assert.deepEqual(
   events.map((event) => event.occurredAt),
@@ -71,6 +72,7 @@ assert.deepEqual(
     secondPlayer.joinedAt,
     events[3]?.occurredAt,
     events[4]?.occurredAt,
+    events[5]?.occurredAt,
   ],
 );
 
@@ -79,5 +81,6 @@ assert.deepEqual(
   joinedEvents.map((event) => event.playerId),
   [firstPlayer.id, secondPlayer.id],
 );
-assert.equal(events[3]?.type, "session.started");
-assert.equal(events[4]?.type, "session.ended");
+assert.equal(events[3]?.type, "roles.assigned");
+assert.equal(events[4]?.type, "session.started");
+assert.equal(events[5]?.type, "session.ended");

@@ -14,6 +14,17 @@ export interface SubmitVoteInput {
   readonly sessionId: SessionId;
 }
 
+export interface UseInstantActionInput {
+  readonly actionId: ActionId;
+  readonly incidentId: IncidentId;
+  readonly playerId: PlayerId;
+  readonly sessionId: SessionId;
+}
+
+export interface InstantActionResult {
+  readonly message: string;
+}
+
 export interface CloseVoteInput {
   readonly incidentId: IncidentId;
   readonly sessionId: SessionId;
@@ -30,4 +41,7 @@ export interface GameplayManager {
     input: GenerateIncidentInput,
   ): Promise<EngineCommandResult<Incident>>;
   submitVote(input: SubmitVoteInput): Promise<EngineCommandResult<GameSession>>;
+  useInstantAction(
+    input: UseInstantActionInput,
+  ): Promise<EngineCommandResult<InstantActionResult>>;
 }

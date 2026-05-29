@@ -1,4 +1,4 @@
-import type { PlayerId, SessionId } from "../../domain/ids.js";
+import type { PlayerId, RoleId, SessionId } from "../../domain/ids.js";
 import type { GameSession } from "../../domain/index.js";
 import type { EventBus } from "../../events/event-bus.js";
 import type { GameEvent } from "../../events/game-event.js";
@@ -18,6 +18,13 @@ import type { StateManager } from "../../ports/state-manager.js";
 
 const DEFAULT_FIRST_TICK_DELAY_MS = 1_000;
 const DEFAULT_MINIMUM_PLAYERS = 1;
+const ROLE_SEQUENCE = [
+  "role-devops",
+  "role-backend-engineer",
+  "role-qa",
+  "role-security-engineer",
+  "role-intern",
+] as const;
 
 export interface SessionLifecycleManagerDependencies {
   readonly clock: Clock;
@@ -205,11 +212,21 @@ export class SessionLifecycleManager implements SessionManager {
       );
     }
 
+    const assignments = this.assignRoles(existing);
+    await this.dependencies.stateManager.assignRoles(input.sessionId, assignments);
+
     const startedAt = this.dependencies.clock.now();
     const stateResult = await this.dependencies.stateManager.startSession(
       input.sessionId,
       startedAt,
     );
+    const rolesAssigned: GameEvent = {
+      assignments,
+      eventId: this.dependencies.idGenerator.createEventId(),
+      occurredAt: startedAt,
+      sessionId: input.sessionId,
+      type: "roles.assigned",
+    };
     const event: GameEvent = {
       eventId: this.dependencies.idGenerator.createEventId(),
       occurredAt: startedAt,
@@ -224,7 +241,7 @@ export class SessionLifecycleManager implements SessionManager {
       input.sessionId,
     );
 
-    return this.publishSuccess(stateResult.value, [event]);
+    return this.publishSuccess(stateResult.value, [rolesAssigned, event]);
   }
 
   private failure(
@@ -241,6 +258,24 @@ export class SessionLifecycleManager implements SessionManager {
       error,
       ok: false,
     };
+  }
+
+  private assignRoles(session: GameSession): ReadonlyMap<PlayerId, RoleId> {
+    const assignments = new Map<PlayerId, RoleId>();
+    const players = [...session.state.players.values()].sort((left, right) =>
+      left.joinedAt === right.joinedAt
+        ? left.id.localeCompare(right.id)
+        : left.joinedAt - right.joinedAt,
+    );
+
+    players.forEach((player, index) => {
+      assignments.set(
+        player.id,
+        ROLE_SEQUENCE[index % ROLE_SEQUENCE.length] as RoleId,
+      );
+    });
+
+    return assignments;
   }
 
   private async publishSuccess(

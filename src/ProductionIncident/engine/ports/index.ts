@@ -4,7 +4,9 @@ export type {
   GameplayManager,
   GameplayMutation,
   GenerateIncidentInput,
+  InstantActionResult,
   SubmitVoteInput,
+  UseInstantActionInput,
 } from "./gameplay-manager.js";
 export type { IdGenerator } from "./id-generator.js";
 export type { RandomSource } from "./random-source.js";

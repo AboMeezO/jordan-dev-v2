@@ -1,6 +1,9 @@
 import { strict as assert } from "node:assert";
 
-import { DiscordCustomIdCodec } from "../../discord/index.js";
+import {
+  type DiscordActionRouteKey,
+  DiscordCustomIdCodec,
+} from "../../discord/index.js";
 import {
   ACTION_CATALOG,
   CatalogValidationError,
@@ -9,7 +12,6 @@ import {
 } from "../../engine/data/index.js";
 import {
   type Action,
-  type ActionId,
   type EventId,
   type IncidentTemplate,
   InMemoryEventBus,
@@ -71,8 +73,23 @@ const replacementIncident = requireOk(
     sessionId: replacement.sessionId,
   }),
 ).value;
+assert.equal(
+  replacementIncident.actionOptions.some((action) => action.kind === "instant"),
+  false,
+);
+assert.equal(replacementIncident.instantActionOptions.length > 0, true);
 const firstAction = requireDefined(replacementIncident.actionOptions[0]);
 const secondAction = requireDefined(replacementIncident.actionOptions[1]);
+const instantAction = requireDefined(replacementIncident.instantActionOptions[0]);
+const instantResult = requireOk(
+  await replacement.harness.kernel.gameplayManager.useInstantAction({
+    actionId: instantAction.id,
+    incidentId: replacementIncident.id,
+    playerId: replacement.firstPlayer.id,
+    sessionId: replacement.sessionId,
+  }),
+).value;
+assert.match(instantResult.message, /Logs|Metrics|Trace/);
 requireOk(
   await replacement.harness.kernel.gameplayManager.submitVote({
     actionId: firstAction.id,
@@ -173,22 +190,35 @@ const closeAfterEnd = requireFailure(
 assert.equal(closeAfterEnd.code, "invalid-session-state");
 
 const codec = new DiscordCustomIdCodec();
-const encoded = codec.encodeVote({
-  actionId: "action-test" as ActionId,
-  incidentId: pendingIncident.id,
-  sessionId: endDuringVote.sessionId,
-});
-assert.deepEqual(codec.decodeVote(encoded), {
-  actionId: "action-test",
-  incidentId: pendingIncident.id,
-  kind: "vote",
-  sessionId: endDuringVote.sessionId,
+const encoded = codec.encodeAction({ key: "a1" as DiscordActionRouteKey });
+assert.equal(encoded.length <= 100, true);
+assert.deepEqual(codec.decodeAction(encoded), {
+  key: "a1",
+  kind: "action",
   version: "v1",
 });
 assert.throws(() => codec.decodeVote("pi:vote:old:shape"));
 assert.throws(() => codec.decodeVote("pi:v1:vote::incident:action"));
+assert.throws(() => codec.decodeAction("pi:v1:a:bad:key"));
 
 validateCatalogs(INCIDENT_TEMPLATES, ACTION_CATALOG);
+const actionSignatures = new Set(
+  INCIDENT_TEMPLATES.map((template) =>
+    ACTION_CATALOG
+      .filter((action) =>
+        action.kind === "vote" &&
+        action.tags.some((tag) => template.actionTags.includes(tag)),
+      )
+      .map((action) => action.id)
+      .sort()
+      .join("|"),
+  ),
+);
+assert.equal(actionSignatures.size > 1, true);
+assert.equal(
+  ACTION_CATALOG.find((action) => action.id === ("action-inspect-logs" as Action["id"]))?.kind,
+  "instant",
+);
 
 const duplicateAction: Action = {
   ...ACTION_CATALOG[0]!,

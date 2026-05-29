@@ -2,7 +2,7 @@ import type { IncidentTemplate, IncidentTemplateId } from "../domain/index.js";
 
 export const INCIDENT_TEMPLATES: readonly IncidentTemplate[] = [
   {
-    actionTags: ["inspect", "restart", "scale", "ignore"],
+    actionTags: ["cache", "inspect", "metrics", "restart", "scale", "ignore"],
     affectedServices: ["API Gateway", "Realtime Gateway", "Worker Pool"],
     category: "performance",
     descriptions: [
@@ -17,7 +17,7 @@ export const INCIDENT_TEMPLATES: readonly IncidentTemplate[] = [
     weight: 10,
   },
   {
-    actionTags: ["rollback", "hotfix", "inspect", "ignore"],
+    actionTags: ["database", "rollback", "hotfix", "inspect", "trace", "ignore"],
     affectedServices: ["Deploy Pipeline", "Frontend App", "API Gateway"],
     category: "deployment",
     descriptions: [
@@ -32,7 +32,7 @@ export const INCIDENT_TEMPLATES: readonly IncidentTemplate[] = [
     weight: 8,
   },
   {
-    actionTags: ["auth", "security", "hotfix", "inspect", "ignore"],
+    actionTags: ["auth", "security", "hotfix", "inspect", "trace", "ignore"],
     affectedServices: ["Auth Service", "Session Store", "Admin Console"],
     category: "authentication",
     descriptions: [
@@ -47,7 +47,7 @@ export const INCIDENT_TEMPLATES: readonly IncidentTemplate[] = [
     weight: 7,
   },
   {
-    actionTags: ["scale", "restart", "inspect", "ignore"],
+    actionTags: ["database", "scale", "restart", "inspect", "metrics", "ignore"],
     affectedServices: ["Database", "Message Broker", "Object Storage"],
     category: "infrastructure",
     descriptions: [

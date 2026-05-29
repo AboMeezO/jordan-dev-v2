@@ -43,6 +43,7 @@ export interface Incident {
   readonly createdAt: UnixMillis;
   readonly description: string;
   readonly id: IncidentId;
+  readonly instantActionOptions: readonly Action[];
   readonly rootCause: string;
   readonly selectedActionId?: ActionId;
   readonly severity: IncidentSeverity;

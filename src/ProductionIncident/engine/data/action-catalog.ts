@@ -11,6 +11,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-inspect-logs" as ActionId,
+    kind: "instant",
     label: "Inspect logs",
     risk: "low",
     success: {
@@ -33,6 +34,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-restart-service" as ActionId,
+    kind: "vote",
     label: "Restart service",
     risk: "medium",
     success: {
@@ -55,6 +57,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-hotfix" as ActionId,
+    kind: "vote",
     label: "Ship hotfix",
     risk: "high",
     success: {
@@ -78,6 +81,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-rollback" as ActionId,
+    kind: "vote",
     label: "Rollback deploy",
     risk: "medium",
     success: {
@@ -105,6 +109,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-ignore" as ActionId,
+    kind: "vote",
     label: "Ignore alert",
     risk: "critical",
     success: {
@@ -125,6 +130,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-scale-capacity" as ActionId,
+    kind: "vote",
     label: "Scale capacity",
     risk: "low",
     success: {
@@ -146,6 +152,7 @@ export const ACTION_CATALOG: readonly Action[] = [
       },
     },
     id: "action-lockdown" as ActionId,
+    kind: "vote",
     label: "Lock down access",
     risk: "high",
     success: {
@@ -157,5 +164,158 @@ export const ACTION_CATALOG: readonly Action[] = [
     },
     successRate: 0.64,
     tags: ["security", "auth"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -6,
+        infrastructureCost: 8,
+        serverStability: -12,
+        userHappiness: -8,
+      },
+    },
+    id: "action-drain-traffic" as ActionId,
+    kind: "vote",
+    label: "Drain traffic",
+    risk: "medium",
+    success: {
+      immediate: {
+        infrastructureCost: 6,
+        serverStability: 13,
+        userHappiness: 4,
+      },
+    },
+    successRate: 0.7,
+    tags: ["scale", "restart"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -9,
+        infrastructureCost: 7,
+        serverStability: -15,
+        userHappiness: -10,
+      },
+    },
+    id: "action-flush-cache" as ActionId,
+    kind: "vote",
+    label: "Flush cache",
+    risk: "medium",
+    success: {
+      immediate: {
+        infrastructureCost: 3,
+        serverStability: 15,
+        userHappiness: 5,
+      },
+    },
+    successRate: 0.66,
+    tags: ["cache", "restart", "scale"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -12,
+        infrastructureCost: 10,
+        serverStability: -20,
+        userHappiness: -12,
+      },
+    },
+    id: "action-replay-migration" as ActionId,
+    kind: "vote",
+    label: "Replay migration",
+    risk: "critical",
+    success: {
+      immediate: {
+        developerSanity: -8,
+        infrastructureCost: 8,
+        serverStability: 20,
+        userHappiness: 7,
+      },
+    },
+    successRate: 0.5,
+    tags: ["database", "deploy", "hotfix"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -8,
+        serverStability: -12,
+        userHappiness: -14,
+      },
+    },
+    id: "action-rotate-keys" as ActionId,
+    kind: "vote",
+    label: "Rotate keys",
+    risk: "high",
+    success: {
+      immediate: {
+        developerSanity: -5,
+        infrastructureCost: 4,
+        serverStability: 12,
+        userHappiness: 6,
+      },
+    },
+    successRate: 0.62,
+    tags: ["auth", "security"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -6,
+        serverStability: -14,
+        userHappiness: -10,
+      },
+    },
+    id: "action-disable-feature-flag" as ActionId,
+    kind: "vote",
+    label: "Disable flag",
+    risk: "low",
+    success: {
+      immediate: {
+        serverStability: 10,
+        userHappiness: 3,
+      },
+    },
+    successRate: 0.78,
+    tags: ["deploy", "rollback"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -4,
+        infrastructureCost: 2,
+        serverStability: -4,
+      },
+    },
+    id: "action-check-metrics" as ActionId,
+    kind: "instant",
+    label: "Check metrics",
+    risk: "low",
+    success: {
+      immediate: {
+        developerSanity: -1,
+      },
+    },
+    successRate: 1,
+    tags: ["metrics", "inspect", "scale"],
+  },
+  {
+    failure: {
+      immediate: {
+        developerSanity: -4,
+        serverStability: -4,
+      },
+    },
+    id: "action-trace-request" as ActionId,
+    kind: "instant",
+    label: "Trace request",
+    risk: "low",
+    success: {
+      immediate: {
+        developerSanity: -1,
+      },
+    },
+    successRate: 1,
+    tags: ["trace", "inspect", "auth", "deploy"],
   },
 ];

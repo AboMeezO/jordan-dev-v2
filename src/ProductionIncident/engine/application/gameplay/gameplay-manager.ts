@@ -20,6 +20,7 @@ import type {
   Scheduler,
   StateManager,
   SubmitVoteInput,
+  UseInstantActionInput,
 } from "../../ports/index.js";
 import {
   ActionGenerationSystem,
@@ -190,6 +191,14 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       );
     }
 
+    if (session.state.activeIncidents.size > 0) {
+      return this.failure(
+        "invalid-session-state",
+        "An incident is already active for this session.",
+        input.sessionId,
+      );
+    }
+
     const createdAt = this.dependencies.clock.now();
     const template = this.incidentEngine.selectTemplate(session);
     const escalationLevel = this.escalationDirector.getLevel(input.sessionId);
@@ -199,11 +208,13 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       escalationLevel,
     );
     const actionOptions = this.actionGenerationSystem.selectActions(template, severity);
+    const instantActionOptions = this.actionGenerationSystem.selectInstantActions(template);
     const incident = this.incidentEngine.createIncident(
       template,
       createdAt,
       severity,
       actionOptions,
+      instantActionOptions,
       DEFAULT_VOTE_WINDOW_MS,
     );
     const votingClosesAt = incident.votingClosesAt;
@@ -341,6 +352,63 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
     };
   }
 
+  public useInstantAction(
+    input: UseInstantActionInput,
+  ): Promise<EngineCommandResult<{ readonly message: string }>> {
+    const session = this.dependencies.stateManager.getSnapshot(input.sessionId);
+
+    if (session === undefined) {
+      return Promise.resolve(this.failure("session-not-found", "Session does not exist.", input.sessionId));
+    }
+
+    if (!isActiveSession(session)) {
+      return Promise.resolve(this.failure(
+        "invalid-session-state",
+        "Instant actions can only be used in active sessions.",
+        input.sessionId,
+      ));
+    }
+
+    const incident = session.state.activeIncidents.get(input.incidentId);
+    const player = session.state.players.get(input.playerId);
+
+    if (incident === undefined) {
+      return Promise.resolve(this.failure(
+        "invalid-session-state",
+        "Incident does not exist.",
+        input.sessionId,
+      ));
+    }
+
+    if (player === undefined) {
+      return Promise.resolve(this.failure(
+        "invalid-session-state",
+        "Player is not in this session.",
+        input.sessionId,
+      ));
+    }
+
+    const action = incident.instantActionOptions.find((option) => option.id === input.actionId);
+
+    if (action === undefined) {
+      return Promise.resolve(this.failure(
+        "invalid-session-state",
+        "Instant action is not available for this incident.",
+        input.sessionId,
+      ));
+    }
+
+    return Promise.resolve({
+      ok: true,
+      result: {
+        events: [],
+        value: {
+          message: this.instantActionMessage(action, incident),
+        },
+      },
+    });
+  }
+
   private async resolveIncident(
     sessionId: SessionId,
     incident: Incident,
@@ -407,6 +475,18 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       events,
       session: updatedSession.value,
     };
+  }
+
+  private instantActionMessage(action: Action, incident: Incident): string {
+    if (action.tags.includes("metrics")) {
+      return `Metrics point at ${incident.affectedServices.join(", ")}. The likely pressure source is ${incident.rootCause}.`;
+    }
+
+    if (action.tags.includes("trace")) {
+      return `Trace sampled ${incident.affectedServices.join(", ")} and found ${incident.rootCause} on the failing path.`;
+    }
+
+    return `Logs mention ${incident.rootCause} near ${incident.affectedServices.join(", ")}.`;
   }
 
   private scheduleIncidentTick(sessionId: SessionId, delayMs: number): void {
