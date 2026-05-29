@@ -1,11 +1,14 @@
 import type { IncidentId, PlayerId, SessionId, UnixMillis } from "../../domain/ids.js";
 import type { Incident } from "../../domain/incident.js";
 import type {
+  Action,
+  ActionEffect,
   GameSession,
   Player,
   SessionEndReason,
   StatDelta,
   Vote,
+  VoteWindow,
 } from "../../domain/index.js";
 import type {
   StateManager,
@@ -137,10 +140,7 @@ export class InMemoryStateManager implements StateManager {
     }
 
     const voteWindows = new Map(session.state.voteWindows);
-    voteWindows.set(incidentId, {
-      ...voteWindow,
-      status: "closed",
-    });
+    voteWindows.delete(incidentId);
 
     const updated: GameSession = {
       ...session,
@@ -229,13 +229,25 @@ export class InMemoryStateManager implements StateManager {
     }
 
     const activeIncidents = new Map(session.state.activeIncidents);
+    const incident = activeIncidents.get(incidentId);
+    const incidentHistory = new Map(session.state.incidentHistory);
+
+    if (incident !== undefined) {
+      incidentHistory.set(incidentId, incident);
+    }
+
     activeIncidents.delete(incidentId);
+
+    const voteWindows = new Map(session.state.voteWindows);
+    voteWindows.delete(incidentId);
 
     const updated: GameSession = {
       ...session,
       state: {
         ...session.state,
         activeIncidents,
+        incidentHistory,
+        voteWindows,
       },
     };
 
@@ -279,13 +291,24 @@ export class InMemoryStateManager implements StateManager {
     }
 
     const activeIncidents = new Map(session.state.activeIncidents);
-    activeIncidents.set(incident.id, incident);
+    const incidentHistory = new Map(session.state.incidentHistory);
+    const voteWindows = new Map(session.state.voteWindows);
+
+    if (isTerminalIncidentStatus(incident.status)) {
+      activeIncidents.delete(incident.id);
+      incidentHistory.set(incident.id, incident);
+      voteWindows.delete(incident.id);
+    } else {
+      activeIncidents.set(incident.id, incident);
+    }
 
     const updated: GameSession = {
       ...session,
       state: {
         ...session.state,
         activeIncidents,
+        incidentHistory,
+        voteWindows,
       },
     };
 
@@ -343,6 +366,7 @@ export class InMemoryStateManager implements StateManager {
       ...session,
       state: {
         activeIncidents: new Map(),
+        incidentHistory: new Map(),
         players: new Map(session.state.players),
         startedAt,
         status: "running",
@@ -371,9 +395,10 @@ export class InMemoryStateManager implements StateManager {
           ...session,
           state: {
             ...session.state,
-            activeIncidents: new Map(session.state.activeIncidents),
-            players: new Map(session.state.players),
-            voteWindows: new Map(session.state.voteWindows),
+            activeIncidents: cloneIncidentMap(session.state.activeIncidents),
+            incidentHistory: cloneIncidentMap(session.state.incidentHistory),
+            players: clonePlayerMap(session.state.players),
+            voteWindows: cloneVoteWindowMap(session.state.voteWindows),
           },
         };
       case "waiting":
@@ -381,7 +406,7 @@ export class InMemoryStateManager implements StateManager {
           ...session,
           state: {
             ...session.state,
-            players: new Map(session.state.players),
+            players: clonePlayerMap(session.state.players),
           },
         };
     }
@@ -433,4 +458,87 @@ export class InMemoryStateManager implements StateManager {
       value: this.cloneSession(session),
     };
   }
+}
+
+function isTerminalIncidentStatus(status: Incident["status"]): boolean {
+  return status === "expired" || status === "failed" || status === "resolved";
+}
+
+function cloneAction(action: Action): Action {
+  const cloned: Action = {
+    ...action,
+    failure: cloneActionEffect(action.failure),
+    success: cloneActionEffect(action.success),
+    tags: [...action.tags],
+  };
+
+  return action.allowedRoleIds === undefined
+    ? cloned
+    : {
+        ...cloned,
+        allowedRoleIds: [...action.allowedRoleIds],
+      };
+}
+
+function cloneActionEffect(effect: ActionEffect): ActionEffect {
+  const cloned: ActionEffect = {
+    immediate: { ...effect.immediate },
+  };
+
+  return effect.delayedEffects === undefined
+    ? cloned
+    : {
+        ...cloned,
+        delayedEffects: effect.delayedEffects.map((delta) => ({ ...delta })),
+      };
+}
+
+function cloneIncident(incident: Incident): Incident {
+  const base = {
+    ...incident,
+    actionOptions: incident.actionOptions.map(cloneAction),
+    affectedServices: [...incident.affectedServices],
+  };
+
+  return incident.selectedActionId === undefined
+    ? base
+    : {
+        ...base,
+        selectedActionId: incident.selectedActionId,
+      };
+}
+
+function cloneIncidentMap(
+  incidents: ReadonlyMap<IncidentId, Incident>,
+): ReadonlyMap<IncidentId, Incident> {
+  return new Map([...incidents].map(([id, incident]) => [id, cloneIncident(incident)]));
+}
+
+function clonePlayerMap(
+  players: ReadonlyMap<PlayerId, Player>,
+): ReadonlyMap<PlayerId, Player> {
+  return new Map([...players].map(([id, player]) => [id, { ...player }]));
+}
+
+function cloneVote(vote: Vote): Vote {
+  return { ...vote };
+}
+
+function cloneVoteWindowMap(
+  voteWindows: ReadonlyMap<IncidentId, VoteWindow>,
+): ReadonlyMap<IncidentId, VoteWindow> {
+  return new Map(
+    [...voteWindows].map(([id, voteWindow]) => [
+      id,
+      {
+        ...voteWindow,
+        votesByPlayerId: new Map(
+          [...voteWindow.votesByPlayerId].map(([playerId, vote]) => [
+            playerId,
+            cloneVote(vote),
+          ]),
+        ),
+      },
+    ]),
+  );
 }

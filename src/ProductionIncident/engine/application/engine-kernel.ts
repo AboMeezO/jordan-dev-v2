@@ -1,4 +1,8 @@
-import { ACTION_CATALOG, INCIDENT_TEMPLATES } from "../data/index.js";
+import {
+  ACTION_CATALOG,
+  INCIDENT_TEMPLATES,
+  validateCatalogs,
+} from "../data/index.js";
 import type { EventBus } from "../events/event-bus.js";
 import type {
   Clock,
@@ -71,6 +75,8 @@ export class EngineKernel {
       "sessionManager" | "stateManager"
     >,
   ): EngineKernel {
+    validateCatalogs(INCIDENT_TEMPLATES, ACTION_CATALOG);
+
     const stateManager = new InMemoryStateManager();
     const sharedDependencies = {
       ...dependencies,

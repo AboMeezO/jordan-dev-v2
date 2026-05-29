@@ -1,4 +1,9 @@
-export type { EventBus, EventHandler, Unsubscribe } from "./event-bus.js";
+export type {
+  EventBus,
+  EventHandler,
+  EventHandlerError,
+  Unsubscribe,
+} from "./event-bus.js";
 export type {
   ChainReactionScheduledEvent,
   CommentaryCuedEvent,

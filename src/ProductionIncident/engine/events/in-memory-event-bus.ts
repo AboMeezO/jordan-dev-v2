@@ -1,6 +1,7 @@
 import type {
   EventBus,
   EventHandler,
+  EventHandlerError,
   Unsubscribe,
 } from "./event-bus.js";
 import type {
@@ -10,6 +11,8 @@ import type {
 } from "./game-event.js";
 
 export class InMemoryEventBus implements EventBus {
+  private readonly handlerErrors: EventHandlerError[] = [];
+
   private readonly handlersByType = new Map<
     GameEventType,
     Set<EventHandler<GameEvent>>
@@ -22,7 +25,11 @@ export class InMemoryEventBus implements EventBus {
     const handlers = [...typedHandlers, ...this.globalHandlers];
 
     for (const handler of handlers) {
-      await handler(event);
+      try {
+        await handler(event);
+      } catch (error: unknown) {
+        this.handlerErrors.push({ error, event });
+      }
     }
   }
 
@@ -60,5 +67,8 @@ export class InMemoryEventBus implements EventBus {
       this.globalHandlers.delete(handler);
     };
   }
-}
 
+  public getHandlerErrors(): readonly EventHandlerError[] {
+    return [...this.handlerErrors];
+  }
+}

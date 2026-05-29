@@ -19,6 +19,7 @@ export interface WaitingSessionState {
 
 export interface RunningSessionState {
   readonly activeIncidents: ReadonlyMap<IncidentId, Incident>;
+  readonly incidentHistory: ReadonlyMap<IncidentId, Incident>;
   readonly players: ReadonlyMap<PlayerId, Player>;
   readonly startedAt: UnixMillis;
   readonly status: "running";
@@ -27,6 +28,7 @@ export interface RunningSessionState {
 
 export interface PausedSessionState {
   readonly activeIncidents: ReadonlyMap<IncidentId, Incident>;
+  readonly incidentHistory: ReadonlyMap<IncidentId, Incident>;
   readonly pausedAt: UnixMillis;
   readonly players: ReadonlyMap<PlayerId, Player>;
   readonly startedAt: UnixMillis;
@@ -36,6 +38,7 @@ export interface PausedSessionState {
 
 export interface RecoveringSessionState {
   readonly activeIncidents: ReadonlyMap<IncidentId, Incident>;
+  readonly incidentHistory: ReadonlyMap<IncidentId, Incident>;
   readonly players: ReadonlyMap<PlayerId, Player>;
   readonly recoveredAt: UnixMillis;
   readonly status: "recovering";
