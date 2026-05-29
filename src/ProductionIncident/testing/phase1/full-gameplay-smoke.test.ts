@@ -124,6 +124,8 @@ console.log({
 });
 assertSessionStatus(finalSession, "running");
 assert.equal(
-  finalSession.state.activeIncidents.get(incident.id)?.selectedActionId,
+  finalSession.state.incidentHistory.get(incident.id)?.selectedActionId,
   selectedAction.id,
 );
+assert.equal(finalSession.state.activeIncidents.has(incident.id), false);
+assert.equal(finalSession.state.voteWindows.has(incident.id), false);

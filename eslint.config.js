@@ -8,7 +8,7 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
 
   {
-    ignores: ["eslint.config.js"],
+    ignores: ["dist/**", "eslint.config.js"],
   },
 
   {
