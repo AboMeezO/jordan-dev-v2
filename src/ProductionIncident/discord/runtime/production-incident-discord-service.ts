@@ -163,6 +163,12 @@ export class ProductionIncidentDiscordService {
       userId: interaction.user.id,
     });
 
+    const acknowledged = await this.deferEphemeral(interaction);
+
+    if (!acknowledged) {
+      return;
+    }
+
     try {
       if (interaction.customId.includes(":lobby:")) {
         await this.handleLobbyButton(interaction);
@@ -791,12 +797,46 @@ export class ProductionIncidentDiscordService {
     interaction: ButtonInteraction,
     content: string,
   ): Promise<void> {
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content, flags: MessageFlags.Ephemeral });
-      return;
+    await this.tryInteractionFeedback(interaction, async () => {
+      if (interaction.deferred && !interaction.replied) {
+        await interaction.editReply({ content });
+        return;
+      }
+
+      if (interaction.replied) {
+        await interaction.followUp({ content, flags: MessageFlags.Ephemeral });
+        return;
+      }
+
+      await interaction.reply({ content, flags: MessageFlags.Ephemeral });
+    });
+  }
+
+  private async deferEphemeral(interaction: ButtonInteraction): Promise<boolean> {
+    if (interaction.deferred || interaction.replied) {
+      return true;
     }
 
-    await interaction.reply({ content, flags: MessageFlags.Ephemeral });
+    return this.tryInteractionFeedback(interaction, async () => {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    });
+  }
+
+  private async tryInteractionFeedback(
+    interaction: ButtonInteraction,
+    operation: () => Promise<void>,
+  ): Promise<boolean> {
+    try {
+      await operation();
+      return true;
+    } catch (error: unknown) {
+      this.debug("interaction feedback failed", {
+        code: this.errorCode(error),
+        customId: interaction.customId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return false;
+    }
   }
 
   private sendPayload(
@@ -909,6 +949,15 @@ export class ProductionIncidentDiscordService {
 
   private debug(message: string, metadata: Readonly<Record<string, unknown>>): void {
     console.log("[ProductionIncidentDiscord]", message, metadata);
+  }
+
+  private errorCode(error: unknown): string | undefined {
+    return typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (typeof error.code === "string" || typeof error.code === "number")
+      ? String(error.code)
+      : undefined;
   }
 
   private roleDisplayName(roleId: string | undefined): string {
