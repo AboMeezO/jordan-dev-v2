@@ -1,10 +1,5 @@
-import type {
-  ActionId,
-  GameplayManager,
-  IncidentId,
-  PlayerId,
-  SessionId,
-} from "../../engine/index.js";
+import type { GameplayManager } from "../../engine/index.js";
+import { DiscordCustomIdCodec } from "./discord-custom-id-codec.js";
 
 export interface DiscordVoteInteractionDto {
   readonly customId: string;
@@ -12,7 +7,10 @@ export interface DiscordVoteInteractionDto {
 }
 
 export class DiscordInteractionRouter {
-  public constructor(private readonly gameplayManager: GameplayManager) {}
+  public constructor(
+    private readonly gameplayManager: GameplayManager,
+    private readonly customIdCodec = new DiscordCustomIdCodec(),
+  ) {}
 
   public async handleVoteInteraction(
     interaction: DiscordVoteInteractionDto,
@@ -21,36 +19,15 @@ export class DiscordInteractionRouter {
     await this.gameplayManager.submitVote(command);
   }
 
-  public decodeVoteCustomId(
-    customId: string,
-    userId: string,
-  ): {
-    readonly actionId: ActionId;
-    readonly incidentId: IncidentId;
-    readonly playerId: PlayerId;
-    readonly sessionId: SessionId;
-  } {
-    const parts = customId.split(":");
-
-    if (parts.length !== 5 || parts[0] !== "pi" || parts[1] !== "vote") {
-      throw new Error("Invalid Production Incident vote custom ID.");
-    }
-
-    const [, , sessionId, incidentId, actionId] = parts;
-
-    if (
-      sessionId === undefined ||
-      incidentId === undefined ||
-      actionId === undefined
-    ) {
-      throw new Error("Vote custom ID is missing required identifiers.");
-    }
+  public decodeVoteCustomId(customId: string, userId: string) {
+    const decoded = this.customIdCodec.decodeVote(customId);
 
     return {
-      actionId: actionId as ActionId,
-      incidentId: incidentId as IncidentId,
-      playerId: `player-${userId}` as PlayerId,
-      sessionId: sessionId as SessionId,
+      actionId: decoded.actionId,
+      incidentId: decoded.incidentId,
+      playerId: this.customIdCodec.playerIdFromDiscordUserId(userId),
+      sessionId: decoded.sessionId,
     };
   }
 }
+

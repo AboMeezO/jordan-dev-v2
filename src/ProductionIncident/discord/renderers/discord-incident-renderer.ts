@@ -4,9 +4,12 @@ import type {
   Incident,
   SessionId,
 } from "../../engine/index.js";
+import { DiscordCustomIdCodec } from "../interactions/discord-custom-id-codec.js";
 import type { DiscordMessagePayload } from "./discord-message-payload.js";
 
 export class DiscordIncidentRenderer {
+  private readonly customIdCodec = new DiscordCustomIdCodec();
+
   public renderIncidentPrompt(
     sessionId: SessionId,
     incident: Incident,
@@ -91,7 +94,11 @@ export class DiscordIncidentRenderer {
     action: Action,
   ): { readonly customId: string; readonly label: string; readonly style: "danger" | "primary" | "secondary" | "success" } {
     return {
-      customId: `pi:vote:${sessionId}:${incident.id}:${action.id}`,
+      customId: this.customIdCodec.encodeVote({
+        actionId: action.id,
+        incidentId: incident.id,
+        sessionId,
+      }),
       label: action.label,
       style: action.risk === "critical" || action.risk === "high" ? "danger" : "primary",
     };

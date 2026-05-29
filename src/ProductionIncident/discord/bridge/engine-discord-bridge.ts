@@ -1,12 +1,5 @@
-import type {
-  ActionId,
-  GameEvent,
-  GameplayManager,
-  IncidentId,
-  PlayerId,
-  SessionId,
-  StateManager,
-} from "../../engine/index.js";
+import type { GameEvent, GameplayManager, StateManager } from "../../engine/index.js";
+import { DiscordCustomIdCodec } from "../interactions/discord-custom-id-codec.js";
 import { DiscordIncidentRenderer } from "../renderers/discord-incident-renderer.js";
 import type { DiscordMessagePayload } from "../renderers/discord-message-payload.js";
 
@@ -22,6 +15,7 @@ export type DiscordRenderAction =
     };
 
 export class EngineDiscordBridge {
+  private readonly customIdCodec = new DiscordCustomIdCodec();
   private readonly renderer = new DiscordIncidentRenderer();
 
   public constructor(
@@ -30,21 +24,13 @@ export class EngineDiscordBridge {
   ) {}
 
   public async voteSubmitted(customId: string, userId: string): Promise<void> {
-    const [, , sessionId, incidentId, actionId] = customId.split(":");
-
-    if (
-      sessionId === undefined ||
-      incidentId === undefined ||
-      actionId === undefined
-    ) {
-      throw new Error("Invalid vote custom ID.");
-    }
+    const decoded = this.customIdCodec.decodeVote(customId);
 
     await this.gameplayManager.submitVote({
-      actionId: actionId as ActionId,
-      incidentId: incidentId as IncidentId,
-      playerId: `player-${userId}` as PlayerId,
-      sessionId: sessionId as SessionId,
+      actionId: decoded.actionId,
+      incidentId: decoded.incidentId,
+      playerId: this.customIdCodec.playerIdFromDiscordUserId(userId),
+      sessionId: decoded.sessionId,
     });
   }
 
@@ -56,7 +42,7 @@ export class EngineDiscordBridge {
           session?.state.status === "running" ||
           session?.state.status === "paused" ||
           session?.state.status === "recovering"
-            ? session.state.activeIncidents.get(event.incidentId)
+            ? session.state.incidentHistory.get(event.incidentId)
             : undefined;
 
         return incident === undefined
