@@ -573,6 +573,10 @@ export class ProductionIncidentDiscordService {
         this.queueCommentary(event.sessionId, event.message, event.priority);
         return;
       case "session.ended":
+        await this.updateSessionIncidentMessages(event.sessionId, {
+          disabled: true,
+          terminalText: this.sessionTerminalText(event.reason),
+        });
         await this.flushCommentary(event.sessionId);
         await this.sendPayload(outputChannel, this.renderFinalReport(event.sessionId));
         this.registry.cleanup(event.sessionId);
@@ -692,12 +696,7 @@ export class ProductionIncidentDiscordService {
     }
 
     const session = this.kernel.stateManager.getSnapshot(sessionId);
-    const incident =
-      session?.state.status === "running" ||
-      session?.state.status === "paused" ||
-      session?.state.status === "recovering"
-        ? session.state.activeIncidents.get(incidentId)
-        : undefined;
+    const incident = this.findIncident(sessionId, incidentId);
 
     if (incident === undefined) {
       return;
@@ -758,6 +757,18 @@ export class ProductionIncidentDiscordService {
       session.state.activeIncidents.get(incidentId) ??
       session.state.incidentHistory.get(incidentId)
     );
+  }
+
+  private async updateSessionIncidentMessages(
+    sessionId: SessionId,
+    options: {
+      readonly disabled?: boolean;
+      readonly terminalText?: string;
+    },
+  ): Promise<void> {
+    for (const entry of this.registry.getIncidentMessageEntries(sessionId)) {
+      await this.updateIncidentMessage(sessionId, entry.incidentId, options);
+    }
   }
 
   private incidentNumber(sessionId: SessionId, incidentId: IncidentId): number | undefined {
@@ -1188,6 +1199,22 @@ export class ProductionIncidentDiscordService {
         return "Timed out";
       default:
         return "Ended";
+    }
+  }
+
+  private sessionTerminalText(reason: string): string {
+    switch (reason) {
+      case "survived":
+        return "Contained. For now.";
+      case "failed":
+        return "Failed. Production remembers.";
+      case "timed-out":
+        return "Passed. Nobody ask why.";
+      case "cancelled":
+      case "shutdown":
+        return "Session ended.";
+      default:
+        return "At least we tried.";
     }
   }
 

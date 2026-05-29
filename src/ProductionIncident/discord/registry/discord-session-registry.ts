@@ -78,6 +78,21 @@ export class DiscordSessionRegistry {
     return this.incidentMessageIds.get(sessionId)?.get(incidentId);
   }
 
+  public getIncidentMessageEntries(
+    sessionId: SessionId,
+  ): readonly { readonly incidentId: IncidentId; readonly messageId: string }[] {
+    const messages = this.incidentMessageIds.get(sessionId);
+
+    if (messages === undefined) {
+      return [];
+    }
+
+    return [...messages.entries()].map(([incidentId, messageId]) => ({
+      incidentId,
+      messageId,
+    }));
+  }
+
   public setIncidentMessageId(
     sessionId: SessionId,
     incidentId: IncidentId,
