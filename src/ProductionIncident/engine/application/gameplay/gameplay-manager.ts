@@ -1,15 +1,11 @@
 import type {
   Action,
   ActionId,
-  ActionRiskLevel,
   GameSession,
   Incident,
   IncidentSeverity,
   IncidentTemplate,
-  Player,
-  RoleId,
   SessionId,
-  UnixMillis,
 } from "../../domain/index.js";
 import type { EventBus, GameEvent } from "../../events/index.js";
 import type {
@@ -25,24 +21,15 @@ import type {
   StateManager,
   SubmitVoteInput,
 } from "../../ports/index.js";
+import {
+  ActionGenerationSystem,
+  ChainReactionSystem,
+  EscalationDirector,
+  IncidentEngine,
+  VotingSystem,
+} from "./systems/index.js";
 
 const DEFAULT_VOTE_WINDOW_MS = 30_000;
-const CHAIN_REACTION_DELAY_MS = 5_000;
-const MAX_CHAIN_DEPTH = 3;
-
-const RISK_RANK: Readonly<Record<ActionRiskLevel, number>> = {
-  low: 1,
-  medium: 2,
-  high: 3,
-  critical: 4,
-};
-
-const SEVERITY_RANK: Readonly<Record<IncidentSeverity, number>> = {
-  low: 1,
-  medium: 2,
-  high: 3,
-  critical: 4,
-};
 
 const SEVERITY_PENALTY: Readonly<Record<IncidentSeverity, number>> = {
   low: 0,
@@ -63,17 +50,44 @@ export interface GameplayManagerDependencies {
 }
 
 export class ProductionIncidentGameplayManager implements GameplayManager {
-  private readonly chainDepthBySessionId = new Map<SessionId, number>();
-  private readonly escalationLevelBySessionId = new Map<SessionId, number>();
+  private readonly actionGenerationSystem: ActionGenerationSystem;
+  private readonly chainReactionSystem: ChainReactionSystem;
+  private readonly escalationDirector: EscalationDirector;
+  private readonly incidentEngine: IncidentEngine;
+  private readonly voteTimerByIncidentId = new Map<Incident["id"], ReturnType<Scheduler["scheduleOnce"]>>();
+  private readonly votingSystem: VotingSystem;
 
   public constructor(private readonly dependencies: GameplayManagerDependencies) {
+    this.actionGenerationSystem = new ActionGenerationSystem(dependencies.actions);
+    this.escalationDirector = new EscalationDirector(
+      dependencies.clock,
+      dependencies.idGenerator,
+    );
+    this.incidentEngine = new IncidentEngine(
+      dependencies.templates,
+      dependencies.randomSource,
+      dependencies.idGenerator,
+    );
+    this.votingSystem = new VotingSystem(dependencies.randomSource);
+    this.chainReactionSystem = new ChainReactionSystem(
+      dependencies.clock,
+      dependencies.idGenerator,
+      dependencies.randomSource,
+      dependencies.scheduler,
+      async (sessionId) => {
+        await this.generateIncident({ sessionId });
+      },
+      (sessionId) => this.isSessionActive(sessionId),
+    );
+
     this.dependencies.eventBus.subscribe("session.started", (event) => {
       this.scheduleIncidentTick(event.sessionId, 2_000);
     });
     this.dependencies.eventBus.subscribe("session.ended", (event) => {
       this.dependencies.scheduler.cancelBySession(event.sessionId);
-      this.chainDepthBySessionId.delete(event.sessionId);
-      this.escalationLevelBySessionId.delete(event.sessionId);
+      this.clearVoteTimersForSession(event.sessionId);
+      this.chainReactionSystem.clear(event.sessionId);
+      this.escalationDirector.clear(event.sessionId);
     });
   }
 
@@ -113,11 +127,23 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       );
     }
 
+    this.cancelVoteTimer(input.incidentId);
     await this.dependencies.stateManager.closeVoteWindow(input.sessionId, input.incidentId);
-    const selectedAction = this.selectWinningAction(incident, [...voteWindow.votesByPlayerId.values()]);
+    const selectedAction = this.votingSystem.selectWinningAction(
+      incident,
+      [...voteWindow.votesByPlayerId.values()],
+    );
     const voteClosed = this.createVoteClosedEvent(input.sessionId, input.incidentId, selectedAction?.id);
 
     if (selectedAction === undefined) {
+      const expiredIncident: Incident = {
+        ...incident,
+        status: "expired",
+      };
+      const expired = await this.dependencies.stateManager.replaceIncident(
+        input.sessionId,
+        expiredIncident,
+      );
       await this.dependencies.eventBus.publish(voteClosed);
       return {
         ok: true,
@@ -125,7 +151,7 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
           events: [voteClosed],
           value: {
             events: [voteClosed],
-            session: this.requireSession(input.sessionId),
+            session: expired.value,
           },
         },
       };
@@ -164,26 +190,27 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       );
     }
 
-    const template = this.selectTemplate(session);
     const createdAt = this.dependencies.clock.now();
-    const escalationLevel = this.escalationLevelBySessionId.get(input.sessionId) ?? 0;
-    const severity = this.selectSeverity(template, session, escalationLevel);
-    const actionOptions = this.selectActions(template, severity);
-    const votingClosesAt = (createdAt + DEFAULT_VOTE_WINDOW_MS) as UnixMillis;
-    const incident: Incident = {
-      actionOptions,
-      affectedServices: [this.pick(template.affectedServices)],
-      category: template.category,
+    const template = this.incidentEngine.selectTemplate(session);
+    const escalationLevel = this.escalationDirector.getLevel(input.sessionId);
+    const severity = this.incidentEngine.selectSeverity(
+      template,
+      session,
+      escalationLevel,
+    );
+    const actionOptions = this.actionGenerationSystem.selectActions(template, severity);
+    const incident = this.incidentEngine.createIncident(
+      template,
       createdAt,
-      description: this.pick(template.descriptions),
-      id: this.dependencies.idGenerator.createIncidentId(),
-      rootCause: this.pick(template.rootCauses),
       severity,
-      status: "voting",
-      templateId: template.id,
-      title: this.pick(template.titles),
-      votingClosesAt,
-    };
+      actionOptions,
+      DEFAULT_VOTE_WINDOW_MS,
+    );
+    const votingClosesAt = incident.votingClosesAt;
+
+    if (votingClosesAt === undefined) {
+      throw new Error("Generated incident is missing a voting close timestamp.");
+    }
 
     await this.dependencies.stateManager.addIncident(input.sessionId, incident);
 
@@ -205,16 +232,17 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       type: "vote.opened",
     };
 
-    this.dependencies.scheduler.scheduleOnce(
+    const voteTimer = this.dependencies.scheduler.scheduleOnce(
       DEFAULT_VOTE_WINDOW_MS,
       () => {
-        void this.closeVote({
+        return this.closeVote({
           incidentId: incident.id,
           sessionId: input.sessionId,
-        });
+        }).then(() => undefined);
       },
       input.sessionId,
     );
+    this.voteTimerByIncidentId.set(incident.id, voteTimer);
 
     await this.dependencies.eventBus.publishAll([event, voteOpened]);
 
@@ -282,7 +310,7 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
       );
     }
 
-    const weight = this.voteWeightFor(player);
+    const weight = this.votingSystem.voteWeightFor(player);
     const registeredAt = this.dependencies.clock.now();
     const stateResult = await this.dependencies.stateManager.upsertVote(input.sessionId, {
       actionId: action.id,
@@ -363,8 +391,16 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
         sessionId,
         type: "incident.failed",
       });
-      events.push(...this.escalateIfNeeded(sessionId, updatedSession.value));
-      this.scheduleChainReaction(sessionId, incident.id, updatedSession.value, events);
+      events.push(...this.escalationDirector.escalateIfNeeded(sessionId, updatedSession.value));
+      const chainEvent = this.chainReactionSystem.maybeSchedule(
+        sessionId,
+        incident.id,
+        updatedSession.value,
+      );
+
+      if (chainEvent !== undefined) {
+        events.push(chainEvent);
+      }
     }
 
     return {
@@ -373,202 +409,37 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
     };
   }
 
-  private escalateIfNeeded(sessionId: SessionId, session: GameSession): readonly GameEvent[] {
-    const currentLevel = this.escalationLevelBySessionId.get(sessionId) ?? 0;
-    const pressure =
-      (100 - session.stats.serverStability) +
-      (100 - session.stats.userHappiness) +
-      Math.max(0, 50 - session.stats.developerSanity) +
-      session.stats.infrastructureCost / 2;
-    const nextLevel = Math.min(5, Math.floor(pressure / 45));
-
-    if (nextLevel <= currentLevel) {
-      return [];
-    }
-
-    this.escalationLevelBySessionId.set(sessionId, nextLevel);
-    return [
-      {
-        currentLevel: nextLevel,
-        eventId: this.dependencies.idGenerator.createEventId(),
-        occurredAt: this.dependencies.clock.now(),
-        previousLevel: currentLevel,
-        reason: "stat-threshold",
-        sessionId,
-        type: "escalation.updated",
-      },
-    ];
-  }
-
-  private scheduleChainReaction(
-    sessionId: SessionId,
-    sourceIncidentId: Incident["id"],
-    session: GameSession,
-    events: GameEvent[],
-  ): void {
-    const currentDepth = this.chainDepthBySessionId.get(sessionId) ?? 0;
-
-    if (currentDepth >= MAX_CHAIN_DEPTH) {
-      return;
-    }
-
-    const instability = (100 - session.stats.serverStability) / 100;
-    const shouldChain = this.dependencies.randomSource.nextFloat() < 0.25 + instability * 0.5;
-
-    if (!shouldChain) {
-      return;
-    }
-
-    const nextDepth = currentDepth + 1;
-    this.chainDepthBySessionId.set(sessionId, nextDepth);
-    this.dependencies.scheduler.scheduleOnce(
-      CHAIN_REACTION_DELAY_MS,
-      () => {
-        void this.generateIncident({ sessionId });
-      },
-      sessionId,
-    );
-    events.push({
-      delayMs: CHAIN_REACTION_DELAY_MS,
-      depth: nextDepth,
-      eventId: this.dependencies.idGenerator.createEventId(),
-      occurredAt: this.dependencies.clock.now(),
-      sessionId,
-      sourceIncidentId,
-      type: "chainReaction.scheduled",
-    });
-  }
-
   private scheduleIncidentTick(sessionId: SessionId, delayMs: number): void {
+    if (!this.isSessionActive(sessionId)) {
+      return;
+    }
+
     this.dependencies.scheduler.scheduleOnce(
       delayMs,
       () => {
-        void this.generateIncident({ sessionId });
-        const level = this.escalationLevelBySessionId.get(sessionId) ?? 0;
-        this.scheduleIncidentTick(sessionId, Math.max(8_000, 25_000 - level * 3_000));
+        if (!this.isSessionActive(sessionId)) {
+          return undefined;
+        }
+
+        return this.generateIncident({ sessionId })
+          .catch(() => undefined)
+          .finally(() => {
+            if (this.isSessionActive(sessionId)) {
+              this.scheduleIncidentTick(
+                sessionId,
+                this.escalationDirector.nextIncidentDelayMs(sessionId),
+              );
+            }
+          })
+          .then(() => undefined);
       },
       sessionId,
     );
-  }
-
-  private selectTemplate(session: GameSession): IncidentTemplate {
-    const activeTemplateIds = isActiveSession(session)
-      ? new Set([...session.state.activeIncidents.values()].map((incident) => incident.templateId))
-      : new Set<IncidentTemplate["id"]>();
-    const eligible = this.dependencies.templates.filter(
-      (template) => !activeTemplateIds.has(template.id),
-    );
-    const candidates = eligible.length > 0 ? eligible : this.dependencies.templates;
-    const totalWeight = candidates.reduce((sum, template) => sum + template.weight, 0);
-    let roll = this.dependencies.randomSource.nextFloat() * totalWeight;
-
-    for (const template of candidates) {
-      roll -= template.weight;
-
-      if (roll <= 0) {
-        return template;
-      }
-    }
-
-    const fallback = candidates.at(-1);
-
-    if (fallback === undefined) {
-      throw new Error("Incident template catalog cannot be empty.");
-    }
-
-    return fallback;
-  }
-
-  private selectSeverity(
-    template: IncidentTemplate,
-    session: GameSession,
-    escalationLevel: number,
-  ): IncidentSeverity {
-    const pressure =
-      escalationLevel +
-      (session.stats.serverStability < 50 ? 1 : 0) +
-      (session.stats.userHappiness < 50 ? 1 : 0);
-    const sorted = [...template.severityRange].sort(
-      (left, right) => SEVERITY_RANK[left] - SEVERITY_RANK[right],
-    );
-    const index = Math.min(sorted.length - 1, Math.floor(pressure / 2));
-    const severity = sorted[index];
-
-    if (severity === undefined) {
-      throw new Error("Incident template must include at least one severity.");
-    }
-
-    return severity;
-  }
-
-  private selectActions(template: IncidentTemplate, severity: IncidentSeverity): readonly Action[] {
-    const matching = this.dependencies.actions.filter((action) =>
-      action.tags.some((tag) => template.actionTags.includes(tag)),
-    );
-    const sorted = matching.sort((left, right) => {
-      const riskDelta = RISK_RANK[left.risk] - RISK_RANK[right.risk];
-      return riskDelta === 0 ? left.label.localeCompare(right.label) : riskDelta;
-    });
-    const count = severity === "critical" ? 4 : 3;
-
-    return sorted.slice(0, count);
-  }
-
-  private selectWinningAction(
-    incident: Incident,
-    votes: readonly { readonly actionId: ActionId; readonly weight: number }[],
-  ): Action | undefined {
-    if (votes.length === 0) {
-      return incident.actionOptions.find((action) => action.tags.includes("ignore"));
-    }
-
-    const scoreByActionId = new Map<ActionId, number>();
-
-    for (const vote of votes) {
-      scoreByActionId.set(
-        vote.actionId,
-        (scoreByActionId.get(vote.actionId) ?? 0) + vote.weight,
-      );
-    }
-
-    const highestScore = Math.max(...scoreByActionId.values());
-    const tied = incident.actionOptions.filter(
-      (action) => scoreByActionId.get(action.id) === highestScore,
-    );
-    const lowestRisk = Math.min(...tied.map((action) => RISK_RANK[action.risk]));
-    const safestTied = tied.filter((action) => RISK_RANK[action.risk] === lowestRisk);
-
-    return safestTied[
-      this.dependencies.randomSource.nextInteger(0, safestTied.length - 1)
-    ];
   }
 
   private successChance(action: Action, incident: Incident): number {
     const chance = action.successRate - SEVERITY_PENALTY[incident.severity];
     return Math.min(0.95, Math.max(0.05, chance));
-  }
-
-  private voteWeightFor(player: Player): number {
-    const roleWeights: Readonly<Record<string, number>> = {
-      "role-backend-engineer": 1.2,
-      "role-devops": 1.35,
-      "role-intern": 0.8,
-      "role-qa": 1.1,
-      "role-security-engineer": 1.3,
-    };
-    const roleId: RoleId | undefined = player.roleId;
-
-    return roleId === undefined ? 1 : (roleWeights[roleId] ?? 1);
-  }
-
-  private pick<TValue>(values: readonly TValue[]): TValue {
-    const value = values[this.dependencies.randomSource.nextInteger(0, values.length - 1)];
-
-    if (value === undefined) {
-      throw new Error("Cannot pick from an empty catalog.");
-    }
-
-    return value;
   }
 
   private createVoteClosedEvent(
@@ -595,6 +466,30 @@ export class ProductionIncidentGameplayManager implements GameplayManager {
     }
 
     return session;
+  }
+
+  private cancelVoteTimer(incidentId: Incident["id"]): void {
+    const timer = this.voteTimerByIncidentId.get(incidentId);
+
+    if (timer === undefined) {
+      return;
+    }
+
+    this.dependencies.scheduler.cancel(timer.id);
+    this.voteTimerByIncidentId.delete(incidentId);
+  }
+
+  private clearVoteTimersForSession(sessionId: SessionId): void {
+    for (const [incidentId, timer] of this.voteTimerByIncidentId) {
+      if (timer.sessionId === sessionId) {
+        this.voteTimerByIncidentId.delete(incidentId);
+      }
+    }
+  }
+
+  private isSessionActive(sessionId: SessionId): boolean {
+    const session = this.dependencies.stateManager.getSnapshot(sessionId);
+    return session !== undefined && isActiveSession(session);
   }
 
   private failure<TValue>(
