@@ -10,7 +10,9 @@ import { renderIncidentLogsBlock } from "./incident-log-renderer.js";
 import type { ProductionIncidentEmojiRegistry } from "./production-incident-emojis.js";
 
 export class DiscordIncidentRenderer {
-  public constructor(private readonly emojis: ProductionIncidentEmojiRegistry) {}
+  public constructor(
+    private readonly emojis: ProductionIncidentEmojiRegistry,
+  ) {}
 
   public renderIncidentPrompt(
     incident: Incident,
@@ -107,7 +109,9 @@ export class DiscordIncidentRenderer {
       content: [
         `${this.emojis.emoji("logs")} **Logs Snapshot**`,
         message,
-        ...(incident === undefined ? [] : ["", renderIncidentLogsBlock(incident, "diff")]),
+        ...(incident === undefined
+          ? []
+          : ["", renderIncidentLogsBlock(incident, "diff")]),
       ].join("\n"),
       accentColor: 0x02fe97,
       useComponentsV2: true,
@@ -128,9 +132,10 @@ export class DiscordIncidentRenderer {
   } {
     const emoji = this.emojis.emoji(action.emojiKey);
     const prefix = emoji.length === 0 ? "" : `${emoji} `;
-    const label = votes === undefined
-      ? `${prefix}${action.label}`
-      : `${prefix}${action.label} (${votes})`;
+    const label =
+      votes === undefined
+        ? `${prefix}${action.label}`
+        : `${prefix}${action.label} (${votes})`;
 
     return {
       customId,
@@ -146,7 +151,10 @@ export class DiscordIncidentRenderer {
       : `<t:${Math.floor(timestamp / 1_000)}:R>`;
   }
 
-  private votingCloseText(incident: Incident, voteWindow: VoteWindow | undefined): string {
+  private votingCloseText(
+    incident: Incident,
+    voteWindow: VoteWindow | undefined,
+  ): string {
     if (voteWindow?.status === "closed" || incident.status !== "voting") {
       return "Voting closed.";
     }
@@ -213,7 +221,9 @@ export class DiscordIncidentRenderer {
     return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
   }
 
-  private voteCountByActionId(voteWindow: VoteWindow | undefined): ReadonlyMap<Action["id"], number> {
+  private voteCountByActionId(
+    voteWindow: VoteWindow | undefined,
+  ): ReadonlyMap<Action["id"], number> {
     const counts = new Map<Action["id"], number>();
 
     if (voteWindow === undefined) {

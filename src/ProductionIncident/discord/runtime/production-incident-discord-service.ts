@@ -42,6 +42,7 @@ import type {
   DiscordMessagePayload,
 } from "../renderers/discord-message-payload.js";
 import {
+  type AvailableDiscordEmoji,
   ProductionIncidentEmojiRegistry,
 } from "../renderers/production-incident-emojis.js";
 
@@ -75,6 +76,7 @@ export class ProductionIncidentDiscordService {
   private readonly eventBus = new InMemoryEventBus();
   private readonly idGenerator = new RuntimeIdGenerator();
   private readonly emojis = new ProductionIncidentEmojiRegistry();
+  private emojiSyncInFlight: Promise<void> | undefined;
   private readonly kernel = EngineKernel.createLifecycleKernel({
     clock: new NodeClock(),
     eventBus: this.eventBus,
@@ -109,13 +111,7 @@ export class ProductionIncidentDiscordService {
 
   public attachClient(client: Client): void {
     this.client = client;
-    this.emojis.sync(
-      client.emojis.cache.map((emoji) => ({
-        id: emoji.id,
-        name: emoji.name,
-      })),
-    );
-    this.debug("emoji registry synced", this.emojis.summary());
+    void this.syncApplicationEmojiRegistry(client);
   }
 
   public async handleStartCommand(
@@ -1176,6 +1172,47 @@ export class ProductionIncidentDiscordService {
       `[WARN] Infrastructure cost: ${session.stats.infrastructureCost}`,
       "```",
     ].join("\n");
+  }
+
+  private async syncApplicationEmojiRegistry(client: Client): Promise<void> {
+    if (this.emojiSyncInFlight !== undefined) {
+      return this.emojiSyncInFlight;
+    }
+
+    this.emojiSyncInFlight = this.loadApplicationEmojis(client)
+      .then((applicationEmojis) => {
+        const summary = this.emojis.sync(applicationEmojis);
+        this.debug("application emoji registry synced", {
+          ...summary,
+          availableApplicationEmojis: applicationEmojis.length,
+          note: "Compared persistent emoji config against bot application emojis only. Missing entries use configured fallback unicode.",
+        });
+      })
+      .catch((error: unknown) => {
+        this.debug("application emoji registry sync failed", {
+          error: error instanceof Error ? error.message : String(error),
+          note: "Emoji rendering will use configured fallback unicode until the next successful application emoji sync.",
+        });
+      })
+      .finally(() => {
+        this.emojiSyncInFlight = undefined;
+      });
+
+    return this.emojiSyncInFlight;
+  }
+
+  private async loadApplicationEmojis(client: Client): Promise<readonly AvailableDiscordEmoji[]> {
+    if (client.application === null) {
+      return [];
+    }
+
+    const fetched = await client.application.emojis.fetch();
+    return fetched.map((emoji) => ({
+      animated: emoji.animated ?? false,
+      id: emoji.id,
+      name: emoji.name,
+      source: "application" as const,
+    }));
   }
 
   private incidentHistoryCount(session: GameSession | undefined): number {

@@ -1,107 +1,193 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 export type ProductionIncidentEmojiKey =
+  | "api"
+  | "auth"
   | "backend"
+  | "cache"
+  | "cancel"
+  | "cdn"
   | "cost"
+  | "cpu"
+  | "danger"
   | "database"
   | "deploy"
+  | "devops"
+  | "downtime"
+  | "employee"
   | "end"
+  | "engineer"
   | "failure"
   | "frontend"
+  | "hotfix"
   | "incident"
+  | "inspect"
+  | "intern"
+  | "join"
+  | "lockdown"
   | "logs"
+  | "memory"
+  | "network"
+  | "payment"
+  | "pressure"
+  | "qa"
+  | "queue"
+  | "report"
+  | "rollback"
   | "sanity"
+  | "scale"
   | "security"
+  | "securityRole"
+  | "server"
+  | "skull"
+  | "spark"
   | "stability"
+  | "start"
   | "status"
   | "success"
   | "timer"
+  | "trophy"
   | "users"
   | "vote"
-  | "warning";
+  | "warning"
+  | "webhook";
 
 export interface AvailableDiscordEmoji {
+  readonly animated?: boolean;
   readonly id: string;
   readonly name: string | null;
+  readonly source?: "application" | "guild";
 }
 
-const FALLBACKS: Readonly<Record<ProductionIncidentEmojiKey, string>> = {
-  backend: "🧩",
-  cost: "💸",
-  database: "🗄️",
-  deploy: "🚀",
-  end: "🛑",
-  failure: "❌",
-  frontend: "🎨",
-  incident: "🚨",
-  logs: "📜",
-  sanity: "🧠",
-  security: "🔐",
-  stability: "📈",
-  status: "📊",
-  success: "✅",
-  timer: "⏱️",
-  users: "👥",
-  vote: "🗳️",
-  warning: "⚠️",
-};
+export interface ProductionIncidentEmojiConfigEntry {
+  readonly animated: boolean;
+  readonly fallback: string;
+  readonly id: string | null;
+  readonly name: string;
+}
 
-const EMOJI_NAMES: Readonly<Record<ProductionIncidentEmojiKey, string>> = {
-  backend: "pi_backend",
-  cost: "pi_cost",
-  database: "pi_database",
-  deploy: "pi_deploy",
-  end: "pi_end",
-  failure: "pi_failure",
-  frontend: "pi_frontend",
-  incident: "pi_incident",
-  logs: "pi_logs",
-  sanity: "pi_sanity",
-  security: "pi_security",
-  stability: "pi_stability",
-  status: "pi_status",
-  success: "pi_success",
-  timer: "pi_timer",
-  users: "pi_users",
-  vote: "pi_vote",
-  warning: "pi_warning",
-};
+export type ProductionIncidentEmojiConfig = Readonly<
+  Record<ProductionIncidentEmojiKey, ProductionIncidentEmojiConfigEntry>
+>;
+
+export interface ProductionIncidentEmojiSyncSummary {
+  readonly fallback: readonly ProductionIncidentEmojiKey[];
+  readonly found: readonly ProductionIncidentEmojiKey[];
+  readonly missing: readonly ProductionIncidentEmojiKey[];
+  readonly staleId: readonly ProductionIncidentEmojiKey[];
+}
+
+const CONFIG_PATH = resolve(
+  process.cwd(),
+  "src",
+  "ProductionIncident",
+  "discord",
+  "emojis",
+  "production-incident-emojis.json",
+);
 
 export class ProductionIncidentEmojiRegistry {
+  private readonly config: ProductionIncidentEmojiConfig;
   private readonly customByKey = new Map<ProductionIncidentEmojiKey, string>();
+  private lastSummary: ProductionIncidentEmojiSyncSummary = {
+    fallback: [],
+    found: [],
+    missing: [],
+    staleId: [],
+  };
+
+  public constructor(config: ProductionIncidentEmojiConfig = loadEmojiConfig()) {
+    this.config = config;
+  }
 
   public emoji(key: string | undefined): string {
-    if (key === undefined || !isEmojiKey(key)) {
+    if (key === undefined || !Object.hasOwn(this.config, key)) {
       return "";
     }
 
-    return this.customByKey.get(key) ?? FALLBACKS[key];
+    const emojiKey = key as ProductionIncidentEmojiKey;
+    return this.customByKey.get(emojiKey) ?? this.config[emojiKey].fallback;
   }
 
-  public sync(available: readonly AvailableDiscordEmoji[]): void {
+  public sync(available: readonly AvailableDiscordEmoji[]): ProductionIncidentEmojiSyncSummary {
     this.customByKey.clear();
 
-    for (const key of Object.keys(EMOJI_NAMES) as ProductionIncidentEmojiKey[]) {
-      const name = EMOJI_NAMES[key];
-      const match = available.find((emoji) => emoji.name === name);
+    const applicationEmojis = available.filter((emoji) => emoji.source !== "guild");
+    const found: ProductionIncidentEmojiKey[] = [];
+    const missing: ProductionIncidentEmojiKey[] = [];
+    const staleId: ProductionIncidentEmojiKey[] = [];
+    const fallback: ProductionIncidentEmojiKey[] = [];
 
-      if (match !== undefined) {
-        this.customByKey.set(key, `<:${name}:${match.id}>`);
+    for (const key of Object.keys(this.config) as ProductionIncidentEmojiKey[]) {
+      const entry = this.config[key];
+      const byId = entry.id === null
+        ? undefined
+        : applicationEmojis.find((emoji) => emoji.id === entry.id);
+      const byName = applicationEmojis.find((emoji) => emoji.name === entry.name);
+      const resolved = byId ?? byName;
+
+      if (resolved === undefined) {
+        missing.push(key);
+        fallback.push(key);
+        continue;
       }
+
+      if (entry.id !== null && byId === undefined && byName !== undefined) {
+        staleId.push(key);
+      }
+
+      found.push(key);
+      this.customByKey.set(key, this.formatEmoji(entry, resolved));
     }
+
+    this.lastSummary = { fallback, found, missing, staleId };
+    return this.lastSummary;
   }
 
-  public summary(): {
-    readonly found: readonly ProductionIncidentEmojiKey[];
-    readonly missing: readonly ProductionIncidentEmojiKey[];
-  } {
-    const keys = Object.keys(EMOJI_NAMES) as ProductionIncidentEmojiKey[];
+  public summary(): ProductionIncidentEmojiSyncSummary {
+    return this.lastSummary;
+  }
 
-    return {
-      found: keys.filter((key) => this.customByKey.has(key)),
-      missing: keys.filter((key) => !this.customByKey.has(key)),
-    };
+  private formatEmoji(
+    entry: ProductionIncidentEmojiConfigEntry,
+    emoji: AvailableDiscordEmoji,
+  ): string {
+    const animated = emoji.animated ?? entry.animated;
+    return `${animated ? "<a" : "<"}:${entry.name}:${emoji.id}>`;
   }
 }
 
-function isEmojiKey(value: string): value is ProductionIncidentEmojiKey {
-  return Object.hasOwn(FALLBACKS, value);
+export function loadEmojiConfig(): ProductionIncidentEmojiConfig {
+  const parsed: unknown = JSON.parse(readFileSync(CONFIG_PATH, "utf8"));
+
+  if (!isEmojiConfig(parsed)) {
+    throw new Error("Production Incident emoji config is invalid.");
+  }
+
+  return parsed;
+}
+
+function isEmojiConfig(value: unknown): value is ProductionIncidentEmojiConfig {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  return (Object.entries(value) as [string, unknown][]).every(([, entry]) =>
+    isEmojiConfigEntry(entry),
+  );
+}
+
+function isEmojiConfigEntry(value: unknown): value is ProductionIncidentEmojiConfigEntry {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<ProductionIncidentEmojiConfigEntry>;
+  return (
+    typeof candidate.animated === "boolean" &&
+    typeof candidate.fallback === "string" &&
+    (typeof candidate.id === "string" || candidate.id === null) &&
+    typeof candidate.name === "string"
+  );
 }

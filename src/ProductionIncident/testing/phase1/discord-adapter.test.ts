@@ -92,6 +92,27 @@ assert.equal(registry.getBySession(sessionId), undefined);
 assert.equal(registry.getIncidentMessageId(sessionId, incidentId), undefined);
 
 const renderer = new DiscordIncidentRenderer(new ProductionIncidentEmojiRegistry());
+const emojiRegistry = new ProductionIncidentEmojiRegistry();
+const guildOnlyEmojiSummary = emojiRegistry.sync([
+  {
+    animated: false,
+    id: "guild-incident-emoji",
+    name: "pi_incident",
+    source: "guild",
+  },
+]);
+assert.equal(guildOnlyEmojiSummary.missing.includes("incident"), true);
+assert.notEqual(emojiRegistry.emoji("incident"), "<:pi_incident:guild-incident-emoji>");
+const applicationEmojiSummary = emojiRegistry.sync([
+  {
+    animated: false,
+    id: "application-incident-emoji",
+    name: "pi_incident",
+    source: "application",
+  },
+]);
+assert.equal(applicationEmojiSummary.found.includes("incident"), true);
+assert.equal(emojiRegistry.emoji("incident"), "<:pi_incident:application-incident-emoji>");
 const prompt = renderer.renderIncidentPrompt({
   actionOptions: [
     {
