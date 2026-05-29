@@ -6,6 +6,7 @@ import {
   DiscordInteractionRouter,
   DiscordSessionRegistry,
   ProductionIncidentEmojiRegistry,
+  renderIncidentLogsBlock,
 } from "../../discord/index.js";
 import type {
   ActionId,
@@ -154,6 +155,34 @@ assert.deepEqual(codec.decodeInstant(codec.encodeInstant({ key: actionRoute.key 
   kind: "instant",
   version: "v1",
 });
+assert.match(renderIncidentLogsBlock({
+  actionOptions: [],
+  affectedServices: ["Auth Service"],
+  category: "authentication",
+  createdAt: 1 as UnixMillis,
+  description: "Login attempts are failing.",
+  id: incidentId,
+  instantActionOptions: [],
+  rootCause: "expired signing key",
+  severity: "medium",
+  status: "voting",
+  templateId: "template-auth" as IncidentTemplateId,
+  title: "Login failure storm",
+}, "plain"), /```log/);
+assert.match(renderIncidentLogsBlock({
+  actionOptions: [],
+  affectedServices: ["Payment Service"],
+  category: "payments",
+  createdAt: 1 as UnixMillis,
+  description: "Checkout is failing.",
+  id: incidentId,
+  instantActionOptions: [],
+  rootCause: "provider timeout",
+  severity: "high",
+  status: "voting",
+  templateId: "template-payments" as IncidentTemplateId,
+  title: "Checkout outage",
+}, "diff"), /payment|checkout|provider/i);
 
 let submitted = false;
 const gameplayManager: GameplayManager = {

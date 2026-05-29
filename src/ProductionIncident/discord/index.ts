@@ -10,6 +10,8 @@ export type {
   DiscordEmbedPayload,
   DiscordMessagePayload,
 } from "./renderers/discord-message-payload.js";
+export type { LogBlockStyle } from "./renderers/incident-log-renderer.js";
+export { renderIncidentLogsBlock } from "./renderers/incident-log-renderer.js";
 export type {
   AvailableDiscordEmoji,
   ProductionIncidentEmojiKey,

@@ -6,6 +6,7 @@ import type {
   VoteWindow,
 } from "../../engine/index.js";
 import type { DiscordMessagePayload } from "./discord-message-payload.js";
+import { renderIncidentLogsBlock } from "./incident-log-renderer.js";
 import type { ProductionIncidentEmojiRegistry } from "./production-incident-emojis.js";
 
 export class DiscordIncidentRenderer {
@@ -76,6 +77,20 @@ export class DiscordIncidentRenderer {
   public renderCommentary(message: string): DiscordMessagePayload {
     return {
       content: `${this.emojis.emoji("warning")} **System Notes**\n${message}`,
+      useComponentsV2: true,
+    };
+  }
+
+  public renderInstantActionFeedback(
+    message: string,
+    incident: Incident | undefined,
+  ): DiscordMessagePayload {
+    return {
+      content: [
+        `${this.emojis.emoji("logs")} **Logs Snapshot**`,
+        message,
+        ...(incident === undefined ? [] : ["", renderIncidentLogsBlock(incident, "diff")]),
+      ].join("\n"),
       useComponentsV2: true,
     };
   }

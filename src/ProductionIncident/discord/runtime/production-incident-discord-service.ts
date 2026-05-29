@@ -421,11 +421,12 @@ export class ProductionIncidentDiscordService {
       playerId: this.codec.playerIdFromDiscordUserId(interaction.user.id),
       sessionId: route.sessionId,
     });
+    const incident = this.findIncident(route.sessionId, route.incidentId);
+    const message = result.ok
+      ? this.renderer.renderInstantActionFeedback(result.result.value.message, incident).content
+      : result.error.message;
 
-    await this.replyEphemeral(
-      interaction,
-      result.ok ? result.result.value.message : result.error.message,
-    );
+    await this.replyEphemeral(interaction, message);
   }
 
   private async renderEvent(client: Client, event: GameEvent): Promise<void> {
@@ -713,6 +714,23 @@ export class ProductionIncidentDiscordService {
     );
 
     await message.edit(this.toDiscordMessageOptions(payload)).catch(() => undefined);
+  }
+
+  private findIncident(sessionId: SessionId, incidentId: IncidentId): Incident | undefined {
+    const session = this.kernel.stateManager.getSnapshot(sessionId);
+
+    if (
+      session?.state.status !== "running" &&
+      session?.state.status !== "paused" &&
+      session?.state.status !== "recovering"
+    ) {
+      return undefined;
+    }
+
+    return (
+      session.state.activeIncidents.get(incidentId) ??
+      session.state.incidentHistory.get(incidentId)
+    );
   }
 
   private queueCommentary(
