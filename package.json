@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "tsx index.ts",
+    "dev": "tsx --watch index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test:phase1": "tsx src/ProductionIncident/testing/phase1/phase1-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/session-lifecycle.test.ts && tsx src/ProductionIncident/testing/phase1/event-flow.test.ts && tsx src/ProductionIncident/testing/phase1/invalid-transitions.test.ts && tsx src/ProductionIncident/testing/phase1/deterministic-replay.test.ts && tsx src/ProductionIncident/testing/phase1/full-gameplay-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/hardening.test.ts && tsx src/ProductionIncident/testing/phase1/discord-adapter.test.ts && tsx src/ProductionIncident/testing/phase1/long-runtime-simulation.test.ts",
