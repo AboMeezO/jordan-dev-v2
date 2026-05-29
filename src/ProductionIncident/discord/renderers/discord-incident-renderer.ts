@@ -6,8 +6,11 @@ import type {
   VoteWindow,
 } from "../../engine/index.js";
 import type { DiscordMessagePayload } from "./discord-message-payload.js";
+import type { ProductionIncidentEmojiRegistry } from "./production-incident-emojis.js";
 
 export class DiscordIncidentRenderer {
+  public constructor(private readonly emojis: ProductionIncidentEmojiRegistry) {}
+
   public renderIncidentPrompt(
     incident: Incident,
     actionCustomId: (action: Action) => string,
@@ -32,14 +35,15 @@ export class DiscordIncidentRenderer {
         ...(instantButtons.length === 0 ? [] : [{ buttons: instantButtons }]),
       ],
       content: [
-        "## Production Incident",
-        `**${incident.title}**`,
-        `Severity: ${this.titleCase(incident.severity)}`,
-        `Service: ${incident.affectedServices.join(", ")}`,
-        `Problem: ${incident.description}`,
-        `Voting closes: ${this.discordTimestamp(incident.votingClosesAt)}`,
+        `${this.emojis.emoji("incident")} **Production Incident**`,
+        `\`${incident.title}\``,
         "",
-        "Choose the team response.",
+        `**Severity:** ${this.titleCase(incident.severity)}`,
+        `**Service:** ${incident.affectedServices.join(", ")}`,
+        `**Problem:** ${incident.description}`,
+        `**Voting closes:** ${this.votingCloseText(incident, voteWindow)}`,
+        "",
+        "اختاروا team response بسرعة.",
       ].join("\n"),
       useComponentsV2: true,
     };
@@ -51,9 +55,10 @@ export class DiscordIncidentRenderer {
   ): DiscordMessagePayload {
     return {
       content: [
-        `## ${succeeded ? "Incident Resolved" : "Response Failed"}`,
-        `Incident: ${incident.title}`,
-        `Root cause: ${incident.rootCause}`,
+        `${this.emojis.emoji(succeeded ? "success" : "failure")} **${succeeded ? "Response Worked" : "Response Failed"}**`,
+        `\`${incident.title}\``,
+        "",
+        `**Root cause:** ${incident.rootCause}`,
       ].join("\n"),
       useComponentsV2: true,
     };
@@ -70,7 +75,7 @@ export class DiscordIncidentRenderer {
 
   public renderCommentary(message: string): DiscordMessagePayload {
     return {
-      content: `## Commentary\n${message}`,
+      content: `${this.emojis.emoji("warning")} **System Notes**\n${message}`,
       useComponentsV2: true,
     };
   }
@@ -81,7 +86,11 @@ export class DiscordIncidentRenderer {
     votes?: number,
     style?: "danger" | "primary" | "secondary" | "success",
   ): { readonly customId: string; readonly label: string; readonly style: "danger" | "primary" | "secondary" | "success" } {
-    const label = votes === undefined ? action.label : `${action.label} (${votes})`;
+    const emoji = this.emojis.emoji(action.emojiKey);
+    const prefix = emoji.length === 0 ? "" : `${emoji} `;
+    const label = votes === undefined
+      ? `${prefix}${action.label}`
+      : `${prefix}${action.label} (${votes})`;
 
     return {
       customId,
@@ -96,13 +105,21 @@ export class DiscordIncidentRenderer {
       : `<t:${Math.floor(timestamp / 1_000)}:R>`;
   }
 
+  private votingCloseText(incident: Incident, voteWindow: VoteWindow | undefined): string {
+    if (voteWindow?.status === "closed" || incident.status !== "voting") {
+      return "Voting closed.";
+    }
+
+    return this.discordTimestamp(incident.votingClosesAt);
+  }
+
   private renderStatsText(
     title: string,
     stats: GlobalStats,
     lines: readonly string[] = [],
   ): string {
     return [
-      `## ${title}`,
+      `${this.emojis.emoji("status")} **${title}**`,
       ...lines,
       `Server Stability: ${stats.serverStability}`,
       `Developer Sanity: ${stats.developerSanity}`,

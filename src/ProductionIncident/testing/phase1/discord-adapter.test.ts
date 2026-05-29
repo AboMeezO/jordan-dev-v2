@@ -5,6 +5,7 @@ import {
   DiscordIncidentRenderer,
   DiscordInteractionRouter,
   DiscordSessionRegistry,
+  ProductionIncidentEmojiRegistry,
 } from "../../discord/index.js";
 import type {
   ActionId,
@@ -89,7 +90,7 @@ registry.cleanup(sessionId);
 assert.equal(registry.getBySession(sessionId), undefined);
 assert.equal(registry.getIncidentMessageId(sessionId, incidentId), undefined);
 
-const renderer = new DiscordIncidentRenderer();
+const renderer = new DiscordIncidentRenderer(new ProductionIncidentEmojiRegistry());
 const prompt = renderer.renderIncidentPrompt({
   actionOptions: [
     {
@@ -146,7 +147,7 @@ const prompt = renderer.renderIncidentPrompt({
 });
 assert.equal(prompt.buttonRows?.[0]?.buttons[0]?.customId, encodedAction);
 assert.match(prompt.buttonRows?.[0]?.buttons[0]?.label ?? "", /\(1\)$/);
-assert.match(prompt.content, /Voting closes: <t:/);
+assert.match(prompt.content, /Voting closes:\*\* <t:/);
 assert.throws(() => codec.decodeAction("pi:v1:a:invalid:key"));
 assert.deepEqual(codec.decodeInstant(codec.encodeInstant({ key: actionRoute.key })), {
   key: actionRoute.key,

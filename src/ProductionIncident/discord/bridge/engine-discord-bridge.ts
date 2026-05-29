@@ -5,6 +5,7 @@ import {
 } from "../interactions/discord-custom-id-codec.js";
 import { DiscordIncidentRenderer } from "../renderers/discord-incident-renderer.js";
 import type { DiscordMessagePayload } from "../renderers/discord-message-payload.js";
+import { ProductionIncidentEmojiRegistry } from "../renderers/production-incident-emojis.js";
 
 export type DiscordRenderAction =
   | {
@@ -19,7 +20,7 @@ export type DiscordRenderAction =
 
 export class EngineDiscordBridge {
   private readonly customIdCodec = new DiscordCustomIdCodec();
-  private readonly renderer = new DiscordIncidentRenderer();
+  private readonly renderer = new DiscordIncidentRenderer(new ProductionIncidentEmojiRegistry());
 
   public constructor(
     private readonly stateManager: StateManager,

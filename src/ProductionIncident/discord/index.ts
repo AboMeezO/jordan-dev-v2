@@ -10,6 +10,11 @@ export type {
   DiscordEmbedPayload,
   DiscordMessagePayload,
 } from "./renderers/discord-message-payload.js";
+export type {
+  AvailableDiscordEmoji,
+  ProductionIncidentEmojiKey,
+} from "./renderers/production-incident-emojis.js";
+export { ProductionIncidentEmojiRegistry } from "./renderers/production-incident-emojis.js";
 export {
   productionIncidentCommandData,
   ProductionIncidentDiscordService,

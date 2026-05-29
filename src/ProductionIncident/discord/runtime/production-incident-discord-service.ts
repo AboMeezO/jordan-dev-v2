@@ -40,9 +40,13 @@ import type {
   DiscordEmbedPayload,
   DiscordMessagePayload,
 } from "../renderers/discord-message-payload.js";
+import {
+  ProductionIncidentEmojiRegistry,
+} from "../renderers/production-incident-emojis.js";
 
 const MAX_PLAYERS = 8;
 const MIN_PLAYERS = 1;
+const COMMENTARY_FLUSH_DELAY_MS = 1_250;
 
 export const productionIncidentCommandData = new SlashCommandBuilder()
   .setName("dev")
@@ -68,6 +72,7 @@ export class ProductionIncidentDiscordService {
   private readonly codec = new DiscordCustomIdCodec();
   private readonly eventBus = new InMemoryEventBus();
   private readonly idGenerator = new RuntimeIdGenerator();
+  private readonly emojis = new ProductionIncidentEmojiRegistry();
   private readonly kernel = EngineKernel.createLifecycleKernel({
     clock: new NodeClock(),
     eventBus: this.eventBus,
@@ -76,7 +81,11 @@ export class ProductionIncidentDiscordService {
     scheduler: new NodeScheduler(),
   });
   private readonly registry = new DiscordSessionRegistry();
-  private readonly renderer = new DiscordIncidentRenderer();
+  private readonly renderer = new DiscordIncidentRenderer(this.emojis);
+  private readonly commentaryBuffers = new Map<SessionId, {
+    readonly messages: Set<string>;
+    readonly timer: NodeJS.Timeout;
+  }>();
 
   private client: Client | undefined;
 
@@ -98,6 +107,13 @@ export class ProductionIncidentDiscordService {
 
   public attachClient(client: Client): void {
     this.client = client;
+    this.emojis.sync(
+      client.emojis.cache.map((emoji) => ({
+        id: emoji.id,
+        name: emoji.name,
+      })),
+    );
+    this.debug("emoji registry synced", this.emojis.summary());
   }
 
   public async handleStartCommand(
@@ -293,11 +309,14 @@ export class ProductionIncidentDiscordService {
         },
       ],
       content: [
-        "## Production Incident Started",
-        `Players: ${result.result.value.state.players.size}`,
-        "Goal: survive production incidents without collapsing core stats.",
-        "Vote together before each incident timer closes.",
-        "Host control: End Session.",
+        `${this.emojis.emoji("incident")} **Production Incident Started**`,
+        `**Players:** ${result.result.value.state.players.size}`,
+        "",
+        "**Goal**",
+        "Survive `10 incidents` without production collapsing.",
+        "صوتوا بسرعة قبل ما incident يقفل.",
+        "",
+        `${this.emojis.emoji("end")} Host control: **End Session**`,
       ].join("\n"),
       useComponentsV2: true,
     });
@@ -528,9 +547,10 @@ export class ProductionIncidentDiscordService {
           return;
         }
 
-        await this.sendPayload(outputChannel, this.renderer.renderCommentary(event.message));
+        this.queueCommentary(event.sessionId, event.message, event.priority);
         return;
       case "session.ended":
+        await this.flushCommentary(event.sessionId);
         await this.sendPayload(outputChannel, this.renderFinalReport(event.sessionId));
         this.registry.cleanup(event.sessionId);
         return;
@@ -695,6 +715,85 @@ export class ProductionIncidentDiscordService {
     await message.edit(this.toDiscordMessageOptions(payload)).catch(() => undefined);
   }
 
+  private queueCommentary(
+    sessionId: SessionId,
+    message: string,
+    priority: "high" | "low" | "normal",
+  ): void {
+    if (priority === "low" && this.isGenericCommentary(message)) {
+      return;
+    }
+
+    const existing = this.commentaryBuffers.get(sessionId);
+
+    if (existing !== undefined) {
+      existing.messages.add(this.polishCommentary(message));
+      return;
+    }
+
+    const messages = new Set<string>([this.polishCommentary(message)]);
+    const timer = setTimeout(() => {
+      this.flushCommentary(sessionId).catch((error: unknown) => {
+        this.debug("commentary flush failed", {
+          error: error instanceof Error ? error.message : String(error),
+          sessionId,
+        });
+      });
+    }, priority === "high" ? 250 : COMMENTARY_FLUSH_DELAY_MS);
+
+    this.commentaryBuffers.set(sessionId, { messages, timer });
+  }
+
+  private async flushCommentary(sessionId: SessionId): Promise<void> {
+    const buffer = this.commentaryBuffers.get(sessionId);
+
+    if (buffer === undefined || this.client === undefined) {
+      return;
+    }
+
+    clearTimeout(buffer.timer);
+    this.commentaryBuffers.delete(sessionId);
+
+    if (buffer.messages.size === 0) {
+      return;
+    }
+
+    const binding = this.registry.getBySession(sessionId);
+
+    if (binding === undefined) {
+      return;
+    }
+
+    const outputChannel = await this.fetchTextChannel(this.client, binding.outputChannelId);
+
+    if (outputChannel === undefined) {
+      return;
+    }
+
+    await this.sendPayload(
+      outputChannel,
+      this.renderer.renderCommentary(
+        [...buffer.messages].map((line) => `- ${line}`).join("\n"),
+      ),
+    );
+  }
+
+  private isGenericCommentary(message: string): boolean {
+    return message === "Production metrics shifted after the response.";
+  }
+
+  private polishCommentary(message: string): string {
+    const replacements: Readonly<Record<string, string>> = {
+      "A delayed consequence has been scheduled.": "Delayed follow-up work is now queued.",
+      "Production metrics shifted after the response.": "Metrics changed after the response.",
+      "The failed response may cascade into follow-up work.": "Failure may trigger follow-up incidents.",
+      "The response failed and production pressure increased.": "Pressure increased after the failed fix.",
+      "The response worked and production stabilized.": "Production stabilized after the response.",
+    };
+
+    return replacements[message] ?? message;
+  }
+
   private renderLobby(sessionId: SessionId, disabled = false): DiscordMessagePayload {
     const session = this.kernel.stateManager.getSnapshot(sessionId);
     const playerCount =
@@ -706,27 +805,29 @@ export class ProductionIncidentDiscordService {
         {
           customId: this.codec.encodeLobby({ action: "join", sessionId }),
           disabled,
-          label: "Join Incident",
+          label: `${this.emojis.emoji("users")} Join`,
           style: "primary",
         },
         {
           customId: this.codec.encodeLobby({ action: "start", sessionId }),
           disabled,
-          label: "Start Incident",
+          label: `${this.emojis.emoji("incident")} Start`,
           style: "success",
         },
         {
           customId: this.codec.encodeLobby({ action: "cancel", sessionId }),
           disabled,
-          label: "Cancel",
+          label: `${this.emojis.emoji("end")} Cancel`,
           style: "danger",
         },
       ],
       content: [
-        "## Production Incident Lobby",
-        `Players: ${playerCount}/${MAX_PLAYERS}`,
-        `Status: ${status}`,
-        `Session: ${this.shortSessionId(sessionId)}`,
+        `${this.emojis.emoji("incident")} **Production Incident**`,
+        "جهزوا الفريق. الإنتاج بدأ يتوتر.",
+        "",
+        `**Players:** ${playerCount}/${MAX_PLAYERS}`,
+        `**Status:** ${this.titleCase(status)}`,
+        `**Session:** \`${this.shortSessionId(sessionId)}\``,
       ].join("\n"),
       useComponentsV2: true,
     };
@@ -743,7 +844,7 @@ export class ProductionIncidentDiscordService {
 
     return {
       content: [
-        "## Production Team Assembled",
+        `${this.emojis.emoji("users")} **Production Team Assembled**`,
         ...players.map((player) =>
           `${player.displayName} - ${this.roleDisplayName(player.roleId)}`,
         ),
@@ -760,11 +861,11 @@ export class ProductionIncidentDiscordService {
   }): DiscordMessagePayload {
     return {
       content: [
-        "## System Status",
-        `Server Stability: ${stats.serverStability}`,
-        `Developer Sanity: ${stats.developerSanity}`,
-        `User Happiness: ${stats.userHappiness}`,
-        `Infrastructure Cost: ${stats.infrastructureCost}`,
+        `${this.emojis.emoji("status")} **System Status**`,
+        `**Stability:** ${stats.serverStability}`,
+        `**Developer sanity:** ${stats.developerSanity}`,
+        `**User happiness:** ${stats.userHappiness}`,
+        `**Cost:** ${stats.infrastructureCost}`,
       ].join("\n"),
       useComponentsV2: true,
     };
@@ -781,13 +882,13 @@ export class ProductionIncidentDiscordService {
 
     return {
       content: [
-        "## Final Report",
-        `Final Status: ${session?.state.status ?? "ended"}`,
-        `Incident History: ${historyCount}`,
-        `Server Stability: ${session?.stats.serverStability ?? 0}`,
-        `Developer Sanity: ${session?.stats.developerSanity ?? 0}`,
-        `User Happiness: ${session?.stats.userHappiness ?? 0}`,
-        `Infrastructure Cost: ${session?.stats.infrastructureCost ?? 0}`,
+        `${this.emojis.emoji("end")} **Final Report**`,
+        `**Final status:** ${session?.state.status ?? "ended"}`,
+        `**Incidents handled:** ${historyCount}`,
+        `**Stability:** ${session?.stats.serverStability ?? 0}`,
+        `**Developer sanity:** ${session?.stats.developerSanity ?? 0}`,
+        `**User happiness:** ${session?.stats.userHappiness ?? 0}`,
+        `**Cost:** ${session?.stats.infrastructureCost ?? 0}`,
       ].join("\n"),
       useComponentsV2: true,
     };
@@ -970,6 +1071,10 @@ export class ProductionIncidentDiscordService {
     };
 
     return roleId === undefined ? "Unassigned" : (names[roleId] ?? roleId);
+  }
+
+  private titleCase(value: string): string {
+    return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
   }
 }
 
