@@ -1,4 +1,5 @@
 export { EngineDiscordBridge } from "./bridge/engine-discord-bridge.js";
+export type { DiscordActionRouteKey } from "./interactions/discord-custom-id-codec.js";
 export { DiscordCustomIdCodec } from "./interactions/discord-custom-id-codec.js";
 export { DiscordInteractionRouter } from "./interactions/discord-interaction-router.js";
 export { DiscordSessionRegistry } from "./registry/index.js";

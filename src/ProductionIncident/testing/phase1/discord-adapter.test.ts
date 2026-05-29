@@ -13,6 +13,7 @@ import type {
   GameSession,
   IncidentId,
   IncidentTemplateId,
+  PlayerId,
   SessionId,
   UnixMillis,
 } from "../../engine/index.js";
@@ -31,6 +32,13 @@ assert.deepEqual(codec.decodeVote(encodedVote), {
   version: "v1",
 });
 assert.throws(() => codec.decodeVote("pi:vote:old-shape"));
+assert.throws(() =>
+  codec.encodeVote({
+    actionId: "action-with-a-really-long-identifier-that-would-break-discord-buttons" as ActionId,
+    incidentId: "incident-with-a-really-long-identifier-that-would-break-discord-buttons" as IncidentId,
+    sessionId: "session-with-a-really-long-identifier-that-would-break-discord-buttons" as SessionId,
+  }),
+);
 
 const encodedLobby = codec.encodeLobby({ action: "join", sessionId });
 assert.deepEqual(codec.decodeLobby(encodedLobby), {
@@ -53,16 +61,41 @@ registry.bindSession({
 assert.equal(registry.getByChannel("channel-1")?.sessionId, sessionId);
 registry.setIncidentMessageId(sessionId, incidentId, "message-incident");
 assert.equal(registry.getIncidentMessageId(sessionId, incidentId), "message-incident");
+const actionRoute = registry.registerActionRoute({
+  actionId,
+  createdAt: 10 as UnixMillis,
+  expiresAt: 20 as UnixMillis,
+  incidentId,
+  sessionId,
+});
+const encodedAction = codec.encodeAction({ key: actionRoute.key });
+assert.equal(encodedAction.length <= 100, true);
+assert.deepEqual(codec.decodeAction(encodedAction), {
+  key: actionRoute.key,
+  kind: "action",
+  version: "v1",
+});
+assert.equal(registry.getActionRoute(actionRoute.key, 15 as UnixMillis)?.actionId, actionId);
+assert.equal(registry.getActionRoute(actionRoute.key, 21 as UnixMillis), undefined);
+const staleRoute = registry.registerActionRoute({
+  actionId,
+  createdAt: 30 as UnixMillis,
+  incidentId,
+  sessionId,
+});
+registry.cleanupIncidentActionRoutes(sessionId, incidentId);
+assert.equal(registry.getActionRoute(staleRoute.key), undefined);
 registry.cleanup(sessionId);
 assert.equal(registry.getBySession(sessionId), undefined);
 assert.equal(registry.getIncidentMessageId(sessionId, incidentId), undefined);
 
 const renderer = new DiscordIncidentRenderer();
-const prompt = renderer.renderIncidentPrompt(sessionId, {
+const prompt = renderer.renderIncidentPrompt({
   actionOptions: [
     {
       failure: { immediate: { serverStability: -1 } },
       id: actionId,
+      kind: "vote",
       label: "Inspect logs",
       risk: "low",
       success: { immediate: { serverStability: 1 } },
@@ -75,13 +108,51 @@ const prompt = renderer.renderIncidentPrompt(sessionId, {
   createdAt: 1 as UnixMillis,
   description: "Login attempts are failing.",
   id: incidentId,
+  instantActionOptions: [
+    {
+      failure: { immediate: { serverStability: -1 } },
+      id: "action-inspect-logs" as ActionId,
+      kind: "instant",
+      label: "Inspect logs",
+      risk: "low",
+      success: { immediate: { serverStability: 1 } },
+      successRate: 1,
+      tags: ["inspect"],
+    },
+  ],
   rootCause: "expired signing key",
   severity: "medium",
   status: "voting",
   templateId: "template-auth" as IncidentTemplateId,
   title: "Login failure storm",
+  votingClosesAt: 31_000 as UnixMillis,
+}, () => encodedAction, () => codec.encodeInstant({ key: actionRoute.key }), {
+  closesAt: 31_000 as UnixMillis,
+  incidentId,
+  openedAt: 1 as UnixMillis,
+  status: "open",
+  votesByPlayerId: new Map([
+    [
+      "player-count" as PlayerId,
+      {
+        actionId,
+        incidentId,
+        playerId: "player-count" as PlayerId,
+        registeredAt: 2 as UnixMillis,
+        weight: 1,
+      },
+    ],
+  ]),
 });
-assert.equal(prompt.buttons?.[0]?.customId, encodedVote);
+assert.equal(prompt.buttonRows?.[0]?.buttons[0]?.customId, encodedAction);
+assert.match(prompt.buttonRows?.[0]?.buttons[0]?.label ?? "", /\(1\)$/);
+assert.match(prompt.content, /Voting closes: <t:/);
+assert.throws(() => codec.decodeAction("pi:v1:a:invalid:key"));
+assert.deepEqual(codec.decodeInstant(codec.encodeInstant({ key: actionRoute.key })), {
+  key: actionRoute.key,
+  kind: "instant",
+  version: "v1",
+});
 
 let submitted = false;
 const gameplayManager: GameplayManager = {
@@ -105,6 +176,9 @@ const gameplayManager: GameplayManager = {
       },
       ok: false,
     });
+  },
+  useInstantAction(): Promise<EngineCommandResult<{ readonly message: string }>> {
+    throw new Error("Not used in router test.");
   },
 };
 const router = new DiscordInteractionRouter(gameplayManager);

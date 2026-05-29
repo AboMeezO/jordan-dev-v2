@@ -1,5 +1,8 @@
 import type { GameEvent, GameplayManager, StateManager } from "../../engine/index.js";
-import { DiscordCustomIdCodec } from "../interactions/discord-custom-id-codec.js";
+import {
+  type DiscordActionRouteKey,
+  DiscordCustomIdCodec,
+} from "../interactions/discord-custom-id-codec.js";
 import { DiscordIncidentRenderer } from "../renderers/discord-incident-renderer.js";
 import type { DiscordMessagePayload } from "../renderers/discord-message-payload.js";
 
@@ -48,7 +51,11 @@ export class EngineDiscordBridge {
         return incident === undefined
           ? undefined
           : {
-              payload: this.renderer.renderIncidentPrompt(event.sessionId, incident),
+              payload: this.renderer.renderIncidentPrompt(
+                incident,
+                () => this.customIdCodec.encodeAction({ key: "a1" as DiscordActionRouteKey }),
+                () => this.customIdCodec.encodeInstant({ key: "i1" as DiscordActionRouteKey }),
+              ),
               type: "send",
             };
       }

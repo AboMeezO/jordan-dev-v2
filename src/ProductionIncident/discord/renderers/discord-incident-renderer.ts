@@ -1,49 +1,47 @@
 import type {
   Action,
   GameSession,
+  GlobalStats,
   Incident,
-  SessionId,
+  VoteWindow,
 } from "../../engine/index.js";
-import { DiscordCustomIdCodec } from "../interactions/discord-custom-id-codec.js";
 import type { DiscordMessagePayload } from "./discord-message-payload.js";
 
 export class DiscordIncidentRenderer {
-  private readonly customIdCodec = new DiscordCustomIdCodec();
-
   public renderIncidentPrompt(
-    sessionId: SessionId,
     incident: Incident,
+    actionCustomId: (action: Action) => string,
+    instantCustomId: (action: Action) => string,
+    voteWindow?: VoteWindow,
   ): DiscordMessagePayload {
-    return {
-      buttons: incident.actionOptions.map((action) =>
-        this.actionButton(sessionId, incident, action),
+    const voteCountByActionId = this.voteCountByActionId(voteWindow);
+    const voteButtons = incident.actionOptions.map((action) =>
+      this.actionButton(
+        action,
+        actionCustomId(action),
+        voteCountByActionId.get(action.id) ?? 0,
       ),
-      content: `Incident: ${incident.title}`,
-      embeds: [
-        {
-          color: this.colorForSeverity(incident.severity),
-          description: incident.description,
-          fields: [
-            {
-              inline: true,
-              name: "Severity",
-              value: incident.severity,
-            },
-            {
-              inline: true,
-              name: "Service",
-              value: incident.affectedServices.join(", "),
-            },
-            {
-              name: "Actions",
-              value: incident.actionOptions
-                .map((action) => `${action.label} (${action.risk})`)
-                .join("\n"),
-            },
-          ],
-          title: incident.title,
-        },
+    );
+    const instantButtons = incident.instantActionOptions.map((action) =>
+      this.actionButton(action, instantCustomId(action), undefined, "secondary"),
+    );
+
+    return {
+      buttonRows: [
+        { buttons: voteButtons },
+        ...(instantButtons.length === 0 ? [] : [{ buttons: instantButtons }]),
       ],
+      content: [
+        "## Production Incident",
+        `**${incident.title}**`,
+        `Severity: ${this.titleCase(incident.severity)}`,
+        `Service: ${incident.affectedServices.join(", ")}`,
+        `Problem: ${incident.description}`,
+        `Voting closes: ${this.discordTimestamp(incident.votingClosesAt)}`,
+        "",
+        "Choose the team response.",
+      ].join("\n"),
+      useComponentsV2: true,
     };
   }
 
@@ -52,68 +50,82 @@ export class DiscordIncidentRenderer {
     succeeded: boolean,
   ): DiscordMessagePayload {
     return {
-      content: succeeded
-        ? `${incident.title} resolved.`
-        : `${incident.title} response failed.`,
-      embeds: [
-        {
-          color: succeeded ? 0x2ecc71 : 0xe74c3c,
-          description: `Root cause: ${incident.rootCause}`,
-          title: succeeded ? "Incident resolved" : "Incident failed",
-        },
-      ],
+      content: [
+        `## ${succeeded ? "Incident Resolved" : "Response Failed"}`,
+        `Incident: ${incident.title}`,
+        `Root cause: ${incident.rootCause}`,
+      ].join("\n"),
+      useComponentsV2: true,
     };
   }
 
   public renderSessionSummary(session: GameSession): DiscordMessagePayload {
     return {
-      content: `Session ${session.id}`,
-      embeds: [
-        {
-          fields: [
-            { inline: true, name: "Stability", value: String(session.stats.serverStability) },
-            { inline: true, name: "Sanity", value: String(session.stats.developerSanity) },
-            { inline: true, name: "Users", value: String(session.stats.userHappiness) },
-            { inline: true, name: "Cost", value: String(session.stats.infrastructureCost) },
-          ],
-          title: `Status: ${session.state.status}`,
-        },
-      ],
+      content: this.renderStatsText("System Status", session.stats, [
+        `Status: ${session.state.status}`,
+      ]),
+      useComponentsV2: true,
     };
   }
 
   public renderCommentary(message: string): DiscordMessagePayload {
     return {
-      content: message,
+      content: `## Commentary\n${message}`,
+      useComponentsV2: true,
     };
   }
 
   private actionButton(
-    sessionId: SessionId,
-    incident: Incident,
     action: Action,
+    customId: string,
+    votes?: number,
+    style?: "danger" | "primary" | "secondary" | "success",
   ): { readonly customId: string; readonly label: string; readonly style: "danger" | "primary" | "secondary" | "success" } {
+    const label = votes === undefined ? action.label : `${action.label} (${votes})`;
+
     return {
-      customId: this.customIdCodec.encodeVote({
-        actionId: action.id,
-        incidentId: incident.id,
-        sessionId,
-      }),
-      label: action.label,
-      style: action.risk === "critical" || action.risk === "high" ? "danger" : "primary",
+      customId,
+      label: label.slice(0, 80),
+      style: style ?? (action.risk === "critical" || action.risk === "high" ? "danger" : "primary"),
     };
   }
 
-  private colorForSeverity(severity: Incident["severity"]): number {
-    switch (severity) {
-      case "low":
-        return 0x3498db;
-      case "medium":
-        return 0xf1c40f;
-      case "high":
-        return 0xe67e22;
-      case "critical":
-        return 0xe74c3c;
+  private discordTimestamp(timestamp: Incident["votingClosesAt"]): string {
+    return timestamp === undefined
+      ? "soon"
+      : `<t:${Math.floor(timestamp / 1_000)}:R>`;
+  }
+
+  private renderStatsText(
+    title: string,
+    stats: GlobalStats,
+    lines: readonly string[] = [],
+  ): string {
+    return [
+      `## ${title}`,
+      ...lines,
+      `Server Stability: ${stats.serverStability}`,
+      `Developer Sanity: ${stats.developerSanity}`,
+      `User Happiness: ${stats.userHappiness}`,
+      `Infrastructure Cost: ${stats.infrastructureCost}`,
+    ].join("\n");
+  }
+
+  private titleCase(value: string): string {
+    return `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
+  }
+
+  private voteCountByActionId(voteWindow: VoteWindow | undefined): ReadonlyMap<Action["id"], number> {
+    const counts = new Map<Action["id"], number>();
+
+    if (voteWindow === undefined) {
+      return counts;
     }
+
+    for (const vote of voteWindow.votesByPlayerId.values()) {
+      counts.set(vote.actionId, (counts.get(vote.actionId) ?? 0) + 1);
+    }
+
+    return counts;
   }
 }

@@ -1,4 +1,5 @@
-import type { IncidentId, SessionId } from "../../engine/index.js";
+import type { ActionId, IncidentId, SessionId, UnixMillis } from "../../engine/index.js";
+import type { DiscordActionRouteKey } from "../interactions/discord-custom-id-codec.js";
 
 export interface DiscordSessionBinding {
   readonly channelId: string;
@@ -10,7 +11,26 @@ export interface DiscordSessionBinding {
   readonly threadId?: string;
 }
 
+export interface DiscordActionRoute {
+  readonly actionId: ActionId;
+  readonly createdAt: UnixMillis;
+  readonly expiresAt?: UnixMillis;
+  readonly incidentId: IncidentId;
+  readonly key: DiscordActionRouteKey;
+  readonly sessionId: SessionId;
+}
+
+export interface RegisterDiscordActionRouteInput {
+  readonly actionId: ActionId;
+  readonly createdAt: UnixMillis;
+  readonly expiresAt?: UnixMillis;
+  readonly incidentId: IncidentId;
+  readonly sessionId: SessionId;
+}
+
 export class DiscordSessionRegistry {
+  private actionRouteSequence = 0;
+  private readonly actionRoutes = new Map<DiscordActionRouteKey, DiscordActionRoute>();
   private readonly byChannelId = new Map<string, SessionId>();
   private readonly bySessionId = new Map<SessionId, DiscordSessionBinding>();
   private readonly incidentMessageIds = new Map<SessionId, Map<IncidentId, string>>();
@@ -39,6 +59,7 @@ export class DiscordSessionRegistry {
 
     this.bySessionId.delete(sessionId);
     this.incidentMessageIds.delete(sessionId);
+    this.cleanupSessionActionRoutes(sessionId);
   }
 
   public getByChannel(channelId: string): DiscordSessionBinding | undefined {
@@ -68,6 +89,86 @@ export class DiscordSessionRegistry {
     this.incidentMessageIds.set(sessionId, messages);
   }
 
+  public cleanupIncidentActionRoutes(
+    sessionId: SessionId,
+    incidentId: IncidentId,
+  ): void {
+    for (const [key, route] of this.actionRoutes.entries()) {
+      if (route.sessionId === sessionId && route.incidentId === incidentId) {
+        this.actionRoutes.delete(key);
+      }
+    }
+  }
+
+  public cleanupSessionActionRoutes(sessionId: SessionId): void {
+    for (const [key, route] of this.actionRoutes.entries()) {
+      if (route.sessionId === sessionId) {
+        this.actionRoutes.delete(key);
+      }
+    }
+  }
+
+  public getActionRoute(
+    key: DiscordActionRouteKey,
+    now?: UnixMillis,
+  ): DiscordActionRoute | undefined {
+    const route = this.actionRoutes.get(key);
+
+    if (route === undefined) {
+      return undefined;
+    }
+
+    if (now !== undefined && route.expiresAt !== undefined && now > route.expiresAt) {
+      this.actionRoutes.delete(key);
+      return undefined;
+    }
+
+    return route;
+  }
+
+  public getActionRouteByAction(
+    sessionId: SessionId,
+    incidentId: IncidentId,
+    actionId: ActionId,
+  ): DiscordActionRoute | undefined {
+    for (const route of this.actionRoutes.values()) {
+      if (
+        route.sessionId === sessionId &&
+        route.incidentId === incidentId &&
+        route.actionId === actionId
+      ) {
+        return route;
+      }
+    }
+
+    return undefined;
+  }
+
+  public registerActionRoute(
+    input: RegisterDiscordActionRouteInput,
+  ): DiscordActionRoute {
+    const key = this.nextActionRouteKey();
+    const route: DiscordActionRoute = input.expiresAt === undefined
+      ? {
+          actionId: input.actionId,
+          createdAt: input.createdAt,
+          incidentId: input.incidentId,
+          key,
+          sessionId: input.sessionId,
+        }
+      : {
+          actionId: input.actionId,
+          createdAt: input.createdAt,
+          expiresAt: input.expiresAt,
+          incidentId: input.incidentId,
+          key,
+          sessionId: input.sessionId,
+        };
+
+    this.actionRoutes.set(key, route);
+    return route;
+  }
+
   public updateSession(
     sessionId: SessionId,
     update: Partial<Omit<DiscordSessionBinding, "sessionId">>,
@@ -83,5 +184,10 @@ export class DiscordSessionRegistry {
       ...update,
       sessionId,
     });
+  }
+
+  private nextActionRouteKey(): DiscordActionRouteKey {
+    this.actionRouteSequence += 1;
+    return `a${this.actionRouteSequence.toString(36)}` as DiscordActionRouteKey;
   }
 }

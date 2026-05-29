@@ -5,10 +5,16 @@ export interface DiscordButtonPayload {
   readonly style: "danger" | "primary" | "secondary" | "success";
 }
 
+export interface DiscordButtonRowPayload {
+  readonly buttons: readonly DiscordButtonPayload[];
+}
+
 export interface DiscordMessagePayload {
+  readonly buttonRows?: readonly DiscordButtonRowPayload[];
   readonly buttons?: readonly DiscordButtonPayload[];
   readonly content: string;
   readonly embeds?: readonly DiscordEmbedPayload[];
+  readonly useComponentsV2?: boolean;
 }
 
 export interface DiscordEmbedPayload {
