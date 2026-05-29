@@ -1157,17 +1157,12 @@ export class ProductionIncidentDiscordService {
     }
 
     const historyCount = this.incidentHistoryCount(session);
-    const player = [...session.state.players.values()][0];
-    const employeeLine = player === undefined
-      ? "[INFO] Employee of the month: not enough data"
-      : `[STAR] Employee of the month: ${player.displayName}`;
 
     return [
       "```log",
       "[REPORT] SESSION COMPLETE",
       `[OK] Incidents handled: ${historyCount}`,
       `[WARN] Infrastructure cost: ${session.stats.infrastructureCost}`,
-      employeeLine,
       "```",
     ].join("\n");
   }
