@@ -207,6 +207,9 @@ export class InMemoryStateManager implements StateManager {
       state: {
         endedAt,
         endReason: reason,
+        incidentHistory: isHistoricalSession(session)
+          ? new Map(session.state.incidentHistory)
+          : new Map(),
         players: new Map(session.state.players),
         status: "ended",
       },
@@ -422,6 +425,7 @@ export class InMemoryStateManager implements StateManager {
           ...session,
           state: {
             ...session.state,
+            incidentHistory: cloneIncidentMap(session.state.incidentHistory),
             players: new Map(session.state.players),
           },
         };
@@ -499,6 +503,21 @@ export class InMemoryStateManager implements StateManager {
 
 function isTerminalIncidentStatus(status: Incident["status"]): boolean {
   return status === "expired" || status === "failed" || status === "resolved";
+}
+
+function isHistoricalSession(
+  session: GameSession,
+): session is GameSession & {
+  readonly state: Extract<
+    GameSession["state"],
+    { readonly status: "paused" | "recovering" | "running" }
+  >;
+} {
+  return (
+    session.state.status === "paused" ||
+    session.state.status === "recovering" ||
+    session.state.status === "running"
+  );
 }
 
 function cloneAction(action: Action): Action {

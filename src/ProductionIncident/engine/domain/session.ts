@@ -48,6 +48,7 @@ export interface RecoveringSessionState {
 export interface EndedSessionState {
   readonly endedAt: UnixMillis;
   readonly endReason: SessionEndReason;
+  readonly incidentHistory: ReadonlyMap<IncidentId, Incident>;
   readonly players: ReadonlyMap<PlayerId, Player>;
   readonly status: "ended";
 }

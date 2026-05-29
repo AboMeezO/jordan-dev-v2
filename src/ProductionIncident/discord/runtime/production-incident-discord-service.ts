@@ -21,6 +21,7 @@ import {
   type Action,
   EngineKernel,
   type GameEvent,
+  type GameSession,
   type Incident,
   type IncidentId,
   InMemoryEventBus,
@@ -45,6 +46,7 @@ import {
 } from "../renderers/production-incident-emojis.js";
 
 const MAX_PLAYERS = 8;
+const MAX_INCIDENTS = 10;
 const MIN_PLAYERS = 1;
 const COMMENTARY_FLUSH_DELAY_MS = 1_250;
 
@@ -313,11 +315,12 @@ export class ProductionIncidentDiscordService {
         `**Players:** ${result.result.value.state.players.size}`,
         "",
         "**Goal**",
-        "Survive `10 incidents` without production collapsing.",
+        `Survive \`${MAX_INCIDENTS} incidents\` without production collapsing.`,
         "صوتوا بسرعة قبل ما incident يقفل.",
         "",
         `${this.emojis.emoji("end")} Host control: **End Session**`,
       ].join("\n"),
+      accentColor: 0x02fe97,
       useComponentsV2: true,
     });
     await this.replyEphemeral(interaction, "Session started.");
@@ -492,6 +495,7 @@ export class ProductionIncidentDiscordService {
             return this.codec.encodeInstant({ key: route.key });
           },
           voteWindow,
+          this.incidentRenderOptions(event.sessionId, event.incidentId),
         );
         this.debug("incident render payload produced", {
           actionCount: incident.actionOptions.length,
@@ -512,9 +516,23 @@ export class ProductionIncidentDiscordService {
         return;
       }
       case "vote.closed":
-        this.registry.cleanupIncidentActionRoutes(event.sessionId, event.incidentId);
+        await this.updateIncidentMessage(event.sessionId, event.incidentId, {
+          disabled: true,
+          terminalText: event.selectedActionId === undefined
+            ? "No response selected."
+            : "Voting closed. Applying response.",
+        });
+
+        if (event.selectedActionId === undefined) {
+          this.registry.cleanupIncidentActionRoutes(event.sessionId, event.incidentId);
+        }
+
         return;
       case "incident.resolved": {
+        await this.updateIncidentMessage(event.sessionId, event.incidentId, {
+          disabled: true,
+          terminalText: event.succeeded ? "Fixed. Somehow." : "Failed. We tried.",
+        });
         this.registry.cleanupIncidentActionRoutes(event.sessionId, event.incidentId);
         const session = this.kernel.stateManager.getSnapshot(event.sessionId);
         const incident =
@@ -534,6 +552,10 @@ export class ProductionIncidentDiscordService {
         return;
       }
       case "incident.failed":
+        await this.updateIncidentMessage(event.sessionId, event.incidentId, {
+          disabled: true,
+          terminalText: "Pressure increased.",
+        });
         this.registry.cleanupIncidentActionRoutes(event.sessionId, event.incidentId);
         return;
       case "statistics.updated":
@@ -651,6 +673,10 @@ export class ProductionIncidentDiscordService {
   private async updateIncidentMessage(
     sessionId: SessionId,
     incidentId: IncidentId,
+    options: {
+      readonly disabled?: boolean;
+      readonly terminalText?: string;
+    } = {},
   ): Promise<void> {
     const binding = this.registry.getBySession(sessionId);
     const messageId = this.registry.getIncidentMessageId(sessionId, incidentId);
@@ -711,6 +737,7 @@ export class ProductionIncidentDiscordService {
         return this.codec.encodeInstant({ key: route.key });
       },
       voteWindow,
+      this.incidentRenderOptions(sessionId, incidentId, options),
     );
 
     await message.edit(this.toDiscordMessageOptions(payload)).catch(() => undefined);
@@ -719,18 +746,60 @@ export class ProductionIncidentDiscordService {
   private findIncident(sessionId: SessionId, incidentId: IncidentId): Incident | undefined {
     const session = this.kernel.stateManager.getSnapshot(sessionId);
 
-    if (
-      session?.state.status !== "running" &&
-      session?.state.status !== "paused" &&
-      session?.state.status !== "recovering"
-    ) {
+    if (session === undefined || session.state.status === "waiting") {
       return undefined;
+    }
+
+    if (session.state.status === "ended") {
+      return session.state.incidentHistory.get(incidentId);
     }
 
     return (
       session.state.activeIncidents.get(incidentId) ??
       session.state.incidentHistory.get(incidentId)
     );
+  }
+
+  private incidentNumber(sessionId: SessionId, incidentId: IncidentId): number | undefined {
+    const session = this.kernel.stateManager.getSnapshot(sessionId);
+
+    if (session === undefined || session.state.status === "waiting") {
+      return undefined;
+    }
+
+    const history = [...session.state.incidentHistory.keys()];
+    const historyIndex = history.findIndex((id) => id === incidentId);
+
+    if (historyIndex >= 0) {
+      return historyIndex + 1;
+    }
+
+    return session.state.status === "ended"
+      ? undefined
+      : session.state.incidentHistory.size + 1;
+  }
+
+  private incidentRenderOptions(
+    sessionId: SessionId,
+    incidentId: IncidentId,
+    options: {
+      readonly disabled?: boolean;
+      readonly terminalText?: string;
+    } = {},
+  ): {
+    readonly disabled?: boolean;
+    readonly incidentNumber?: number;
+    readonly maxIncidents?: number;
+    readonly terminalText?: string;
+  } {
+    const incidentNumber = this.incidentNumber(sessionId, incidentId);
+
+    return {
+      maxIncidents: MAX_INCIDENTS,
+      ...(incidentNumber === undefined ? {} : { incidentNumber }),
+      ...(options.disabled === undefined ? {} : { disabled: options.disabled }),
+      ...(options.terminalText === undefined ? {} : { terminalText: options.terminalText }),
+    };
   }
 
   private queueCommentary(
@@ -824,19 +893,19 @@ export class ProductionIncidentDiscordService {
           customId: this.codec.encodeLobby({ action: "join", sessionId }),
           disabled,
           label: `${this.emojis.emoji("users")} Join`,
-          style: "primary",
+          style: "secondary",
         },
         {
           customId: this.codec.encodeLobby({ action: "start", sessionId }),
           disabled,
           label: `${this.emojis.emoji("incident")} Start`,
-          style: "success",
+          style: "secondary",
         },
         {
           customId: this.codec.encodeLobby({ action: "cancel", sessionId }),
           disabled,
           label: `${this.emojis.emoji("end")} Cancel`,
-          style: "danger",
+          style: "secondary",
         },
       ],
       content: [
@@ -847,6 +916,7 @@ export class ProductionIncidentDiscordService {
         `**Status:** ${this.titleCase(status)}`,
         `**Session:** \`${this.shortSessionId(sessionId)}\``,
       ].join("\n"),
+      accentColor: 0x02fe97,
       useComponentsV2: true,
     };
   }
@@ -867,6 +937,7 @@ export class ProductionIncidentDiscordService {
           `${player.displayName} - ${this.roleDisplayName(player.roleId)}`,
         ),
       ].join("\n"),
+      accentColor: 0x02fe97,
       useComponentsV2: true,
     };
   }
@@ -885,29 +956,29 @@ export class ProductionIncidentDiscordService {
         `**User happiness:** ${stats.userHappiness}`,
         `**Cost:** ${stats.infrastructureCost}`,
       ].join("\n"),
+      accentColor: 0x02fe97,
       useComponentsV2: true,
     };
   }
 
   private renderFinalReport(sessionId: SessionId): DiscordMessagePayload {
     const session = this.kernel.stateManager.getSnapshot(sessionId);
-    const historyCount =
-      session?.state.status === "running" ||
-      session?.state.status === "paused" ||
-      session?.state.status === "recovering"
-        ? session.state.incidentHistory.size
-        : 0;
+    const endReason = session?.state.status === "ended" ? session.state.endReason : undefined;
+    const historyCount = this.incidentHistoryCount(session);
 
     return {
       content: [
         `${this.emojis.emoji("end")} **Final Report**`,
-        `**Final status:** ${session?.state.status ?? "ended"}`,
+        `**Result:** ${this.sessionResultText(endReason)}`,
         `**Incidents handled:** ${historyCount}`,
         `**Stability:** ${session?.stats.serverStability ?? 0}`,
         `**Developer sanity:** ${session?.stats.developerSanity ?? 0}`,
         `**User happiness:** ${session?.stats.userHappiness ?? 0}`,
         `**Cost:** ${session?.stats.infrastructureCost ?? 0}`,
+        "",
+        this.finalReportBlock(session),
       ].join("\n"),
+      accentColor: endReason === "survived" ? 0x02fe97 : 0xff5c5c,
       useComponentsV2: true,
     };
   }
@@ -970,6 +1041,7 @@ export class ProductionIncidentDiscordService {
 
     if (payload.useComponentsV2 === true) {
       const container = new ContainerBuilder()
+        .setAccentColor(payload.accentColor ?? 0x02fe97)
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(payload.content),
         );
@@ -1077,6 +1149,51 @@ export class ProductionIncidentDiscordService {
       (typeof error.code === "string" || typeof error.code === "number")
       ? String(error.code)
       : undefined;
+  }
+
+  private finalReportBlock(session: GameSession | undefined): string {
+    if (session === undefined) {
+      return "```log\n[REPORT] SESSION COMPLETE\n[WARN] Session data unavailable\n```";
+    }
+
+    const historyCount = this.incidentHistoryCount(session);
+    const player = [...session.state.players.values()][0];
+    const employeeLine = player === undefined
+      ? "[INFO] Employee of the month: not enough data"
+      : `[STAR] Employee of the month: ${player.displayName}`;
+
+    return [
+      "```log",
+      "[REPORT] SESSION COMPLETE",
+      `[OK] Incidents handled: ${historyCount}`,
+      `[WARN] Infrastructure cost: ${session.stats.infrastructureCost}`,
+      employeeLine,
+      "```",
+    ].join("\n");
+  }
+
+  private incidentHistoryCount(session: GameSession | undefined): number {
+    if (session === undefined || session.state.status === "waiting") {
+      return 0;
+    }
+
+    return session.state.incidentHistory.size;
+  }
+
+  private sessionResultText(reason: string | undefined): string {
+    switch (reason) {
+      case "cancelled":
+      case "shutdown":
+        return "Manually ended";
+      case "failed":
+        return "Production collapsed";
+      case "survived":
+        return "Survived";
+      case "timed-out":
+        return "Timed out";
+      default:
+        return "Ended";
+    }
   }
 
   private roleDisplayName(roleId: string | undefined): string {

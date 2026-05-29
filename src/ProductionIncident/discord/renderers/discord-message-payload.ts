@@ -10,6 +10,7 @@ export interface DiscordButtonRowPayload {
 }
 
 export interface DiscordMessagePayload {
+  readonly accentColor?: number;
   readonly buttonRows?: readonly DiscordButtonRowPayload[];
   readonly buttons?: readonly DiscordButtonPayload[];
   readonly content: string;

@@ -17,6 +17,12 @@ export class DiscordIncidentRenderer {
     actionCustomId: (action: Action) => string,
     instantCustomId: (action: Action) => string,
     voteWindow?: VoteWindow,
+    options: {
+      readonly disabled?: boolean;
+      readonly incidentNumber?: number;
+      readonly maxIncidents?: number;
+      readonly terminalText?: string;
+    } = {},
   ): DiscordMessagePayload {
     const voteCountByActionId = this.voteCountByActionId(voteWindow);
     const voteButtons = incident.actionOptions.map((action) =>
@@ -24,25 +30,34 @@ export class DiscordIncidentRenderer {
         action,
         actionCustomId(action),
         voteCountByActionId.get(action.id) ?? 0,
+        options.disabled ?? false,
       ),
     );
     const instantButtons = incident.instantActionOptions.map((action) =>
-      this.actionButton(action, instantCustomId(action), undefined, "secondary"),
+      this.actionButton(
+        action,
+        instantCustomId(action),
+        undefined,
+        options.disabled ?? false,
+        "secondary",
+      ),
     );
 
     return {
+      accentColor: this.accentForIncident(incident),
       buttonRows: [
         { buttons: voteButtons },
         ...(instantButtons.length === 0 ? [] : [{ buttons: instantButtons }]),
       ],
       content: [
         `${this.emojis.emoji("incident")} **Production Incident**`,
+        this.incidentCounter(options.incidentNumber, options.maxIncidents),
         `\`${incident.title}\``,
         "",
         `**Severity:** ${this.titleCase(incident.severity)}`,
         `**Service:** ${incident.affectedServices.join(", ")}`,
         `**Problem:** ${incident.description}`,
-        `**Voting closes:** ${this.votingCloseText(incident, voteWindow)}`,
+        this.stateLine(incident, voteWindow, options.terminalText),
         "",
         "اختاروا team response بسرعة.",
       ].join("\n"),
@@ -61,6 +76,7 @@ export class DiscordIncidentRenderer {
         "",
         `**Root cause:** ${incident.rootCause}`,
       ].join("\n"),
+      accentColor: succeeded ? 0x02fe97 : 0xff5c5c,
       useComponentsV2: true,
     };
   }
@@ -70,6 +86,7 @@ export class DiscordIncidentRenderer {
       content: this.renderStatsText("System Status", session.stats, [
         `Status: ${session.state.status}`,
       ]),
+      accentColor: 0x02fe97,
       useComponentsV2: true,
     };
   }
@@ -77,6 +94,7 @@ export class DiscordIncidentRenderer {
   public renderCommentary(message: string): DiscordMessagePayload {
     return {
       content: `${this.emojis.emoji("warning")} **System Notes**\n${message}`,
+      accentColor: 0xf1c40f,
       useComponentsV2: true,
     };
   }
@@ -91,6 +109,7 @@ export class DiscordIncidentRenderer {
         message,
         ...(incident === undefined ? [] : ["", renderIncidentLogsBlock(incident, "diff")]),
       ].join("\n"),
+      accentColor: 0x02fe97,
       useComponentsV2: true,
     };
   }
@@ -99,8 +118,14 @@ export class DiscordIncidentRenderer {
     action: Action,
     customId: string,
     votes?: number,
+    disabled = false,
     style?: "danger" | "primary" | "secondary" | "success",
-  ): { readonly customId: string; readonly label: string; readonly style: "danger" | "primary" | "secondary" | "success" } {
+  ): {
+    readonly customId: string;
+    readonly disabled?: boolean;
+    readonly label: string;
+    readonly style: "danger" | "primary" | "secondary" | "success";
+  } {
     const emoji = this.emojis.emoji(action.emojiKey);
     const prefix = emoji.length === 0 ? "" : `${emoji} `;
     const label = votes === undefined
@@ -109,8 +134,9 @@ export class DiscordIncidentRenderer {
 
     return {
       customId,
+      disabled,
       label: label.slice(0, 80),
-      style: style ?? (action.risk === "critical" || action.risk === "high" ? "danger" : "primary"),
+      style: style ?? "secondary",
     };
   }
 
@@ -126,6 +152,46 @@ export class DiscordIncidentRenderer {
     }
 
     return this.discordTimestamp(incident.votingClosesAt);
+  }
+
+  private stateLine(
+    incident: Incident,
+    voteWindow: VoteWindow | undefined,
+    terminalText: string | undefined,
+  ): string {
+    if (terminalText !== undefined) {
+      return `**State:** ${terminalText}`;
+    }
+
+    const text = this.votingCloseText(incident, voteWindow);
+    return text === "Voting closed."
+      ? "**State:** Voting closed."
+      : `**Voting closes:** ${text}`;
+  }
+
+  private accentForIncident(incident: Incident): number {
+    switch (incident.severity) {
+      case "critical":
+        return 0xff5c5c;
+      case "high":
+        return 0xf1c40f;
+      case "low":
+      case "medium":
+        return 0x02fe97;
+    }
+  }
+
+  private incidentCounter(
+    incidentNumber: number | undefined,
+    maxIncidents: number | undefined,
+  ): string {
+    if (incidentNumber === undefined) {
+      return "";
+    }
+
+    return maxIncidents === undefined
+      ? `**Incident #${incidentNumber}**`
+      : `**Incident ${incidentNumber}/${maxIncidents}**`;
   }
 
   private renderStatsText(

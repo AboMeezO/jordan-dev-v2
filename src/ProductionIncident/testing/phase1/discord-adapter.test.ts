@@ -149,6 +149,39 @@ const prompt = renderer.renderIncidentPrompt({
 assert.equal(prompt.buttonRows?.[0]?.buttons[0]?.customId, encodedAction);
 assert.match(prompt.buttonRows?.[0]?.buttons[0]?.label ?? "", /\(1\)$/);
 assert.match(prompt.content, /Voting closes:\*\* <t:/);
+const terminalPrompt = renderer.renderIncidentPrompt({
+  actionOptions: [
+    {
+      failure: { immediate: { serverStability: -1 } },
+      id: actionId,
+      kind: "vote",
+      label: "Restart API",
+      risk: "medium",
+      success: { immediate: { serverStability: 1 } },
+      successRate: 0.8,
+      tags: ["restart"],
+    },
+  ],
+  affectedServices: ["API Gateway"],
+  category: "performance",
+  createdAt: 1 as UnixMillis,
+  description: "Requests are timing out.",
+  id: incidentId,
+  instantActionOptions: [],
+  rootCause: "connection pool exhaustion",
+  severity: "high",
+  status: "resolved",
+  templateId: "template-api" as IncidentTemplateId,
+  title: "API latency",
+}, () => encodedAction, () => codec.encodeInstant({ key: actionRoute.key }), undefined, {
+  disabled: true,
+  incidentNumber: 3,
+  maxIncidents: 10,
+  terminalText: "Fixed. Somehow.",
+});
+assert.match(terminalPrompt.content, /Incident 3\/10/);
+assert.match(terminalPrompt.content, /State:\*\* Fixed/);
+assert.equal(terminalPrompt.buttonRows?.[0]?.buttons[0]?.disabled, true);
 assert.throws(() => codec.decodeAction("pi:v1:a:invalid:key"));
 assert.deepEqual(codec.decodeInstant(codec.encodeInstant({ key: actionRoute.key })), {
   key: actionRoute.key,
