@@ -1,6 +1,5 @@
 import type { Message } from "discord.js";
 
-const OWNER_USER_ID = "1505948082041393274";
 const LOVE_YOU_PATTERN = /\blove\s+(?:you|u)\b/i;
 const LOVE_REPLIES = [
   "Love you too babe",
@@ -11,7 +10,7 @@ const LOVE_REPLIES = [
 ] as const;
 
 export default async function (message: Message): Promise<void> {
-  if (message.author.bot || message.author.id !== OWNER_USER_ID) {
+  if (message.author.bot) {
     return;
   }
 
