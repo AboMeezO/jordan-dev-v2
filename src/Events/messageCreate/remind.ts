@@ -16,13 +16,12 @@ export default async function (
   }
 
   const prefix = process.env.PREFIX ?? DEFAULT_PREFIX;
-  const commandPrefix = `${prefix}remind`;
+  const [commandName, ...args] = message.content.trim().split(/\s+/);
 
-  if (!message.content.toLowerCase().startsWith(commandPrefix)) {
+  if (commandName?.toLowerCase() !== `${prefix}remind`) {
     return;
   }
 
-  const args = message.content.slice(commandPrefix.length).trim().split(/\s+/);
   const { delivery, message: reminderMessage, time } =
     parsePrefixReminderArgs(args);
 

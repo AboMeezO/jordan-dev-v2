@@ -17,8 +17,9 @@ export default async function (
   }
 
   const prefix = process.env.PREFIX ?? DEFAULT_PREFIX;
+  const [commandName] = message.content.trim().split(/\s+/);
 
-  if (message.content.trim().toLowerCase() !== `${prefix}reminders`) {
+  if (commandName?.toLowerCase() !== `${prefix}reminders`) {
     return;
   }
 
