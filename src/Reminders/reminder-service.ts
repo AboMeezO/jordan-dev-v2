@@ -14,31 +14,101 @@ export interface ReminderRequest {
   readonly delivery: ReminderDelivery;
 }
 
+export interface ReminderRecord extends ReminderRequest {
+  readonly id: string;
+  readonly createdAt: Date;
+}
+
 const MAX_TIMEOUT_MS = 2_147_483_647;
 
 export class ReminderService {
   private readonly timers = new Map<string, NodeJS.Timeout>();
+  private readonly reminders = new Map<string, ReminderRecord>();
 
   public constructor(private readonly client: Client) {}
 
-  public schedule(request: ReminderRequest): string {
+  public schedule(request: ReminderRequest): ReminderRecord {
     const id = randomUUID();
-    const delay = Math.max(0, request.remindAt.getTime() - Date.now());
-    const timeout = setTimeout(() => {
-      void this.deliver(id, request);
-    }, Math.min(delay, MAX_TIMEOUT_MS));
+    const record = {
+      ...request,
+      createdAt: new Date(),
+      id,
+    };
 
-    this.timers.set(id, timeout);
-    return id;
+    this.reminders.set(id, record);
+    this.scheduleTimer(record);
+    return record;
   }
 
-  private async deliver(id: string, request: ReminderRequest): Promise<void> {
+  public listForUser(userId: Snowflake): readonly ReminderRecord[] {
+    return [...this.reminders.values()]
+      .filter((reminder) => reminder.userId === userId)
+      .sort((a, b) => a.remindAt.getTime() - b.remindAt.getTime());
+  }
+
+  public get(id: string): ReminderRecord | undefined {
+    return this.reminders.get(id);
+  }
+
+  public update(
+    id: string,
+    updates: Partial<Pick<ReminderRequest, "delivery" | "message" | "remindAt">>,
+  ): ReminderRecord | undefined {
+    const current = this.reminders.get(id);
+
+    if (!current) {
+      return undefined;
+    }
+
+    const next = {
+      ...current,
+      ...updates,
+    };
+
+    this.clearTimer(id);
+    this.reminders.set(id, next);
+    this.scheduleTimer(next);
+    return next;
+  }
+
+  public cancel(id: string): boolean {
+    this.clearTimer(id);
+    return this.reminders.delete(id);
+  }
+
+  private scheduleTimer(record: ReminderRecord): void {
+    const delay = Math.max(0, record.remindAt.getTime() - Date.now());
+    const timeout = setTimeout(() => {
+      void this.deliver(record.id);
+    }, Math.min(delay, MAX_TIMEOUT_MS));
+
+    this.timers.set(record.id, timeout);
+  }
+
+  private clearTimer(id: string): void {
+    const timer = this.timers.get(id);
+
+    if (timer) {
+      clearTimeout(timer);
+      this.timers.delete(id);
+    }
+  }
+
+  private async deliver(id: string): Promise<void> {
+    const request = this.reminders.get(id);
+
+    if (!request) {
+      return;
+    }
+
     this.timers.delete(id);
 
     if (request.remindAt.getTime() - Date.now() > MAX_TIMEOUT_MS) {
-      this.schedule(request);
+      this.scheduleTimer(request);
       return;
     }
+
+    this.reminders.delete(id);
 
     const content = [
       `<@${request.userId}> reminder`,
