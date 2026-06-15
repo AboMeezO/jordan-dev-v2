@@ -5,10 +5,11 @@ import {
   UserButton,
   useUser,
 } from '@clerk/tanstack-react-start'
-import { verificationResultSchema } from '@jordan-devs/shared'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { CheckCircle2, ShieldCheck, Unlink } from 'lucide-react'
+
+import { verificationResultSchema } from '../verification'
 
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>) => ({
