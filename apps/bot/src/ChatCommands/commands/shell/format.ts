@@ -11,7 +11,44 @@ import type {
 } from "#ChatCommands";
 
 export function shellOutput(lines: readonly string[]): string {
-  return `\`\`\`\n${lines.join("\n").slice(0, 1900)}\n\`\`\``;
+  return `\`\`\`ansi\n${lines.map(colorizeShellLine).join("\n").slice(0, 1900)}\n\`\`\``;
+}
+
+function colorizeShellLine(line: string): string {
+  if (line.length === 0) {
+    return line;
+  }
+
+  if (line === "not found" || line.startsWith("No ")) {
+    return ansi(line, "red");
+  }
+
+  if (/^[A-Z_]+(?:\s{2,}[A-Z_]+)+/.test(line)) {
+    return ansi(line, "yellow");
+  }
+
+  const separatorIndex = line.indexOf("=");
+
+  if (separatorIndex > 0) {
+    return `${ansi(line.slice(0, separatorIndex), "cyan")}=${ansi(
+      line.slice(separatorIndex + 1),
+      "green",
+    )}`;
+  }
+
+  return ansi(line, "white");
+}
+
+function ansi(text: string, color: "cyan" | "green" | "red" | "white" | "yellow"): string {
+  const colors = {
+    cyan: 36,
+    green: 32,
+    red: 31,
+    white: 37,
+    yellow: 33,
+  } as const;
+
+  return `\u001b[${colors[color]}m${text}\u001b[0m`;
 }
 
 export function formatDuration(totalSeconds: number): string {
@@ -106,4 +143,3 @@ export function sortedRootCommands(
     left.name.localeCompare(right.name),
   );
 }
-
