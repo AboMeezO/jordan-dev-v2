@@ -15,6 +15,7 @@
     "paths": {
       "#Utilities": ["src/Utilities/index.ts"],
       "#Database": ["src/Database/index.ts"],
+      "#ChatCommands": ["src/ChatCommands/index.ts"],
       "#Assets": ["Assets/"]
     }
   },
