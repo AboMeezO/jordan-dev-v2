@@ -76,6 +76,34 @@ export async function dispatchChatCommand(
   return true;
 }
 
+export async function executeChatCommandResolution(
+  input: DispatchChatCommandInput & {
+    readonly resolution: ChatCommandResolution;
+  },
+): Promise<boolean> {
+  const { resolution } = input;
+
+  if (!resolution.command.execute) {
+    await input.message.reply(renderUsageGuide({
+      command: resolution.command,
+      commandPath: resolution.invocation.commandPath,
+      permission: resolution.permission,
+      prefix: resolution.invocation.prefix,
+      subcommands: resolution.subcommands,
+    }));
+    return true;
+  }
+
+  await resolution.command.execute({
+    client: input.client,
+    invocation: resolution.invocation,
+    message: input.message,
+    registry: input.registry,
+  });
+
+  return true;
+}
+
 function resolveMessageCommand(
   input: DispatchChatCommandInput,
 ):

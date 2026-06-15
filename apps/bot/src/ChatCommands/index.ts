@@ -1,7 +1,14 @@
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
-export { dispatchChatCommand } from "./dispatcher.js";
+export {
+  dispatchChatCommand,
+  executeChatCommandResolution,
+} from "./dispatcher.js";
 export { commandGroup, commandTree, subcommand } from "./hierarchy.js";
 export { parseChatCommandInput, tokenizeShellLike } from "./parser.js";
+export {
+  canUseChatCommand,
+  comparePermissionLevels,
+} from "./permissions.js";
 export { ChatCommandRegistry } from "./registry.js";
 export type {
   ChatCommandArgumentGuide,

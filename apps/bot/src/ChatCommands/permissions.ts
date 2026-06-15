@@ -14,6 +14,13 @@ const permissionRank: Readonly<Record<ChatPermissionLevel, number>> = {
   public: 0,
 };
 
+export function comparePermissionLevels(
+  left: ChatPermissionLevel,
+  right: ChatPermissionLevel,
+): number {
+  return permissionRank[left] - permissionRank[right];
+}
+
 export function maxPermissionLevel(
   levels: readonly (ChatPermissionLevel | undefined)[],
 ): ChatPermissionLevel {
