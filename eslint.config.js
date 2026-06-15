@@ -1,22 +1,24 @@
 import js from "@eslint/js";
+import { globalIgnores } from "eslint/config";
 import tseslint from "typescript-eslint";
 import unusedImports from "eslint-plugin-unused-imports";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default tseslint.config(
+  globalIgnores(["**/.output/**", "**/dist/**", "eslint.config.js"]),
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
 
   {
-    ignores: ["dist/**", "eslint.config.js"],
-  },
-
-  {
-    files: ["**/*.ts"],
+    files: ["**/*.{ts,tsx}"],
 
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
+        project: [
+          "./apps/*/tsconfig.json",
+          "./packages/*/tsconfig.json",
+        ],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
 
@@ -68,14 +70,14 @@ export default tseslint.config(
   // OVERRIDES (Discord patterns)
   // =========================
   {
-    files: ["src/Events/**/*.ts"],
+    files: ["apps/bot/src/Events/**/*.ts"],
     rules: {
       "@typescript-eslint/no-floating-promises": "error",
     },
   },
 
   {
-    files: ["src/Commands/**/*.ts"],
+    files: ["apps/bot/src/Commands/**/*.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
     },
