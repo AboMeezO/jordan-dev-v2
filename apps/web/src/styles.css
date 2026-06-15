@@ -1,0 +1,23 @@
+
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+}
