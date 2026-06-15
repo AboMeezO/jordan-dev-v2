@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: jordan-devs-backend
+    runtime: node
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build:shared && pnpm run build:backend
+    startCommand: pnpm --dir apps/backend start
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_JWT_KEY
+        sync: false
+      - key: CLERK_AUTHORIZED_PARTIES
+        sync: false
