@@ -1,30 +1,35 @@
 {
-  "name": "@jordan-devs/v2",
+  "name": "jordan-devs-platform",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.ts",
+  "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.25.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "esbuild",
+      "lightningcss",
+      "unrs-resolver"
+    ]
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "tsx --watch index.ts",
-    "lint": "eslint .",
+    "dev": "pnpm run dev:bot",
+    "dev:bot": "pnpm --dir apps/bot dev",
+    "dev:backend": "pnpm --dir packages/shared build && pnpm --dir apps/backend dev",
+    "dev:web": "pnpm --dir apps/web dev",
+    "build": "pnpm run build:shared && pnpm run build:backend && pnpm run build:web && pnpm run build:bot",
+    "build:bot": "pnpm --dir apps/bot build",
+    "build:backend": "pnpm --dir apps/backend build",
+    "build:shared": "pnpm --dir packages/shared build",
+    "build:web": "pnpm --dir apps/web build",
+    "lint": "eslint --no-config-lookup --config eslint.config.js apps/backend/src apps/bot/index.ts apps/bot/src apps/web/src packages/shared/src",
     "lint:fix": "eslint . --fix",
-    "test:phase1": "tsx src/ProductionIncident/testing/phase1/phase1-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/session-lifecycle.test.ts && tsx src/ProductionIncident/testing/phase1/event-flow.test.ts && tsx src/ProductionIncident/testing/phase1/invalid-transitions.test.ts && tsx src/ProductionIncident/testing/phase1/deterministic-replay.test.ts && tsx src/ProductionIncident/testing/phase1/full-gameplay-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/hardening.test.ts && tsx src/ProductionIncident/testing/phase1/discord-adapter.test.ts && tsx src/ProductionIncident/testing/phase1/long-runtime-simulation.test.ts",
-    "check": "npm run lint && npm run lint:fix",
-    "build": "npm run lint && tsc"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "commandkit": "github:AboMeezO/DevRoots-Commandkit",
-    "discord.js": "^14.26.4",
-    "dotenv": "^17.4.2"
-  },
-  "imports": {
-    "#Utilities": "./dist/src/Utilities/index.js",
-    "#Database": "./dist/src/Database/index.js",
-    "#Assets": "./Assets/"
+    "test:phase1": "pnpm --dir apps/bot test:phase1",
+    "check": "npm run lint && npm run build"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -35,7 +40,6 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.6.0",
     "prettier": "^3.8.3",
-    "ts-node": "^10.9.2",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4"

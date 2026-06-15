@@ -1,0 +1,23 @@
+{
+  "name": "@jordan-devs/bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx --watch index.ts",
+    "build": "tsc -p tsconfig.json",
+    "test:phase1": "tsx src/ProductionIncident/testing/phase1/phase1-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/session-lifecycle.test.ts && tsx src/ProductionIncident/testing/phase1/event-flow.test.ts && tsx src/ProductionIncident/testing/phase1/invalid-transitions.test.ts && tsx src/ProductionIncident/testing/phase1/deterministic-replay.test.ts && tsx src/ProductionIncident/testing/phase1/full-gameplay-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/hardening.test.ts && tsx src/ProductionIncident/testing/phase1/discord-adapter.test.ts && tsx src/ProductionIncident/testing/phase1/long-runtime-simulation.test.ts"
+  },
+  "dependencies": {
+    "commandkit": "github:AboMeezO/DevRoots-Commandkit",
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2"
+  },
+  "imports": {
+    "#Utilities": "./dist/src/Utilities/index.js",
+    "#Database": "./dist/src/Database/index.js",
+    "#Assets": "./Assets/"
+  }
+}
