@@ -26,8 +26,8 @@ export const jdCommand = commandTree({
         description: "Check command dispatch.",
       },
       {
-        command: "jd help remind",
-        description: "Show the guide for the prefix-only reminder command.",
+        command: "man whoami",
+        description: "Show a shell-style command guide.",
       },
     ],
     formats: ["jd <subcommand>", "jd <group> <subcommand>"],
