@@ -38,6 +38,7 @@ const MUTED_VALUES = new Set([
   "unknown",
 ]);
 const DANGER_KEYS = new Set(["denied", "error", "missing"]);
+const KEY_VALUE_PATTERN = /(?:^|\s)([A-Za-z_][\w-]*)=/g;
 const ACTION_COLORS: Readonly<Record<string, AnsiColor>> = {
   ban: "red",
   kick: "yellow",
@@ -74,21 +75,30 @@ function colorizeKeyValueLine(
   line: string,
   forcedValueColor?: AnsiColor,
 ): string {
-  return line
-    .split(" ")
-    .map((token) => colorizeToken(token, forcedValueColor))
-    .join(" ");
-}
+  const fields = parseKeyValueFields(line);
 
-function colorizeToken(token: string, forcedValueColor?: AnsiColor): string {
-  const separatorIndex = token.indexOf("=");
-
-  if (separatorIndex <= 0) {
-    return colorizeLooseToken(token);
+  if (fields.length === 0) {
+    return colorizeLooseToken(line);
   }
 
-  const key = token.slice(0, separatorIndex);
-  const value = token.slice(separatorIndex + 1);
+  const chunks: string[] = [];
+
+  for (const field of fields) {
+    if (field.leading.length > 0) {
+      chunks.push(field.leading);
+    }
+
+    chunks.push(colorizeField(field.key, field.value, forcedValueColor));
+  }
+
+  return chunks.join("");
+}
+
+function colorizeField(
+  key: string,
+  value: string,
+  forcedValueColor?: AnsiColor,
+): string {
   const valueColor = forcedValueColor ?? valueColorFor(key, value);
 
   return `${ansi(key, keyColorFor(key), "bold")}${ansi("=", "white")}${ansi(
@@ -96,6 +106,31 @@ function colorizeToken(token: string, forcedValueColor?: AnsiColor): string {
     valueColor,
     shouldBoldValue(key, value) ? "bold" : "normal",
   )}`;
+}
+
+function parseKeyValueFields(line: string): readonly {
+  readonly key: string;
+  readonly leading: string;
+  readonly value: string;
+}[] {
+  const matches = [...line.matchAll(KEY_VALUE_PATTERN)];
+
+  return matches.map((match, index) => {
+    const matchIndex = match.index ?? 0;
+    const fullMatch = match[0] ?? "";
+    const key = match[1] ?? "";
+    const keyStart = fullMatch.startsWith(" ") ? matchIndex + 1 : matchIndex;
+    const valueStart = keyStart + key.length + 1;
+    const nextMatch = matches[index + 1];
+    const valueEnd = nextMatch?.index ?? line.length;
+    const leading = line.slice(matchIndex, keyStart);
+
+    return {
+      key,
+      leading,
+      value: line.slice(valueStart, valueEnd).trimEnd(),
+    };
+  });
 }
 
 function colorizeLooseToken(token: string): string {
