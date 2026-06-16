@@ -136,4 +136,20 @@ const prefixedLookalike = parseChatCommandInput("!remindera 10m nope", "!");
 
 assert.equal(prefixedLookalike?.segments[0]?.words[0], "remindera");
 
+const moderationMention = parseChatCommandInput(
+  "jd tools mod ban <@1496359129986371674> مزاج",
+  "",
+);
+
+assert.ok(moderationMention);
+assert.deepEqual(moderationMention.segments[0]?.words, [
+  "jd",
+  "tools",
+  "mod",
+  "ban",
+  "<@1496359129986371674>",
+  "مزاج",
+]);
+assert.deepEqual(moderationMention.segments[0]?.redirects, []);
+
 console.log("chat-command-parser.test.ts passed");

@@ -106,6 +106,14 @@ export function tokenizeShellLike(input: string): readonly Token[] {
       continue;
     }
 
+    const discordToken = readDiscordAngleToken(input, index);
+
+    if (discordToken) {
+      current += discordToken.value;
+      index += discordToken.length - 1;
+      continue;
+    }
+
     const operator = readOperator(input, index);
 
     if (operator) {
@@ -125,6 +133,25 @@ export function tokenizeShellLike(input: string): readonly Token[] {
 
   pushWord(tokens, current);
   return tokens;
+}
+
+function readDiscordAngleToken(
+  input: string,
+  index: number,
+): { readonly value: string; readonly length: number } | undefined {
+  if (input[index] !== "<" || !"@#:".includes(input[index + 1] ?? "")) {
+    return undefined;
+  }
+
+  const endIndex = input.indexOf(">", index + 1);
+
+  if (endIndex === -1) {
+    return undefined;
+  }
+
+  const value = input.slice(index, endIndex + 1);
+
+  return { length: value.length, value };
 }
 
 function buildSegments(tokens: readonly Token[]): readonly ChatCommandSegment[] {
