@@ -34,16 +34,36 @@ export function parsePrefixReminderArgs(args: readonly string[]): {
   readonly time: string | undefined;
 } {
   const remaining = [...args];
-  const delivery =
-    remaining[0] === "--dm" || remaining[0]?.toLowerCase() === "dm"
-      ? "dm"
-      : "channel";
+  let delivery: ReminderDelivery = "channel";
+  let time: string | undefined;
 
-  if (delivery === "dm") {
-    remaining.shift();
+  while (remaining[0]) {
+    const option = remaining[0].toLowerCase();
+
+    if (option === "--dm" || option === "dm") {
+      delivery = "dm";
+      remaining.shift();
+      continue;
+    }
+
+    const inlineTime = option.match(/^--(?:time|at|in)=.+$/);
+
+    if (inlineTime) {
+      const current = remaining.shift();
+      time = current?.slice(current.indexOf("=") + 1);
+      continue;
+    }
+
+    if (option === "--time" || option === "--at" || option === "--in") {
+      remaining.shift();
+      time = extractTimeInput(remaining);
+      continue;
+    }
+
+    break;
   }
 
-  const time = extractTimeInput(remaining);
+  time ??= extractTimeInput(remaining);
 
   return {
     delivery,
@@ -138,9 +158,53 @@ function extractTimeInput(args: string[]): string | undefined {
     return undefined;
   }
 
-  if (/^(?:in|after)$/i.test(first) && args[0]) {
-    return `${first} ${args.shift()}`;
+  if (/^(?:in|after)$/i.test(first)) {
+    const relativeParts = consumeRelativeDurationParts(args);
+    return relativeParts.length > 0 ? `${first} ${relativeParts.join(" ")}` : first;
+  }
+
+  const relativeParts = consumeRelativeDurationParts(args);
+
+  if (isRelativeDurationPart(first) && relativeParts.length > 0) {
+    return [first, ...relativeParts].join(" ");
   }
 
   return first;
 }
+
+function consumeRelativeDurationParts(args: string[]): string[] {
+  const parts: string[] = [];
+
+  while (args[0]) {
+    if (isRelativeDurationPart(args[0])) {
+      parts.push(args.shift() ?? "");
+      continue;
+    }
+
+    if (args[1] && isPositiveInteger(args[0]) && isRelativeDurationUnit(args[1])) {
+      parts.push(`${args.shift()} ${args.shift()}`);
+      continue;
+    }
+
+    break;
+  }
+
+  return parts;
+}
+
+function isRelativeDurationPart(value: string): boolean {
+  return new RegExp(`^\\d+\\s*(?:${RELATIVE_DURATION_UNIT_PATTERN})$`, "i").test(
+    value,
+  );
+}
+
+function isRelativeDurationUnit(value: string): boolean {
+  return new RegExp(`^(?:${RELATIVE_DURATION_UNIT_PATTERN})$`, "i").test(value);
+}
+
+function isPositiveInteger(value: string): boolean {
+  return /^\d+$/.test(value) && Number(value) > 0;
+}
+
+const RELATIVE_DURATION_UNIT_PATTERN =
+  "s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks";

@@ -15,6 +15,16 @@ assert.equal(
 );
 
 assert.equal(
+  parseReminderTime("9d 12h", now)?.date.toISOString(),
+  "2026-06-23T22:00:00.000Z",
+);
+
+assert.equal(
+  parseReminderTime("in 1w 2d 12h 30m", now)?.date.toISOString(),
+  "2026-06-23T22:30:00.000Z",
+);
+
+assert.equal(
   parseReminderTime("2026-06-15T09:30:00.000Z", now)?.date.toISOString(),
   "2026-06-15T09:30:00.000Z",
 );

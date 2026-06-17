@@ -1,5 +1,7 @@
 const RELATIVE_PATTERN =
   /^(?:in\s+|after\s+)?(?<amount>\d+)\s*(?<unit>s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks)$/i;
+const RELATIVE_PART_PATTERN =
+  /(?<amount>\d+)\s*(?<unit>s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks)/gi;
 const CLOCK_PATTERN = /^(?<hour>\d{1,2}):(?<minute>\d{2})(?:\s*(?<period>am|pm))?$/i;
 
 const UNIT_MS: Readonly<Record<string, number>> = {
@@ -60,6 +62,11 @@ export function parseReminderTime(
 }
 
 function parseRelativeTimestamp(input: string, now: Date): number | null {
+  const combinedTimestamp = parseCombinedRelativeTimestamp(input, now);
+  if (combinedTimestamp !== null) {
+    return combinedTimestamp;
+  }
+
   const match = RELATIVE_PATTERN.exec(input);
   const groups = match?.groups;
 
@@ -79,6 +86,41 @@ function parseRelativeTimestamp(input: string, now: Date): number | null {
   }
 
   return now.getTime() + amount * unitMs;
+}
+
+function parseCombinedRelativeTimestamp(input: string, now: Date): number | null {
+  const value = input.replace(/^(?:in|after)\s+/i, "").trim();
+
+  if (!/\s/.test(value)) {
+    return null;
+  }
+
+  let totalMs = 0;
+  let consumed = "";
+
+  for (const match of value.matchAll(RELATIVE_PART_PATTERN)) {
+    const groups = match.groups;
+
+    if (!groups?.amount || !groups.unit) {
+      return null;
+    }
+
+    const unitMs = UNIT_MS[groups.unit.toLowerCase()];
+    const amount = Number(groups.amount);
+
+    if (!unitMs || !Number.isSafeInteger(amount) || amount <= 0) {
+      return null;
+    }
+
+    totalMs += amount * unitMs;
+    consumed += match[0];
+  }
+
+  if (totalMs <= 0 || consumed.replace(/\s/g, "") !== value.replace(/\s/g, "")) {
+    return null;
+  }
+
+  return now.getTime() + totalMs;
 }
 
 function parseClockTimestamp(input: string, now: Date): number | null {
