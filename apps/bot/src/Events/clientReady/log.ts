@@ -1,4 +1,8 @@
 import type { Client } from "discord.js";
-export default function (client: Client) {
+
+import { getReminderService } from "../../Reminders/index.js";
+
+export default async function (client: Client): Promise<void> {
+  await getReminderService(client).initialize();
   console.log(`Client is ready as ${client.user?.tag}`);
 }

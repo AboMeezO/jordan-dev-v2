@@ -19,7 +19,10 @@ export async function run({
 }: {
   readonly interaction: ChatInputCommandInteraction;
 }): Promise<void> {
-  const reminders = listUserReminders(interaction.client, interaction.user.id);
+  const reminders = await listUserReminders(
+    interaction.client,
+    interaction.user.id,
+  );
 
   await interaction.reply({
     components: [buildReminderPanel({ reminders })],

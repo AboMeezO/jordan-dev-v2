@@ -54,7 +54,7 @@ export const remindCommand = commandTree({
     }
 
     try {
-      const result = scheduleReminder({
+      const result = await scheduleReminder({
         channelId: message.channelId,
         client,
         delivery,

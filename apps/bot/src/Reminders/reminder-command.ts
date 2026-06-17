@@ -52,9 +52,9 @@ export function parsePrefixReminderArgs(args: readonly string[]): {
   };
 }
 
-export function scheduleReminder(
+export async function scheduleReminder(
   input: ReminderCommandInput,
-): ReminderCommandResult {
+): Promise<ReminderCommandResult> {
   const parsedTime = parseReminderTime(input.time);
 
   if (!parsedTime) {
@@ -63,7 +63,7 @@ export function scheduleReminder(
     );
   }
 
-  const record = getReminderService(input.client).schedule({
+  const record = await getReminderService(input.client).schedule({
     userId: input.userId,
     channelId: input.channelId,
     message: input.message,
@@ -81,15 +81,15 @@ export function scheduleReminder(
 export function listUserReminders(
   client: Client,
   userId: Snowflake,
-): readonly ReminderRecord[] {
+): Promise<readonly ReminderRecord[]> {
   return getReminderService(client).listForUser(userId);
 }
 
-export function updateReminderTime(
+export async function updateReminderTime(
   client: Client,
   reminderId: string,
   time: string,
-): ReminderRecord | undefined {
+): Promise<ReminderRecord | undefined> {
   const parsedTime = parseReminderTime(time);
 
   if (!parsedTime) {
@@ -107,16 +107,16 @@ export function updateReminderMessage(
   client: Client,
   reminderId: string,
   message: string,
-): ReminderRecord | undefined {
+): Promise<ReminderRecord | undefined> {
   return getReminderService(client).update(reminderId, { message });
 }
 
-export function toggleReminderDelivery(
+export async function toggleReminderDelivery(
   client: Client,
   reminderId: string,
-): ReminderRecord | undefined {
+): Promise<ReminderRecord | undefined> {
   const service = getReminderService(client);
-  const reminder = service.get(reminderId);
+  const reminder = await service.get(reminderId);
 
   if (!reminder) {
     return undefined;
@@ -127,7 +127,7 @@ export function toggleReminderDelivery(
   });
 }
 
-export function cancelReminder(client: Client, reminderId: string): boolean {
+export function cancelReminder(client: Client, reminderId: string): Promise<boolean> {
   return getReminderService(client).cancel(reminderId);
 }
 

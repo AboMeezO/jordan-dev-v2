@@ -174,6 +174,20 @@ export class ReminderRepository {
     });
   }
 
+  public async resetInterruptedDeliveries(): Promise<void> {
+    await this.database.transaction(async (tx) => {
+      await tx.execute(
+        `
+          UPDATE reminders
+          SET status = 'pending',
+              updated_at = ?
+          WHERE status = 'delivering'
+        `,
+        [new Date()],
+      );
+    });
+  }
+
   public async markDelivering(id: string): Promise<StoredReminderRecord | undefined> {
     return this.transition(id, "pending", "delivering");
   }

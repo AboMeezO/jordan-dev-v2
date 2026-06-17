@@ -45,7 +45,7 @@ export async function run({
   );
 
   try {
-    const result = scheduleReminder({
+    const result = await scheduleReminder({
       client: interaction.client,
       userId: interaction.user.id,
       channelId: interaction.channelId,

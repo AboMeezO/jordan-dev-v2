@@ -22,6 +22,7 @@ import {
   reminderInteractionFlags,
   reminderMessageFlags,
 } from "../../Reminders/reminder-panel.js";
+import type { ReminderRecord } from "../../Reminders/reminder-service.js";
 
 export default async function (
   interaction: Interaction,
@@ -55,7 +56,7 @@ async function handleSelect(
   client: Client,
 ): Promise<void> {
   const selectedId = interaction.values[0];
-  const reminders = listUserReminders(client, interaction.user.id);
+  const reminders = await listUserReminders(client, interaction.user.id);
   const selectedReminder = reminders.find((reminder) => reminder.id === selectedId);
 
   await interaction.update({
@@ -70,7 +71,7 @@ async function handleButton(
   action: string,
   reminderId: string | undefined,
 ): Promise<void> {
-  const reminder = findOwnedReminder(client, interaction.user.id, reminderId);
+  const reminder = await findOwnedReminder(client, interaction.user.id, reminderId);
 
   if (!reminder) {
     await interaction.reply({
@@ -91,13 +92,13 @@ async function handleButton(
   }
 
   if (action === "toggle-delivery") {
-    const updated = toggleReminderDelivery(client, reminder.id);
+    const updated = await toggleReminderDelivery(client, reminder.id);
     await updatePanel(interaction, client, updated?.id);
     return;
   }
 
   if (action === "cancel") {
-    cancelReminder(client, reminder.id);
+    await cancelReminder(client, reminder.id);
     await updatePanel(interaction, client);
   }
 }
@@ -108,7 +109,7 @@ async function handleModal(
   action: string,
   reminderId: string | undefined,
 ): Promise<void> {
-  const reminder = findOwnedReminder(client, interaction.user.id, reminderId);
+  const reminder = await findOwnedReminder(client, interaction.user.id, reminderId);
 
   if (!reminder) {
     await interaction.reply({
@@ -121,15 +122,15 @@ async function handleModal(
   try {
     if (action === "modal-message") {
       const message = interaction.fields.getTextInputValue("message").trim();
-      updateReminderMessage(client, reminder.id, message);
+      await updateReminderMessage(client, reminder.id, message);
     }
 
     if (action === "modal-time") {
       const time = interaction.fields.getTextInputValue("time").trim();
-      updateReminderTime(client, reminder.id, time);
+      await updateReminderTime(client, reminder.id, time);
     }
 
-    const reminders = listUserReminders(client, interaction.user.id);
+    const reminders = await listUserReminders(client, interaction.user.id);
     const selectedReminder = reminders.find((item) => item.id === reminder.id);
 
     await interaction.reply({
@@ -149,7 +150,7 @@ async function updatePanel(
   client: Client,
   selectedId?: string,
 ): Promise<void> {
-  const reminders = listUserReminders(client, interaction.user.id);
+  const reminders = await listUserReminders(client, interaction.user.id);
   const selectedReminder = reminders.find((reminder) => reminder.id === selectedId);
 
   await interaction.update({
@@ -158,16 +159,17 @@ async function updatePanel(
   });
 }
 
-function findOwnedReminder(
+async function findOwnedReminder(
   client: Client,
   userId: string,
   reminderId: string | undefined,
-) {
+): Promise<ReminderRecord | undefined> {
   if (!reminderId) {
     return undefined;
   }
 
-  return listUserReminders(client, userId).find(
+  const reminders = await listUserReminders(client, userId);
+  return reminders.find(
     (reminder) => reminder.id === reminderId,
   );
 }

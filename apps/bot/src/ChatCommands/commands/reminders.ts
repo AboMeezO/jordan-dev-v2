@@ -25,7 +25,7 @@ export const remindersCommand = commandTree({
     ],
   },
   async execute({ client, message }) {
-    const reminders = listUserReminders(client, message.author.id);
+    const reminders = await listUserReminders(client, message.author.id);
 
     await message.reply({
       components: [buildReminderPanel({ reminders })],

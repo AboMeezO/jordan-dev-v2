@@ -2,6 +2,10 @@ import { randomUUID } from "node:crypto";
 
 import type { Client, Snowflake } from "discord.js";
 
+import { getDatabase } from "#Database";
+
+import { ReminderRepository } from "./reminder-repository.js";
+
 export type ReminderDelivery = "channel" | "dm";
 type FetchedChannel = Awaited<ReturnType<Client["channels"]["fetch"]>>;
 type SendableFetchedChannel = Extract<NonNullable<FetchedChannel>, { send: unknown }>;
@@ -24,10 +28,36 @@ const MAX_TIMEOUT_MS = 2_147_483_647;
 export class ReminderService {
   private readonly timers = new Map<string, NodeJS.Timeout>();
   private readonly reminders = new Map<string, ReminderRecord>();
+  private readonly repositoryPromise: Promise<ReminderRepository>;
+  private initialized = false;
 
-  public constructor(private readonly client: Client) {}
+  public constructor(private readonly client: Client) {
+    this.repositoryPromise = getDatabase().then(async (database) => {
+      const repository = new ReminderRepository(database);
+      await repository.migrate();
+      return repository;
+    });
+  }
 
-  public schedule(request: ReminderRequest): ReminderRecord {
+  public async initialize(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    const repository = await this.repositoryPromise;
+    await repository.resetInterruptedDeliveries();
+
+    for (const reminder of await repository.listPending()) {
+      this.reminders.set(reminder.id, reminder);
+      this.scheduleTimer(reminder);
+    }
+
+    this.initialized = true;
+  }
+
+  public async schedule(request: ReminderRequest): Promise<ReminderRecord> {
+    await this.initialize();
+
     const id = randomUUID();
     const record = {
       ...request,
@@ -35,35 +65,36 @@ export class ReminderService {
       id,
     };
 
+    const repository = await this.repositoryPromise;
+    await repository.create(record);
     this.reminders.set(id, record);
     this.scheduleTimer(record);
     return record;
   }
 
-  public listForUser(userId: Snowflake): readonly ReminderRecord[] {
-    return [...this.reminders.values()]
-      .filter((reminder) => reminder.userId === userId)
-      .sort((a, b) => a.remindAt.getTime() - b.remindAt.getTime());
+  public async listForUser(userId: Snowflake): Promise<readonly ReminderRecord[]> {
+    await this.initialize();
+    const repository = await this.repositoryPromise;
+    return repository.listForUser(userId);
   }
 
-  public get(id: string): ReminderRecord | undefined {
-    return this.reminders.get(id);
+  public async get(id: string): Promise<ReminderRecord | undefined> {
+    await this.initialize();
+    const repository = await this.repositoryPromise;
+    return repository.get(id);
   }
 
-  public update(
+  public async update(
     id: string,
     updates: Partial<Pick<ReminderRequest, "delivery" | "message" | "remindAt">>,
-  ): ReminderRecord | undefined {
-    const current = this.reminders.get(id);
+  ): Promise<ReminderRecord | undefined> {
+    await this.initialize();
+    const repository = await this.repositoryPromise;
+    const next = await repository.update(id, updates);
 
-    if (!current) {
+    if (!next) {
       return undefined;
     }
-
-    const next = {
-      ...current,
-      ...updates,
-    };
 
     this.clearTimer(id);
     this.reminders.set(id, next);
@@ -71,9 +102,18 @@ export class ReminderService {
     return next;
   }
 
-  public cancel(id: string): boolean {
+  public async cancel(id: string): Promise<boolean> {
+    await this.initialize();
+    const repository = await this.repositoryPromise;
+    const canceled = await repository.cancel(id);
+
+    if (!canceled) {
+      return false;
+    }
+
     this.clearTimer(id);
-    return this.reminders.delete(id);
+    this.reminders.delete(id);
+    return true;
   }
 
   private scheduleTimer(record: ReminderRecord): void {
@@ -95,7 +135,8 @@ export class ReminderService {
   }
 
   private async deliver(id: string): Promise<void> {
-    const request = this.reminders.get(id);
+    const repository = await this.repositoryPromise;
+    const request = await repository.markDelivering(id);
 
     if (!request) {
       return;
@@ -108,13 +149,20 @@ export class ReminderService {
       return;
     }
 
-    this.reminders.delete(id);
+    try {
+      this.reminders.delete(id);
+      await this.sendReminder(request);
+      await repository.markDelivered(id);
+    } catch (error) {
+      await repository.markFailed(
+        id,
+        error instanceof Error ? error.message : "Unknown reminder delivery failure.",
+      );
+    }
+  }
 
-    const content = [
-      `<@${request.userId}> reminder`,
-      "",
-      request.message,
-    ].join("\n");
+  private async sendReminder(request: ReminderRecord): Promise<void> {
+    const content = [`<@${request.userId}> reminder`, "", request.message].join("\n");
 
     if (request.delivery === "dm") {
       const user = await this.client.users.fetch(request.userId);
