@@ -36,3 +36,4 @@ Thumbs.db
 
 # Local deployment tooling
 tools/
+apps/bot/data/
