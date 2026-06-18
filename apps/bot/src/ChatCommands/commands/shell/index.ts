@@ -12,6 +12,7 @@ import { pwdCommand } from "./pwd.js";
 import { sudoCommand } from "./sudo.js";
 import { unameCommand } from "./uname.js";
 import { uptimeCommand } from "./uptime.js";
+import { whichCommand } from "./which.js";
 import { whoamiCommand } from "./whoami.js";
 
 export const shellCommandTrees: readonly ChatCommandDefinition[] = [
@@ -28,4 +29,5 @@ export const shellCommandTrees: readonly ChatCommandDefinition[] = [
   lsCommand,
   manCommand,
   sudoCommand,
+  whichCommand,
 ];

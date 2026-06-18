@@ -1,4 +1,43 @@
+export { checkCommandAvailability } from "./availability.js";
+export { checkCooldown, formatRemainingTime } from "./cooldown.js";
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
+export {
+  extractHostname,
+  formatNetworkErrorMessage,
+  isPrivateIp,
+  resolveAndCheck,
+  safeFetch,
+  type SafeFetchOptions,
+  type SafeFetchResult,
+  type NetworkSafetyResult,
+} from "./network.js";
+export {
+  ansiShellOutput,
+  errorOutput,
+  escapeMentions,
+  formatErrorBoundary,
+  safeCodeBlock,
+  safeInline,
+  safeOutput,
+  unknownErrorOutput,
+} from "./output.js";
+export {
+  base64Schema,
+  discordSnowflakeSchema,
+  domainSchema,
+  extractOptionFlag,
+  extractOptionString,
+  extractPositionalInput,
+  hashAlgorithmSchema,
+  httpUrlSchema,
+  integerSchema,
+  modeSchema,
+  optionalTextInputSchema,
+  portSchema,
+  safeCommandStringSchema,
+  textInputSchema,
+  urlSchema,
+} from "./validation.js";
 export {
   dispatchChatCommand,
   executeChatCommandResolution,
@@ -12,8 +51,10 @@ export {
 export { ChatCommandRegistry } from "./registry.js";
 export type {
   ChatCommandArgumentGuide,
+  ChatCommandAvailabilityScope,
   ChatCommandContext,
   ChatCommandDefinition,
+  ChatCommandInputLimits,
   ChatCommandInvocation,
   ChatCommandNodeKind,
   ChatCommandOptionGuide,

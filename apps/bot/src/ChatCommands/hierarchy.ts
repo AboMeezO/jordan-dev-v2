@@ -1,6 +1,8 @@
 import type {
+  ChatCommandAvailabilityScope,
   ChatCommandContext,
   ChatCommandDefinition,
+  ChatCommandInputLimits,
   ChatCommandNodeKind,
   ChatCommandUsageGuide,
   ChatPermissionLevel,
@@ -13,6 +15,15 @@ interface ChatCommandNodeInput {
   readonly permission?: ChatPermissionLevel;
   readonly subcommands?: readonly ChatCommandDefinition[];
   readonly usage?: ChatCommandUsageGuide;
+
+  readonly category?: string;
+  readonly enabled?: boolean;
+  readonly devOnly?: boolean;
+  readonly ownerOnly?: boolean;
+  readonly cooldown?: number;
+  readonly inputLimits?: ChatCommandInputLimits;
+  readonly outputMode?: "inline" | "attachment" | "inline-or-attachment";
+  readonly availability?: ChatCommandAvailabilityScope;
 }
 
 interface ChatCommandTreeInput extends ChatCommandNodeInput {
@@ -63,5 +74,14 @@ function buildNode(
     ...(input.permission ? { permission: input.permission } : {}),
     ...(input.subcommands ? { subcommands: input.subcommands } : {}),
     ...(input.usage ? { usage: input.usage } : {}),
+
+    ...(input.category ? { category: input.category } : {}),
+    ...(input.enabled !== undefined ? { enabled: input.enabled } : {}),
+    ...(input.devOnly ? { devOnly: input.devOnly } : {}),
+    ...(input.ownerOnly ? { ownerOnly: input.ownerOnly } : {}),
+    ...(input.cooldown !== undefined ? { cooldown: input.cooldown } : {}),
+    ...(input.inputLimits ? { inputLimits: input.inputLimits } : {}),
+    ...(input.outputMode ? { outputMode: input.outputMode } : {}),
+    ...(input.availability ? { availability: input.availability } : {}),
   };
 }

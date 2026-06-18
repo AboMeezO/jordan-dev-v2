@@ -1,5 +1,7 @@
 import type { Client, Message } from "discord.js";
 
+import { checkCommandAvailability } from "./availability.js";
+import { checkCooldown, formatRemainingTime } from "./cooldown.js";
 import { parseChatCommandInput } from "./parser.js";
 import { canUseChatCommand } from "./permissions.js";
 import type {
@@ -66,6 +68,22 @@ export async function dispatchChatCommand(
     return true;
   }
 
+  const availability = checkCommandAvailability(resolution.command, input.message);
+
+  if (!availability.allowed) {
+    await input.message.reply(availability.reason);
+    return true;
+  }
+
+  const cooldown = checkCooldown(resolution.command, input.message);
+
+  if (!cooldown.allowed && cooldown.remainingMs !== undefined) {
+    await input.message.reply(
+      `Please wait ${formatRemainingTime(cooldown.remainingMs)} before using this command again.`,
+    );
+    return true;
+  }
+
   await resolution.command.execute({
     client: input.client,
     invocation: resolution.invocation,
@@ -91,6 +109,22 @@ export async function executeChatCommandResolution(
       prefix: resolution.invocation.prefix,
       subcommands: resolution.subcommands,
     }));
+    return true;
+  }
+
+  const availability = checkCommandAvailability(resolution.command, input.message);
+
+  if (!availability.allowed) {
+    await input.message.reply(availability.reason);
+    return true;
+  }
+
+  const cooldown = checkCooldown(resolution.command, input.message);
+
+  if (!cooldown.allowed && cooldown.remainingMs !== undefined) {
+    await input.message.reply(
+      `Please wait ${formatRemainingTime(cooldown.remainingMs)} before using this command again.`,
+    );
     return true;
   }
 
