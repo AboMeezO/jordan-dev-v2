@@ -1,6 +1,7 @@
 import type { ChatCommandDefinition } from "#ChatCommands";
 
 import { discordCommandTrees } from "./discord/index.js";
+import { githubCommandTree } from "./github/index.js";
 import { jdCommand } from "./jd/index.js";
 import { remindCommand } from "./remind.js";
 import { remindersCommand } from "./reminders.js";
@@ -14,4 +15,5 @@ export const chatCommandTrees: readonly ChatCommandDefinition[] = [
   ...shellCommandTrees,
   toolsCommandTree,
   ...discordCommandTrees,
+  githubCommandTree,
 ];
