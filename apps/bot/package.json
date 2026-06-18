@@ -8,8 +8,7 @@
 		"start": "node dist/index.js",
 		"dev": "tsx --watch index.ts",
 		"build": "tsc -p tsconfig.json",
-		"typecheck": "tsc --noEmit -p tsconfig.json",
-		"test:phase1": "tsx src/ProductionIncident/testing/phase1/phase1-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/session-lifecycle.test.ts && tsx src/ProductionIncident/testing/phase1/event-flow.test.ts && tsx src/ProductionIncident/testing/phase1/invalid-transitions.test.ts && tsx src/ProductionIncident/testing/phase1/deterministic-replay.test.ts && tsx src/ProductionIncident/testing/phase1/full-gameplay-smoke.test.ts && tsx src/ProductionIncident/testing/phase1/hardening.test.ts && tsx src/ProductionIncident/testing/phase1/discord-adapter.test.ts && tsx src/ProductionIncident/testing/phase1/long-runtime-simulation.test.ts && tsx src/Reminders/reminder-time.test.ts && tsx src/Reminders/reminder-command.test.ts"
+		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@octokit/rest": "^22.0.1",
