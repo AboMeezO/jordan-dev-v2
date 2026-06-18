@@ -1,5 +1,19 @@
 import type { LogLevel } from "./types.js";
 
+const RESET = "\x1b[0m";
+const GRAY = "\x1b[90m";
+const BLUE = "\x1b[34m";
+const YELLOW = "\x1b[33m";
+const RED = "\x1b[31m";
+const BOLD = "\x1b[1m";
+
+const LEVEL_STYLE: Record<LogLevel, string> = {
+	debug: GRAY,
+	info: BLUE,
+	warn: YELLOW,
+	error: RED + BOLD,
+};
+
 const LEVEL_PREFIX: Record<LogLevel, string> = {
 	debug: "[debug]",
 	info: "[info]",
@@ -42,19 +56,22 @@ export class Logger {
 		if (!shouldLog(level, this.minLevel)) return;
 
 		const ts = formatTimestamp();
+		const levelStyle = LEVEL_STYLE[level];
 		const prefix = LEVEL_PREFIX[level];
 		const tag = `[${this.label}]`;
+		const styledLevel = `${levelStyle}${prefix}${RESET}`;
+		const styledTag = `${BOLD}${tag}${RESET}`;
 
 		if (args.length > 0) {
 			if (level === "error") {
-				console.error(ts, prefix, tag, message, ...args);
+				console.error(ts, styledLevel, styledTag, message, ...args);
 			} else if (level === "warn") {
-				console.warn(ts, prefix, tag, message, ...args);
+				console.warn(ts, styledLevel, styledTag, message, ...args);
 			} else {
-				console.log(ts, prefix, tag, message, ...args);
+				console.log(ts, styledLevel, styledTag, message, ...args);
 			}
 		} else {
-			const line = `${ts} ${prefix} ${tag} ${message}`;
+			const line = `${ts} ${styledLevel} ${styledTag} ${message}`;
 			if (level === "error") {
 				console.error(line);
 			} else if (level === "warn") {

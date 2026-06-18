@@ -1,5 +1,6 @@
 import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { Logger } from "#Logger";
 import type { ChatCommandDefinition } from "./types.js";
@@ -61,7 +62,7 @@ async function scanDirectory(
 		}
 
 		try {
-			const mod = await import(fullPath);
+			const mod = await import(pathToFileURL(fullPath).href);
 
 			for (const key of Object.keys(mod)) {
 				const exported = (mod as Record<string, unknown>)[key];
