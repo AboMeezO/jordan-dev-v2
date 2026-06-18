@@ -1,0 +1,286 @@
+import dns from "node:dns/promises";
+
+import { parse as ipaddrParse } from "ipaddr.js";
+
+const PRIVATE_RANGES_V4 = [
+  { start: "10.0.0.0", end: "10.255.255.255" },
+  { start: "127.0.0.0", end: "127.255.255.255" },
+  { start: "169.254.0.0", end: "169.254.255.255" },
+  { start: "172.16.0.0", end: "172.31.255.255" },
+  { start: "192.168.0.0", end: "192.168.255.255" },
+  { start: "0.0.0.0", end: "0.255.255.255" },
+  { start: "100.64.0.0", end: "100.127.255.255" },
+  { start: "198.18.0.0", end: "198.19.255.255" },
+];
+
+const CLOUD_METADATA_IPS = [
+  "169.254.169.254",
+  "fd00:ec2::254",
+];
+
+const MAX_REDIRECTS = 10;
+const DEFAULT_NETWORK_TIMEOUT = 10_000;
+
+export interface NetworkSafetyResult {
+  readonly safe: boolean;
+  readonly reason?: string;
+  readonly addresses?: readonly string[];
+}
+
+export interface SafeFetchOptions {
+  readonly method?: string;
+  readonly timeout?: number;
+  readonly maxRedirects?: number;
+  readonly headers?: Record<string, string>;
+}
+
+export interface SafeFetchResult {
+  readonly status: number;
+  readonly statusText: string;
+  readonly headers: Record<string, string>;
+  readonly finalUrl: string;
+  readonly redirectChain: readonly string[];
+  readonly durationMs: number;
+  readonly body?: string;
+}
+
+function ipToBigInt(ip: string): bigint {
+  const parts = ip.split(".").map(Number);
+  return ((BigInt(parts[0] ?? 0) << 24n) |
+    (BigInt(parts[1] ?? 0) << 16n) |
+    (BigInt(parts[2] ?? 0) << 8n) |
+    BigInt(parts[3] ?? 0)) >>> 0n;
+}
+
+function ipInRange(ip: string, start: string, end: string): boolean {
+  const ipNum = ipToBigInt(ip);
+  return ipNum >= ipToBigInt(start) && ipNum <= ipToBigInt(end);
+}
+
+export function isPrivateIp(ip: string): boolean {
+  try {
+    const parsed = ipaddrParse(ip);
+
+    if (parsed.kind() === "ipv6") {
+      const ipv6 = parsed;
+
+      if (ipv6.isLoopback() || ipv6.isLinkLocal() || ipv6.isMulticast()) {
+        return true;
+      }
+
+      if (ipv6.isIPv4MappedAddress()) {
+        const mapped = ipv6.toIPv4Address();
+        return isPrivateIp(mapped.toString());
+      }
+
+      const addrStr = ip.toLowerCase();
+
+      if (
+        addrStr.startsWith("fc") ||
+        addrStr.startsWith("fd") ||
+        addrStr.startsWith("fe80")
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    const addrStr = ip;
+
+    for (const range of PRIVATE_RANGES_V4) {
+      if (ipInRange(addrStr, range.start, range.end)) {
+        return true;
+      }
+    }
+
+    if (CLOUD_METADATA_IPS.includes(addrStr)) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+export async function resolveAndCheck(
+  hostname: string,
+): Promise<NetworkSafetyResult> {
+  try {
+    const records = await dns.lookup(hostname, { all: true });
+
+    for (const record of records) {
+      if (isPrivateIp(record.address)) {
+        return {
+          safe: false,
+          reason: `Resolved address ${record.address} is a private IP.`,
+        };
+      }
+    }
+
+    return {
+      safe: true,
+      addresses: records.map((r) => r.address),
+    };
+  } catch (error) {
+    return {
+      safe: false,
+      reason: `DNS resolution failed: ${error instanceof Error ? error.message : "unknown error"}`,
+    };
+  }
+}
+
+export function extractHostname(input: string): string | undefined {
+  try {
+    if (input.startsWith("http://") || input.startsWith("https://")) {
+      return new URL(input).hostname;
+    }
+
+    if (input.includes("/") || input.includes(":")) {
+      return new URL(`https://${input}`).hostname;
+    }
+
+    return input;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function safeFetch(
+  url: string,
+  options: SafeFetchOptions = {},
+): Promise<SafeFetchResult> {
+  const timeout = options.timeout ?? DEFAULT_NETWORK_TIMEOUT;
+  const maxRedirects = options.maxRedirects ?? MAX_REDIRECTS;
+
+  const parsed = new URL(url);
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("Only http: and https: protocols are allowed.");
+  }
+
+  const safety = await resolveAndCheck(parsed.hostname);
+
+  if (!safety.safe) {
+    throw new Error(safety.reason ?? "Hostname resolved to a private or blocked IP.");
+  }
+
+  let currentUrl = url;
+  const redirectChain: string[] = [];
+  const startedAt = performance.now();
+
+  for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(currentUrl, {
+        method: options.method ?? "HEAD",
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "JordanDevsBot/1.0",
+          ...options.headers,
+        },
+      });
+
+      clearTimeout(timer);
+
+      if (
+        response.status >= 300 &&
+        response.status < 400 &&
+        response.headers.get("location")
+      ) {
+        const location = response.headers.get("location") ?? "";
+        const nextUrl = new URL(location, currentUrl).toString();
+
+        const nextSafety = await resolveAndCheck(new URL(nextUrl).hostname);
+
+        if (!nextSafety.safe) {
+          throw new Error(
+            nextSafety.reason ?? "Redirect target resolved to a blocked address.",
+          );
+        }
+
+        redirectChain.push(currentUrl);
+        currentUrl = nextUrl;
+        continue;
+      }
+
+      const durationMs = performance.now() - startedAt;
+      const responseHeaders: Record<string, string> = {};
+
+      response.headers.forEach((value, key) => {
+        responseHeaders[key] = value;
+      });
+
+      let body: string | undefined;
+
+      if (options.method === "GET") {
+        const text = await response.text();
+        body = text.slice(0, 10_000);
+      }
+
+      return {
+        durationMs,
+        finalUrl: currentUrl,
+        headers: responseHeaders,
+        redirectChain,
+        status: response.status,
+        statusText: response.statusText,
+        body,
+      };
+    } catch (error) {
+      clearTimeout(timer);
+      throw error;
+    }
+  }
+
+  throw new Error(`Too many redirects (max: ${maxRedirects}).`);
+}
+
+export function formatNetworkErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    const message = error.message;
+
+    if (
+      message.includes("abort") ||
+      message.includes("timeout") ||
+      message.includes("timed out")
+    ) {
+      return "Network request timed out. The server may be down or unreachable.";
+    }
+
+    if (message.includes("ENOTFOUND")) {
+      return "Could not resolve the hostname. The domain may not exist.";
+    }
+
+    if (
+      message.includes("ECONNREFUSED") ||
+      message.includes("connection refused")
+    ) {
+      return "Connection refused. The server may be down or blocking requests.";
+    }
+
+    if (message.includes("ECONNRESET") || message.includes("connection reset")) {
+      return "Connection was reset. The server may have closed the connection.";
+    }
+
+    if (message.includes("ETIMEDOUT") || message.includes("connection timed out")) {
+      return "Connection timed out. The server may be unreachable.";
+    }
+
+    if (message.includes("private IP") || message.includes("blocked")) {
+      return message;
+    }
+
+    if (message.includes("protocol")) {
+      return message;
+    }
+
+    return `Network error: ${message}`;
+  }
+
+  return "An unexpected network error occurred.";
+}

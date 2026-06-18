@@ -2,6 +2,16 @@ export { checkCommandAvailability } from "./availability.js";
 export { checkCooldown, formatRemainingTime } from "./cooldown.js";
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
 export {
+  extractHostname,
+  formatNetworkErrorMessage,
+  isPrivateIp,
+  resolveAndCheck,
+  safeFetch,
+  type SafeFetchOptions,
+  type SafeFetchResult,
+  type NetworkSafetyResult,
+} from "./network.js";
+export {
   ansiShellOutput,
   errorOutput,
   escapeMentions,
