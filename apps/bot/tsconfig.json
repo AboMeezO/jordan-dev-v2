@@ -20,6 +20,7 @@
 			"#AuditLog": ["src/audit-log.ts"],
 			"#Logger": ["src/Logger/index.ts"],
 			"#ComponentsV2": ["src/ComponentsV2/index.ts"],
+			"#EmojiRegistry": ["src/EmojiRegistry/index.ts"],
 			"#Assets": ["Assets/"]
 		}
 	},

@@ -35,6 +35,7 @@
 		"#AuditLog": "./dist/src/audit-log.js",
 		"#Logger": "./dist/src/Logger/index.js",
 		"#ComponentsV2": "./dist/src/ComponentsV2/index.js",
+		"#EmojiRegistry": "./dist/src/EmojiRegistry/index.js",
 		"#Assets": "./Assets/"
 	},
 	"devDependencies": {
