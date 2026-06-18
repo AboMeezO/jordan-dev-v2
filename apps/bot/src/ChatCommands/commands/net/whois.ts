@@ -1,5 +1,6 @@
+import { whoisDomain } from "whoiser";
+
 import { z } from "zod";
-const whoiser = require("whoiser");
 
 import { subcommand } from "#ChatCommands";
 import { safeInline, safeOutput } from "#ChatCommands";
@@ -38,7 +39,7 @@ export const whoisCommand = subcommand({
     const domain = parsed.data.domain;
 
     try {
-      const result = await whoiser(domain, { timeout: 10000 });
+      const result = await whoisDomain(domain, { timeout: 10000 });
 
       const flat: string[] = [];
 

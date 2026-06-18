@@ -4,7 +4,7 @@ import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
 
-const safeRegex = require("safe-regex2");
+import safeRegex from "safe-regex2";
 
 const regexSchema = z.object({
   pattern: textInputSchema(500),

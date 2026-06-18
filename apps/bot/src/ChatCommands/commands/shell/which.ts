@@ -4,7 +4,7 @@ import { commandTree } from "#ChatCommands";
 import { shellOutput } from "./format.js";
 
 export const whichCommand = commandTree({
-  aliases: ["where", "tool"],
+  aliases: ["where"],
   allowPrefixless: true,
   description: "Show whether a bot tool exists and display its metadata.",
   name: "which",

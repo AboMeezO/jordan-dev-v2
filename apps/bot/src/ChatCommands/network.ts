@@ -1,6 +1,9 @@
 import dns from "node:dns/promises";
 
-import { parse as ipaddrParse, isValid as ipaddrIsValid } from "ipaddr.js";
+import ipaddrModule from "ipaddr.js";
+
+const ipaddrParse = ipaddrModule.parse;
+const ipaddrIsValid = ipaddrModule.isValid;
 
 const BLOCKED_RANGES = new Set([
   "loopback",
