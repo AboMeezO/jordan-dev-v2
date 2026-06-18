@@ -32,5 +32,8 @@
     "#Database": "./dist/src/Database/index.js",
     "#ChatCommands": "./dist/src/ChatCommands/index.js",
     "#Assets": "./Assets/"
+  },
+  "devDependencies": {
+    "@types/ms": "^2.1.0"
   }
 }

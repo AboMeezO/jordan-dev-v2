@@ -56,10 +56,9 @@ export function ansiShellOutput(
   return `\`\`\`ansi\n${content}\n\`\`\``;
 }
 
-export interface SafeOutputResult {
-  readonly content?: string;
-  readonly attachment?: AttachmentBuilder;
-}
+export type SafeOutputResult =
+  | { readonly content: string }
+  | { readonly attachment: AttachmentBuilder };
 
 export function safeOutput(
   text: string,
@@ -69,19 +68,10 @@ export function safeOutput(
   const maxLength = command?.inputLimits?.maxOutputLength ?? MAX_ATTACHMENT_LENGTH;
 
   if (escaped.length <= MAX_INLINE_LENGTH) {
-    return { content: escaped };
+    return { content: escaped.slice(0, MAX_INLINE_LENGTH) };
   }
 
-  if (escaped.length <= maxLength) {
-    const truncated = escaped.slice(0, MAX_ATTACHMENT_LENGTH);
-    const attachment = new AttachmentBuilder(Buffer.from(truncated, "utf-8"), {
-      name: "output.txt",
-    });
-
-    return { attachment };
-  }
-
-  const truncated = escaped.slice(0, MAX_ATTACHMENT_LENGTH);
+  const truncated = escaped.slice(0, Math.min(escaped.length, MAX_ATTACHMENT_LENGTH, maxLength));
   const attachment = new AttachmentBuilder(Buffer.from(truncated, "utf-8"), {
     name: "output.txt",
   });

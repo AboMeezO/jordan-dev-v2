@@ -1,22 +1,18 @@
 import dns from "node:dns/promises";
 
-import { parse as ipaddrParse } from "ipaddr.js";
+import { parse as ipaddrParse, isValid as ipaddrIsValid } from "ipaddr.js";
 
-const PRIVATE_RANGES_V4 = [
-  { start: "10.0.0.0", end: "10.255.255.255" },
-  { start: "127.0.0.0", end: "127.255.255.255" },
-  { start: "169.254.0.0", end: "169.254.255.255" },
-  { start: "172.16.0.0", end: "172.31.255.255" },
-  { start: "192.168.0.0", end: "192.168.255.255" },
-  { start: "0.0.0.0", end: "0.255.255.255" },
-  { start: "100.64.0.0", end: "100.127.255.255" },
-  { start: "198.18.0.0", end: "198.19.255.255" },
-];
-
-const CLOUD_METADATA_IPS = [
-  "169.254.169.254",
-  "fd00:ec2::254",
-];
+const BLOCKED_RANGES = new Set([
+  "loopback",
+  "private",
+  "linkLocal",
+  "uniqueLocal",
+  "multicast",
+  "reserved",
+  "broadcast",
+  "carrierGradeNat",
+  "ietfProtocol",
+]);
 
 const MAX_REDIRECTS = 10;
 const DEFAULT_NETWORK_TIMEOUT = 10_000;
@@ -44,64 +40,15 @@ export interface SafeFetchResult {
   readonly body?: string;
 }
 
-function ipToBigInt(ip: string): bigint {
-  const parts = ip.split(".").map(Number);
-  return ((BigInt(parts[0] ?? 0) << 24n) |
-    (BigInt(parts[1] ?? 0) << 16n) |
-    (BigInt(parts[2] ?? 0) << 8n) |
-    BigInt(parts[3] ?? 0)) >>> 0n;
-}
-
-function ipInRange(ip: string, start: string, end: string): boolean {
-  const ipNum = ipToBigInt(ip);
-  return ipNum >= ipToBigInt(start) && ipNum <= ipToBigInt(end);
-}
-
 export function isPrivateIp(ip: string): boolean {
-  try {
-    const parsed = ipaddrParse(ip);
-
-    if (parsed.kind() === "ipv6") {
-      const ipv6 = parsed;
-
-      if (ipv6.isLoopback() || ipv6.isLinkLocal() || ipv6.isMulticast()) {
-        return true;
-      }
-
-      if (ipv6.isIPv4MappedAddress()) {
-        const mapped = ipv6.toIPv4Address();
-        return isPrivateIp(mapped.toString());
-      }
-
-      const addrStr = ip.toLowerCase();
-
-      if (
-        addrStr.startsWith("fc") ||
-        addrStr.startsWith("fd") ||
-        addrStr.startsWith("fe80")
-      ) {
-        return true;
-      }
-
-      return false;
-    }
-
-    const addrStr = ip;
-
-    for (const range of PRIVATE_RANGES_V4) {
-      if (ipInRange(addrStr, range.start, range.end)) {
-        return true;
-      }
-    }
-
-    if (CLOUD_METADATA_IPS.includes(addrStr)) {
-      return true;
-    }
-
-    return false;
-  } catch {
+  if (!ipaddrIsValid(ip)) {
     return true;
   }
+
+  const parsed = ipaddrParse(ip);
+  const range = parsed.range();
+
+  return BLOCKED_RANGES.has(range);
 }
 
 export async function resolveAndCheck(
@@ -229,7 +176,7 @@ export async function safeFetch(
         redirectChain,
         status: response.status,
         statusText: response.statusText,
-        body,
+        body: body ?? "",
       };
     } catch (error) {
       clearTimeout(timer);
