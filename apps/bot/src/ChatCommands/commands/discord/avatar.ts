@@ -1,3 +1,14 @@
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
+  MessageFlags,
+  SeparatorBuilder,
+  TextDisplayBuilder,
+} from "discord.js";
 import { z } from "zod";
 
 import { commandTree } from "#ChatCommands";
@@ -60,16 +71,9 @@ export const avatarCommand = commandTree({
       }
 
       const globalAvatar = user.displayAvatarURL({ size, extension: "png" });
-      const gifAvatar = user.displayAvatarURL({ size, extension: "gif" });
-      const isAnimated = user.avatar?.startsWith("a_");
-      const links = [
-        `user=${user.username}`,
-        `global=${globalAvatar}`,
-      ];
-
-      if (isAnimated) {
-        links.push(`animated=${gifAvatar}`);
-      }
+      const gifAvatar = user.avatar?.startsWith("a_")
+        ? user.displayAvatarURL({ size, extension: "gif" })
+        : undefined;
 
       const member = message.guild
         ? message.guild.members.cache.get(user.id)
@@ -78,11 +82,76 @@ export const avatarCommand = commandTree({
         ? member.displayAvatarURL({ size })
         : undefined;
 
-      if (serverAvatar) {
-        links.push(`server=${serverAvatar}`);
+      const infoLines: string[] = [
+        `**${user.username}**'s Avatar`,
+      ];
+
+      if (user.avatar?.startsWith("a_")) {
+        infoLines.push("Animated");
       }
 
-      await message.reply(links.join("\n"));
+      const container = new ContainerBuilder()
+        .setAccentColor(user.accentColor ?? undefined)
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(infoLines.join("\n")),
+        );
+
+      const galleryItems: MediaGalleryItemBuilder[] = [
+        new MediaGalleryItemBuilder()
+          .setURL(globalAvatar)
+          .setDescription("Global avatar"),
+      ];
+
+      if (serverAvatar) {
+        galleryItems.push(
+          new MediaGalleryItemBuilder()
+            .setURL(serverAvatar)
+            .setDescription("Server avatar"),
+        );
+      }
+
+      container.addSeparatorComponents(
+        new SeparatorBuilder().setDivider(true),
+      ).addMediaGalleryComponents(
+        new MediaGalleryBuilder().addItems(...galleryItems),
+      );
+
+      const buttons: ButtonBuilder[] = [];
+
+      for (const s of [256, 512, 1024, 2048] as const) {
+        if (s === size) {
+          continue;
+        }
+
+        buttons.push(
+          new ButtonBuilder()
+            .setLabel(`${s}px`)
+            .setStyle(ButtonStyle.Link)
+            .setURL(user.displayAvatarURL({ size: s, extension: "png" })),
+        );
+      }
+
+      if (gifAvatar) {
+        buttons.push(
+          new ButtonBuilder()
+            .setLabel("GIF")
+            .setStyle(ButtonStyle.Link)
+            .setURL(gifAvatar),
+        );
+      }
+
+      if (buttons.length > 0) {
+        container.addActionRowComponents(
+          new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons),
+        );
+      }
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
     } catch {
       await message.reply("Could not fetch that user's avatar.");
     }

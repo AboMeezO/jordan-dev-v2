@@ -1,9 +1,15 @@
 import { Octokit } from "@octokit/rest";
-
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  MessageFlags,
+  TextDisplayBuilder,
+} from "discord.js";
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";
-import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
 
 const octokit = new Octokit({
@@ -15,6 +21,12 @@ const ISSUE_PATTERN = /^([\w.-]+)\/([\w.-]+)(?:#|\s+)(\d+)$/;
 const issueSchema = z.object({
   input: textInputSchema(300),
 });
+
+const STATE_COLORS: Record<string, number> = {
+  open: 0x1f_88_3e,
+  closed: 0x82_5a_df,
+  merged: 0x6f_42_c1,
+};
 
 export const githubIssueCommand = subcommand({
   name: "issue",
@@ -89,45 +101,67 @@ export const githubIssueCommand = subcommand({
 
       const issue = response.data;
       const isPr = Boolean(issue.pull_request);
+      const stateLabel = isPr && issue.state === "closed" && (issue as { merged?: boolean }).merged
+        ? "merged"
+        : issue.state ?? "open";
+      const color = STATE_COLORS[stateLabel] ?? STATE_COLORS.open!;
+
       const labels = issue.labels
         .map((l) => (typeof l === "string" ? l : l.name))
-        .filter(Boolean)
-        .join(", ");
+        .filter(Boolean);
+
+      const infoLines: string[] = [
+        `${isPr ? "🔀" : "❕"} **${issue.title}**`,
+        `**${stateLabel.toUpperCase()}** · #${issue.number} · ${issue.user?.login ?? "unknown"}`,
+        `💬 ${issue.comments} comments · 📅 <t:${Math.floor(new Date(issue.created_at).getTime() / 1000)}:D>`,
+      ];
+
+      if (issue.closed_at) {
+        infoLines.push(`✅ Closed <t:${Math.floor(new Date(issue.closed_at).getTime() / 1000)}:D>`);
+      }
+
+      if (labels.length > 0) {
+        infoLines.push("");
+        infoLines.push(labels.map((l) => `\`${l}\``).join(" "));
+      }
+
+      if (issue.assignee) {
+        infoLines.push(`👤 Assigned to **${issue.assignee.login}**`);
+      }
+
+      if (issue.milestone) {
+        infoLines.push(`🎯 Milestone: **${issue.milestone.title}**`);
+      }
 
       const bodyExcerpt = (issue.body ?? "(no description)")
         .replace(/```[\s\S]*?```/g, "[code]")
         .slice(0, 500);
 
-      const lines = [
-        `title=${issue.title}`,
-        `number=#${issue.number}`,
-        `state=${issue.state}`,
-        `author=${issue.user?.login ?? "unknown"}`,
-        `created=${new Date(issue.created_at).toISOString().split("T")[0]}`,
-        `comments=${issue.comments}`,
-        `labels=${labels || "(none)"}`,
-      ];
-
-      if (isPr) {
-        lines.push("type=pull-request");
+      if (bodyExcerpt) {
+        infoLines.push("");
+        infoLines.push(bodyExcerpt);
       }
 
-      if (issue.assignee) {
-        lines.push(`assignee=${issue.assignee.login}`);
-      }
+      const container = new ContainerBuilder()
+        .setAccentColor(color)
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(infoLines.join("\n")),
+        )
+        .addActionRowComponents(
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setLabel(`View ${isPr ? "PR" : "Issue"} #${issue.number}`)
+              .setStyle(ButtonStyle.Link)
+              .setURL(issue.html_url),
+          ),
+        );
 
-      if (issue.milestone) {
-        lines.push(`milestone=${issue.milestone.title}`);
-      }
-
-      if (issue.closed_at) {
-        lines.push(`closed=${new Date(issue.closed_at).toISOString().split("T")[0]}`);
-      }
-
-      lines.push(`body=${bodyExcerpt}`);
-      lines.push(`url=${issue.html_url}`);
-
-      await message.reply(safeInline(lines.join("\n"), 1900));
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
     } catch (error) {
       const status = (error as { status?: number }).status;
 

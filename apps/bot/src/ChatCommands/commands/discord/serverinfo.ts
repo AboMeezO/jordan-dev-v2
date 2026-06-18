@@ -1,7 +1,12 @@
 import { ChannelType } from "discord.js";
+import {
+  ContainerBuilder,
+  MessageFlags,
+  SeparatorBuilder,
+  TextDisplayBuilder,
+} from "discord.js";
 
 import { commandTree } from "#ChatCommands";
-import { shellOutput } from "../shell/format.js";
 
 export const serverInfoCommand = commandTree({
   aliases: ["server-info", "guildinfo", "guild-info"],
@@ -42,9 +47,19 @@ export const serverInfoCommand = commandTree({
         .map((role) => role.name)
         .slice(0, 50);
 
-      await message.reply(shellOutput([
-        `roles=${roles.length > 0 ? roles.join(", ") : "none"}`,
-      ]));
+      const container = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `**${guild.name}** — Roles (${roles.length})\n${roles.length > 0 ? roles.join(", ") : "none"}`,
+          ),
+        );
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
       return;
     }
 
@@ -54,56 +69,117 @@ export const serverInfoCommand = commandTree({
         .map((c) => c.name)
         .slice(0, 50);
 
-      await message.reply(shellOutput([
-        `text_channels=${channels.length > 0 ? channels.join(", ") : "none"}`,
-      ]));
+      const container = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `**${guild.name}** — Text Channels (${channels.length})\n${channels.length > 0 ? channels.join(", ") : "none"}`,
+          ),
+        );
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
       return;
     }
 
     if (section === "emojis") {
       const emojis = guild.emojis.cache.map((e) => e.name ?? "unknown").slice(0, 50);
 
-      await message.reply(shellOutput([
-        `emojis=${emojis.length}`,
-        ...(emojis.length > 0 ? [`names=${emojis.join(", ")}`] : []),
-      ]));
+      const container = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `**${guild.name}** — Emojis (${emojis.length})\n${emojis.length > 0 ? emojis.join(", ") : "none"}`,
+          ),
+        );
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
       return;
     }
 
     if (section === "boosts") {
-      await message.reply(shellOutput([
-        `boost_level=${guild.premiumTier}`,
-        `boost_count=${guild.premiumSubscriptionCount ?? 0}`,
-      ]));
+      const container = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            `**${guild.name}** — Boosts\nLevel: **${guild.premiumTier}**\nCount: **${guild.premiumSubscriptionCount ?? 0}**`,
+          ),
+        );
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
       return;
     }
 
     if (section === "security") {
-      await message.reply(shellOutput([
-        `verification_level=${guild.verificationLevel}`,
-        `mfa_level=${guild.mfaLevel}`,
-        `content_filter=${guild.explicitContentFilter}`,
-        `notifications=${guild.defaultMessageNotifications}`,
-      ]));
+      const container = new ContainerBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            [
+              `**${guild.name}** — Security`,
+              `Verification: **${guild.verificationLevel}**`,
+              `MFA: **${guild.mfaLevel}**`,
+              `Content Filter: **${guild.explicitContentFilter}**`,
+              `Default Notifications: **${guild.defaultMessageNotifications}**`,
+            ].join("\n"),
+          ),
+        );
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
       return;
     }
 
     const owner = guild.members.resolve(guild.ownerId);
 
-    const lines = [
-      `name=${guild.name}`,
-      `id=${guild.id}`,
-      `owner=${owner?.user.username ?? guild.ownerId}`,
-      `created=${guild.createdAt.toISOString()}`,
-      `members=${guild.memberCount}`,
-      `channels=${guild.channels.cache.size}`,
-      `roles=${guild.roles.cache.size}`,
-      `emojis=${guild.emojis.cache.size}`,
-      `boost_level=${guild.premiumTier}`,
-      `boost_count=${guild.premiumSubscriptionCount ?? 0}`,
-      `verification=${guild.verificationLevel}`,
-    ];
+    const container = new ContainerBuilder()
+      .setAccentColor(guild.members.cache.get(guild.ownerId)?.displayColor ?? undefined)
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          [
+            `**${guild.name}**`,
+            `🆔 ${guild.id}`,
+            `👑 ${owner?.user.username ?? guild.ownerId}`,
+            `📅 <t:${Math.floor(guild.createdAt.getTime() / 1000)}:D>`,
+          ].join("\n"),
+        ),
+      )
+      .addSeparatorComponents(
+        new SeparatorBuilder().setDivider(true),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          [
+            `**Statistics**`,
+            `👥 **${guild.memberCount}** members`,
+            `📢 **${guild.channels.cache.size}** channels`,
+            `🔰 **${guild.roles.cache.size}** roles`,
+            `😀 **${guild.emojis.cache.size}** emojis`,
+            `🚀 Level **${guild.premiumTier}** (**${guild.premiumSubscriptionCount ?? 0}** boosts)`,
+            `🛡️ Verification: **${guild.verificationLevel}**`,
+          ].join("\n"),
+        ),
+      );
 
-    await message.reply(shellOutput(lines));
+    await message.reply({
+      components: [container],
+      content: "",
+      embeds: [],
+      flags: MessageFlags.IsComponentsV2,
+    });
   },
 });

@@ -1,9 +1,18 @@
 import { Octokit } from "@octokit/rest";
-
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
+  MessageFlags,
+  SeparatorBuilder,
+  TextDisplayBuilder,
+} from "discord.js";
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";
-import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
 
 const octokit = new Octokit({
@@ -15,6 +24,8 @@ const REPO_PATTERN = /^([\w.-]+)\/([\w.-]+)$/;
 const repoSchema = z.object({
   input: textInputSchema(200),
 });
+
+const GITHUB_BLUE = 0x2d_76_ee;
 
 export const githubRepoCommand = subcommand({
   name: "repo",
@@ -76,40 +87,96 @@ export const githubRepoCommand = subcommand({
       const response = await octokit.rest.repos.get({ owner, repo });
       const r = response.data;
 
-      const lines = [
-        `name=${r.full_name}`,
-        `description=${r.description ?? "(no description)"}`,
-        `stars=${r.stargazers_count}`,
-        `forks=${r.forks_count}`,
-        `open_issues=${r.open_issues_count}`,
-        `language=${r.language ?? "(none)"}`,
-        `license=${r.license?.spdx_id ?? "(none)"}`,
-        `default_branch=${r.default_branch}`,
-        `created=${new Date(r.created_at).toISOString().split("T")[0]}`,
-        `updated=${new Date(r.updated_at).toISOString().split("T")[0]}`,
-        `url=${r.html_url}`,
+      const infoLines: string[] = [
+        `**${r.full_name}**`,
       ];
 
+      if (r.description) {
+        infoLines.push(r.description.slice(0, 400));
+      }
+
+      infoLines.push("");
+      infoLines.push(`★ **${r.stargazers_count}**  ⑂ **${r.forks_count}**  ◉ **${r.open_issues_count}** open issues`);
+
+      if (r.language) {
+        infoLines.push(`🔹 ${r.language}`);
+      }
+
+      if (r.license?.spdx_id) {
+        infoLines.push(`📜 ${r.license.spdx_id}`);
+      }
+
+      infoLines.push(`🌿 ${r.default_branch}`);
+
       if (r.archived) {
-        lines.push("archived=true");
+        infoLines.push("📦 Archived");
       }
 
       if (r.fork) {
-        lines.push("fork=true");
+        infoLines.push("⑂ Fork");
       }
 
       if (r.topics && r.topics.length > 0) {
-        lines.push(`topics=${r.topics.slice(0, 10).join(", ")}`);
+        infoLines.push("");
+        infoLines.push(r.topics.slice(0, 10).map((t) => `\`${t}\``).join(" "));
       }
+
+      infoLines.push("");
+      infoLines.push(`Created <t:${Math.floor(new Date(r.created_at).getTime() / 1000)}:D> · Updated <t:${Math.floor(new Date(r.updated_at).getTime() / 1000)}:R>`);
+
+      const container = new ContainerBuilder()
+        .setAccentColor(GITHUB_BLUE)
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(infoLines.join("\n")),
+        );
+
+      if (r.owner?.avatar_url) {
+        container.addSeparatorComponents(
+          new SeparatorBuilder().setDivider(true),
+        ).addMediaGalleryComponents(
+          new MediaGalleryBuilder().addItems(
+            new MediaGalleryItemBuilder()
+              .setURL(r.owner.avatar_url)
+              .setDescription(`${r.owner.login}`),
+          ),
+        );
+      }
+
+      let latestRelease: string | undefined;
 
       try {
         const release = await octokit.rest.repos.getLatestRelease({ owner, repo });
-        lines.push(`latest_release=${release.data.tag_name}`);
+        latestRelease = release.data.tag_name;
       } catch {
         // No release found, skip
       }
 
-      await message.reply(safeInline(lines.join("\n"), 1900));
+      const buttons: ButtonBuilder[] = [
+        new ButtonBuilder()
+          .setLabel("View Repository")
+          .setStyle(ButtonStyle.Link)
+          .setURL(r.html_url),
+      ];
+
+      if (latestRelease) {
+        buttons.unshift(
+          new ButtonBuilder()
+            .setLabel(`Latest: ${latestRelease}`)
+            .setStyle(ButtonStyle.Link)
+            .setURL(`${r.html_url}/releases/latest`),
+        );
+      }
+
+      container.addActionRowComponents(
+        new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons),
+      );
+
+      await message.reply({
+        components: [container],
+        content: "",
+        embeds: [],
+        flags: MessageFlags.IsComponentsV2,
+      });
     } catch (error) {
       const status = (error as { status?: number }).status;
 

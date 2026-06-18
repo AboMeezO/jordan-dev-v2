@@ -1,3 +1,10 @@
+import {
+  ContainerBuilder,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
+  MessageFlags,
+  TextDisplayBuilder,
+} from "discord.js";
 import { z } from "zod";
 
 import { commandTree } from "#ChatCommands";
@@ -65,17 +72,48 @@ export const bannerCommand = commandTree({
         : undefined;
 
       if (bannerUrl) {
-        const links = [`user=${user.username}`, `banner=${bannerUrl}`];
+        const infoLines: string[] = [
+          `**${user.username}**'s Banner`,
+        ];
 
-        if (gifBannerUrl) {
-          links.push(`animated=${gifBannerUrl}`);
+        if (user.banner?.startsWith("a_")) {
+          infoLines.push("Animated");
         }
 
-        await message.reply(links.join("\n"));
+        const container = new ContainerBuilder()
+          .setAccentColor(user.accentColor ?? undefined)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(infoLines.join("\n")),
+          )
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+              new MediaGalleryItemBuilder()
+                .setURL(bannerUrl)
+                .setDescription(`${user.username}'s banner`),
+            ),
+          );
+
+        await message.reply({
+          components: [container],
+          content: "",
+          embeds: [],
+          flags: MessageFlags.IsComponentsV2,
+        });
       } else if (user.hexAccentColor) {
-        await message.reply(
-          `user=${user.username}\naccent_color=${user.hexAccentColor}\nNo banner set.`,
-        );
+        const container = new ContainerBuilder()
+          .setAccentColor(user.accentColor ?? undefined)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              `**${user.username}** has no banner.\nAccent color: **${user.hexAccentColor}**`,
+            ),
+          );
+
+        await message.reply({
+          components: [container],
+          content: "",
+          embeds: [],
+          flags: MessageFlags.IsComponentsV2,
+        });
       } else {
         await message.reply("This user has no banner or accent color.");
       }
