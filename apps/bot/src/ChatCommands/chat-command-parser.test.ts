@@ -125,12 +125,12 @@ const prefixOnly = parseChatCommandInput(
 assert.ok(prefixOnly);
 assert.equal(
 	registry.resolve(prefixOnly)?.allowPrefixless,
-	false,
+	true,
 );
 assert.equal(
 	registry.find(["remind", "later"], "!")?.invocation
 		.prefix,
-	"!",
+	"",
 );
 
 const reminderGuide = renderUsageGuide({

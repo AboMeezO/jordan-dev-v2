@@ -88,7 +88,7 @@ export class ChatCommandRegistry {
 
 		return {
 			allowPrefixless:
-				rootCommand.definition.allowPrefixless === true,
+				rootCommand.definition.allowPrefixless !== false,
 			command: command.definition,
 			invocation,
 			permission: maxPermissionLevel(permissions),
@@ -134,7 +134,7 @@ export class ChatCommandRegistry {
 		const invocation = createInvocation(
 			{
 				prefix:
-					rootCommand.definition.allowPrefixless === true
+					rootCommand.definition.allowPrefixless !== false
 						? ""
 						: prefix,
 				segments: [
@@ -147,7 +147,7 @@ export class ChatCommandRegistry {
 
 		return {
 			allowPrefixless:
-				rootCommand.definition.allowPrefixless === true,
+				rootCommand.definition.allowPrefixless !== false,
 			command: command.definition,
 			invocation,
 			permission: maxPermissionLevel(permissions),

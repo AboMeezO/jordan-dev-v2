@@ -75,12 +75,10 @@ function buildNode(
 ): ChatCommandDefinition {
 	return {
 		...(input.aliases ? { aliases: input.aliases } : {}),
-		...(kind === "command" &&
-		(input as ChatCommandTreeInput).allowPrefixless !==
-			undefined
+		...(kind === "command"
 			? {
-					allowPrefixless: (input as ChatCommandTreeInput)
-						.allowPrefixless,
+					allowPrefixless:
+						(input as ChatCommandTreeInput).allowPrefixless ?? true,
 				}
 			: {}),
 		description: input.description,

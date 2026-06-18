@@ -95,7 +95,7 @@ export function renderCommandList(
 
 	for (const command of commands) {
 		const prefix =
-			command.allowPrefixless === true ? "" : "!";
+			command.allowPrefixless !== false ? "" : "!";
 		let entry = `- \`${prefix}${command.name}\``;
 
 		if (command.category) {
