@@ -33,4 +33,3 @@ Renderers should be replaceable by richer renderers:
 - Spectator overlays.
 
 Keep a single renderer interface so future output modes can be added without changing engine systems.
-

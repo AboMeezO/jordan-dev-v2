@@ -36,4 +36,3 @@ Statistics can be event-driven. Subscribe to domain events and update counters, 
 
 - Per-session counters are retained while session is active.
 - Completed summary may be passed to persistence and then removed from active memory.
-

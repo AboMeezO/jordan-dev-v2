@@ -98,21 +98,21 @@ export async function fetchUserInfo(accessToken: string) {
           throw new Error('Not logged in');
         },
       },
-    })
+    }),
   );
 }
 
 export async function getGuilds(accessToken: string) {
   return await callReturn<Guild[]>(
     `/users/@me/guilds`,
-    discordRequest(accessToken, { request: { method: 'GET' } })
+    discordRequest(accessToken, { request: { method: 'GET' } }),
   );
 }
 
 export async function getGuild(accessToken: string, id: string) {
   return await callReturn<Guild>(
     `/guilds/${id}`,
-    discordRequest(accessToken, { request: { method: 'GET' } })
+    discordRequest(accessToken, { request: { method: 'GET' } }),
   );
 }
 

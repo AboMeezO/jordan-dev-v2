@@ -40,4 +40,3 @@ Elapsed time, degraded stats, failed incidents, or configured thresholds.
 
 - Send escalation warning or status update through renderer.
 - No direct Discord action from director.
-

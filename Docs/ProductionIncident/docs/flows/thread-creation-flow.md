@@ -36,4 +36,3 @@ Session creation configuration requires a dedicated Discord thread.
 - Create thread when configured.
 - Send initial thread message.
 - Handle missing permissions with adapter-level error.
-

@@ -36,4 +36,3 @@ Domain events or threshold crossings such as low stability, failed incident reso
 - Send short channel message.
 - Optionally include cue in outcome embed.
 - Avoid spam during rapid event bursts.
-

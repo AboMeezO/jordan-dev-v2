@@ -96,4 +96,3 @@ src/
 - View models end with `View`.
 - Events end with `Event`.
 - Commands end with `Command`.
-

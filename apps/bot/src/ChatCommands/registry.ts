@@ -1,185 +1,201 @@
 import { createInvocation } from "./parser.js";
 import { maxPermissionLevel } from "./permissions.js";
 import type {
-  ChatCommandDefinition,
-  ChatCommandInvocation,
-  ChatCommandParseResult,
-  ChatPermissionLevel,
+	ChatCommandDefinition,
+	ChatCommandInvocation,
+	ChatCommandParseResult,
+	ChatPermissionLevel,
 } from "./types.js";
 
 export interface ChatCommandResolution {
-  readonly allowPrefixless: boolean;
-  readonly command: ChatCommandDefinition;
-  readonly invocation: ChatCommandInvocation;
-  readonly permission: ChatPermissionLevel;
-  readonly subcommands: readonly ChatCommandDefinition[];
+	readonly allowPrefixless: boolean;
+	readonly command: ChatCommandDefinition;
+	readonly invocation: ChatCommandInvocation;
+	readonly permission: ChatPermissionLevel;
+	readonly subcommands: readonly ChatCommandDefinition[];
 }
 
 interface StoredCommand {
-  readonly definition: ChatCommandDefinition;
-  readonly children: ReadonlyMap<string, StoredCommand>;
+	readonly definition: ChatCommandDefinition;
+	readonly children: ReadonlyMap<string, StoredCommand>;
 }
 
 export class ChatCommandRegistry {
-  private readonly commands = new Map<string, StoredCommand>();
+	private readonly commands = new Map<
+		string,
+		StoredCommand
+	>();
 
-  public register(command: ChatCommandDefinition): void {
-    this.addToMap(this.commands, command);
-  }
+	public register(command: ChatCommandDefinition): void {
+		this.addToMap(this.commands, command);
+	}
 
-  public resolve(
-    parseResult: ChatCommandParseResult,
-  ): ChatCommandResolution | undefined {
-    const segment = parseResult.segments[0];
-    const words = segment?.words;
+	public resolve(
+		parseResult: ChatCommandParseResult,
+	): ChatCommandResolution | undefined {
+		const segment = parseResult.segments[0];
+		const words = segment?.words;
 
-    if (!words || words.length === 0) {
-      return undefined;
-    }
+		if (!words || words.length === 0) {
+			return undefined;
+		}
 
-    const firstToken = words[0]?.toLowerCase();
+		const firstToken = words[0]?.toLowerCase();
 
-    if (!firstToken) {
-      return undefined;
-    }
+		if (!firstToken) {
+			return undefined;
+		}
 
-    const rootCommand = this.commands.get(firstToken);
+		const rootCommand = this.commands.get(firstToken);
 
-    if (!rootCommand) {
-      return undefined;
-    }
+		if (!rootCommand) {
+			return undefined;
+		}
 
-    let command: StoredCommand = rootCommand;
-    const path = [command.definition.name];
-    const permissions: (ChatPermissionLevel | undefined)[] = [
-      command.definition.permission,
-    ];
-    let consumed = 1;
+		let command: StoredCommand = rootCommand;
+		const path = [command.definition.name];
+		const permissions: (ChatPermissionLevel | undefined)[] =
+			[command.definition.permission];
+		let consumed = 1;
 
-    while (consumed < words.length) {
-      const nextToken = words[consumed]?.toLowerCase();
+		while (consumed < words.length) {
+			const nextToken = words[consumed]?.toLowerCase();
 
-      if (!nextToken) {
-        break;
-      }
+			if (!nextToken) {
+				break;
+			}
 
-      const child = command.children.get(nextToken);
+			const child = command.children.get(nextToken);
 
-      if (!child) {
-        break;
-      }
+			if (!child) {
+				break;
+			}
 
-      command = child;
-      path.push(command.definition.name);
-      permissions.push(command.definition.permission);
-      consumed += 1;
-    }
+			command = child;
+			path.push(command.definition.name);
+			permissions.push(command.definition.permission);
+			consumed += 1;
+		}
 
-    const rawArgs = words.slice(consumed);
-    const invocation = createInvocation(parseResult, path, rawArgs);
+		const rawArgs = words.slice(consumed);
+		const invocation = createInvocation(
+			parseResult,
+			path,
+			rawArgs,
+		);
 
-    return {
-      allowPrefixless: rootCommand.definition.allowPrefixless === true,
-      command: command.definition,
-      invocation,
-      permission: maxPermissionLevel(permissions),
-      subcommands: uniqueSubcommands(command.children),
-    };
-  }
+		return {
+			allowPrefixless:
+				rootCommand.definition.allowPrefixless === true,
+			command: command.definition,
+			invocation,
+			permission: maxPermissionLevel(permissions),
+			subcommands: uniqueSubcommands(command.children),
+		};
+	}
 
-  public find(
-    commandPath: readonly string[],
-    prefix: string,
-  ): ChatCommandResolution | undefined {
-    const [firstToken, ...remainingPath] = commandPath.map((part) =>
-      part.toLowerCase(),
-    );
+	public find(
+		commandPath: readonly string[],
+		prefix: string,
+	): ChatCommandResolution | undefined {
+		const [firstToken, ...remainingPath] = commandPath.map(
+			(part) => part.toLowerCase(),
+		);
 
-    if (!firstToken) {
-      return undefined;
-    }
+		if (!firstToken) {
+			return undefined;
+		}
 
-    const rootCommand = this.commands.get(firstToken);
+		const rootCommand = this.commands.get(firstToken);
 
-    if (!rootCommand) {
-      return undefined;
-    }
+		if (!rootCommand) {
+			return undefined;
+		}
 
-    let command: StoredCommand = rootCommand;
-    const path = [command.definition.name];
-    const permissions: (ChatPermissionLevel | undefined)[] = [
-      command.definition.permission,
-    ];
+		let command: StoredCommand = rootCommand;
+		const path = [command.definition.name];
+		const permissions: (ChatPermissionLevel | undefined)[] =
+			[command.definition.permission];
 
-    for (const token of remainingPath) {
-      const child = command.children.get(token);
+		for (const token of remainingPath) {
+			const child = command.children.get(token);
 
-      if (!child) {
-        return undefined;
-      }
+			if (!child) {
+				return undefined;
+			}
 
-      command = child;
-      path.push(command.definition.name);
-      permissions.push(command.definition.permission);
-    }
+			command = child;
+			path.push(command.definition.name);
+			permissions.push(command.definition.permission);
+		}
 
-    const invocation = createInvocation(
-      {
-        prefix: rootCommand.definition.allowPrefixless === true ? "" : prefix,
-        segments: [{ operators: [], redirects: [], words: path }],
-      },
-      path,
-      [],
-    );
+		const invocation = createInvocation(
+			{
+				prefix:
+					rootCommand.definition.allowPrefixless === true
+						? ""
+						: prefix,
+				segments: [
+					{ operators: [], redirects: [], words: path },
+				],
+			},
+			path,
+			[],
+		);
 
-    return {
-      allowPrefixless: rootCommand.definition.allowPrefixless === true,
-      command: command.definition,
-      invocation,
-      permission: maxPermissionLevel(permissions),
-      subcommands: uniqueSubcommands(command.children),
-    };
-  }
+		return {
+			allowPrefixless:
+				rootCommand.definition.allowPrefixless === true,
+			command: command.definition,
+			invocation,
+			permission: maxPermissionLevel(permissions),
+			subcommands: uniqueSubcommands(command.children),
+		};
+	}
 
-  public listRootCommands(): readonly ChatCommandDefinition[] {
-    return uniqueSubcommands(this.commands);
-  }
+	public listRootCommands(): readonly ChatCommandDefinition[] {
+		return uniqueSubcommands(this.commands);
+	}
 
-  private addToMap(
-    map: Map<string, StoredCommand>,
-    command: ChatCommandDefinition,
-  ): void {
-    const key = command.name.toLowerCase();
+	private addToMap(
+		map: Map<string, StoredCommand>,
+		command: ChatCommandDefinition,
+	): void {
+		const key = command.name.toLowerCase();
 
-    if (map.has(key)) {
-      throw new Error(`Duplicate chat command: ${command.name}`);
-    }
+		if (map.has(key)) {
+			throw new Error(
+				`Duplicate chat command: ${command.name}`,
+			);
+		}
 
-    const children = new Map<string, StoredCommand>();
+		const children = new Map<string, StoredCommand>();
 
-    for (const subcommand of command.subcommands ?? []) {
-      this.addToMap(children, subcommand);
-    }
+		for (const subcommand of command.subcommands ?? []) {
+			this.addToMap(children, subcommand);
+		}
 
-    const stored = { children, definition: command };
-    map.set(key, stored);
+		const stored = { children, definition: command };
+		map.set(key, stored);
 
-    for (const alias of command.aliases ?? []) {
-      const aliasKey = alias.toLowerCase();
+		for (const alias of command.aliases ?? []) {
+			const aliasKey = alias.toLowerCase();
 
-      if (map.has(aliasKey)) {
-        throw new Error(`Duplicate chat command alias: ${alias}`);
-      }
+			if (map.has(aliasKey)) {
+				throw new Error(
+					`Duplicate chat command alias: ${alias}`,
+				);
+			}
 
-      map.set(aliasKey, stored);
-    }
-  }
+			map.set(aliasKey, stored);
+		}
+	}
 }
 
 function uniqueSubcommands(
-  commands: ReadonlyMap<string, StoredCommand>,
+	commands: ReadonlyMap<string, StoredCommand>,
 ): readonly ChatCommandDefinition[] {
-  return Array.from(new Set(Array.from(commands.values()))).map(
-    (command) => command.definition,
-  );
+	return Array.from(
+		new Set(Array.from(commands.values())),
+	).map((command) => command.definition);
 }

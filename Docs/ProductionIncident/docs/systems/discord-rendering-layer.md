@@ -35,4 +35,3 @@
 - Disable unavailable actions.
 - Fall back to plain content when embed construction would exceed limits.
 - Log payload construction failures as adapter bugs.
-

@@ -19,9 +19,8 @@ export type I18nProvider<Languages extends string> = {
   }): ReactElement;
 };
 
-export type TranslationofConfig<T> = T extends I18nConfig<never, infer Keys>
-  ? Translation<Keys>
-  : never;
+export type TranslationofConfig<T> =
+  T extends I18nConfig<never, infer Keys> ? Translation<Keys> : never;
 
 /**
  * A type-safe light-weight implmentation of i18n
@@ -51,7 +50,7 @@ export function createI18n<Model extends TranslationModel, Languages extends str
   provider: I18nProvider<Languages>,
   translations: {
     [lang in Languages]: Translation<Model>;
-  }
+  },
 ): I18nConfig<Languages, Model> {
   return {
     translations: translations,

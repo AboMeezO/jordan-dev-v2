@@ -3,7 +3,7 @@ import { createMultiStyleConfigHelpers } from '@chakra-ui/react';
 import { dark, light } from '../colors';
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
-  inputAnatomy.keys
+  inputAnatomy.keys,
 );
 
 const main = definePartsStyle({

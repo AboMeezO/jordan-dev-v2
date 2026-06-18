@@ -60,4 +60,3 @@ Use data plus rule evaluators instead. Templates and strategy objects are easier
 - Utility classes that hide mutable global state.
 - Static methods that call time, random, filesystem, or Discord APIs.
 - Service locators used from inside domain entities.
-

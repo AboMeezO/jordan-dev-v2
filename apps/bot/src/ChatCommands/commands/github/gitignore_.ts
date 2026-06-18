@@ -2,7 +2,7 @@ import { subcommand } from "#ChatCommands";
 import { safeInline, safeOutput } from "#ChatCommands";
 
 const GITIGNORE_TEMPLATES: Record<string, string> = {
-  node: `node_modules/
+	node: `node_modules/
 dist/
 build/
 *.js.map
@@ -16,7 +16,7 @@ yarn-error.log*
 .env.local
 .env.*.local
 `,
-  python: `__pycache__/
+	python: `__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -33,7 +33,7 @@ build/
 .vscode/
 *.pyc
 `,
-  java: `*.class
+	java: `*.class
 *.jar
 *.war
 *.nar
@@ -49,7 +49,7 @@ build/
 .classpath
 .vscode/
 `,
-  nextjs: `.next/
+	nextjs: `.next/
 out/
 node_modules/
 dist/
@@ -57,7 +57,7 @@ build/
 *.tsbuildinfo
 .next/
 `,
-  react: `node_modules/
+	react: `node_modules/
 dist/
 build/
 *.js.map
@@ -65,19 +65,19 @@ build/
 .env
 .env.local
 `,
-  vscode: `.vscode/
+	vscode: `.vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
 *.code-workspace
 `,
-  jetbrains: `.idea/
+	jetbrains: `.idea/
 *.iml
 *.ipr
 *.iws
 out/
 .idea_modules/
 `,
-  windows: `Thumbs.db
+	windows: `Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
@@ -86,7 +86,7 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 `,
-  macos: `.DS_Store
+	macos: `.DS_Store
 .DS_Store?
 .AppleDouble
 .LSOverride
@@ -98,7 +98,7 @@ Icon
 .TemporaryItems
 .Trashes
 `,
-  linux: `*~
+	linux: `*~
 .fuse_hidden*
 .directory
 .Trash-*
@@ -107,94 +107,117 @@ Icon
 };
 
 const TEMPLATE_ALIASES: Record<string, string> = {
-  nodejs: "node",
-  js: "node",
-  typescript: "node",
-  py: "python",
-  reactjs: "react",
-  webstorm: "jetbrains",
-  intellij: "jetbrains",
-  mac: "macos",
-  windows: "windows",
-  win: "windows",
-  linux: "linux",
-  ubuntu: "linux",
+	nodejs: "node",
+	js: "node",
+	typescript: "node",
+	py: "python",
+	reactjs: "react",
+	webstorm: "jetbrains",
+	intellij: "jetbrains",
+	mac: "macos",
+	windows: "windows",
+	win: "windows",
+	linux: "linux",
+	ubuntu: "linux",
 };
 
 export const gitignoreCommand = subcommand({
-  name: "gitignore",
-  aliases: ["ignore"],
-  description: "Generate .gitignore templates.",
-  category: "Git / GitHub Tools",
-  cooldown: 2_000,
-  inputLimits: { maxInputLength: 500 },
-  availability: {
-    contexts: ["guild", "dm"],
-  },
-  usage: {
-    formats: ["gitignore <template> [template...]", "gitignore list"],
-    arguments: [{ name: "template", description: "Template names: node, python, react, nextjs, vscode, jetbrains, windows, macos, linux", required: true }],
-    examples: [
-      { command: "gitignore node", description: "Node.js gitignore." },
-      { command: "gitignore node react vscode", description: "Merge multiple templates." },
-      { command: "gitignore list", description: "List available templates." },
-    ],
-  },
-  async execute({ invocation, message }) {
-    const args = invocation.positionalArgs
-      .map((a) => a.toLowerCase())
-      .filter(Boolean);
+	name: "gitignore",
+	aliases: ["ignore"],
+	description: "Generate .gitignore templates.",
+	category: "Git / GitHub Tools",
+	cooldown: 2_000,
+	inputLimits: { maxInputLength: 500 },
+	availability: {
+		contexts: ["guild", "dm"],
+	},
+	usage: {
+		formats: [
+			"gitignore <template> [template...]",
+			"gitignore list",
+		],
+		arguments: [
+			{
+				name: "template",
+				description:
+					"Template names: node, python, react, nextjs, vscode, jetbrains, windows, macos, linux",
+				required: true,
+			},
+		],
+		examples: [
+			{
+				command: "gitignore node",
+				description: "Node.js gitignore.",
+			},
+			{
+				command: "gitignore node react vscode",
+				description: "Merge multiple templates.",
+			},
+			{
+				command: "gitignore list",
+				description: "List available templates.",
+			},
+		],
+	},
+	async execute({ invocation, message }) {
+		const args = invocation.positionalArgs
+			.map((a) => a.toLowerCase())
+			.filter(Boolean);
 
-    if (args.length === 0 || args[0] === "list") {
-      const names = Object.keys(GITIGNORE_TEMPLATES).sort();
-      await message.reply(safeInline(
-        `Available templates: ${names.join(", ")}\nUse \`gitignore <template>\` to generate.`,
-        1900,
-      ));
-      return;
-    }
+		if (args.length === 0 || args[0] === "list") {
+			const names = Object.keys(GITIGNORE_TEMPLATES).sort();
+			await message.reply(
+				safeInline(
+					`Available templates: ${names.join(", ")}\nUse \`gitignore <template>\` to generate.`,
+					1900,
+				),
+			);
+			return;
+		}
 
-    const seen = new Set<string>();
-    const contents: string[] = [];
-    const unknown: string[] = [];
+		const seen = new Set<string>();
+		const contents: string[] = [];
+		const unknown: string[] = [];
 
-    for (const arg of args) {
-      const normalized = TEMPLATE_ALIASES[arg] ?? arg;
+		for (const arg of args) {
+			const normalized = TEMPLATE_ALIASES[arg] ?? arg;
 
-      if (seen.has(normalized)) {
-        continue;
-      }
+			if (seen.has(normalized)) {
+				continue;
+			}
 
-      seen.add(normalized);
+			seen.add(normalized);
 
-      const template = GITIGNORE_TEMPLATES[normalized];
+			const template = GITIGNORE_TEMPLATES[normalized];
 
-      if (template) {
-        contents.push(`### ${normalized} ###\n${template.trim()}`);
-      } else {
-        unknown.push(arg);
-      }
-    }
+			if (template) {
+				contents.push(
+					`### ${normalized} ###\n${template.trim()}`,
+				);
+			} else {
+				unknown.push(arg);
+			}
+		}
 
-    if (contents.length === 0) {
-      await message.reply("No valid templates found.");
-      return;
-    }
+		if (contents.length === 0) {
+			await message.reply("No valid templates found.");
+			return;
+		}
 
-    const output = contents.join("\n\n");
+		const output = contents.join("\n\n");
 
-    const safe = safeOutput(output);
+		const safe = safeOutput(output);
 
-    if ("content" in safe) {
-      let reply = safe.content;
+		if ("content" in safe) {
+			let reply = safe.content;
 
-      if (unknown.length > 0) {
-        reply += `\n\nUnknown templates: ${unknown.join(", ")}`;
-      }
+			if (unknown.length > 0) {
+				reply += `\n\nUnknown templates: ${unknown.join(", ")}`;
+			}
 
-      await message.reply({ content: reply });
-    } else {
-      await message.reply({ files: [safe.attachment] });
-    }
-  },
+			await message.reply({ content: reply });
+		} else {
+			await message.reply({ files: [safe.attachment] });
+		}
+	},
 });

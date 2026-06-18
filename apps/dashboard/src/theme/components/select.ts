@@ -5,7 +5,7 @@ import { light } from '@/theme/colors';
 import { mode, StyleFunctionProps } from '@chakra-ui/theme-tools';
 
 const { defineMultiStyleConfig, definePartsStyle } = createMultiStyleConfigHelpers(
-  selectAnatomy.keys
+  selectAnatomy.keys,
 );
 
 function getDefaults(props: StyleFunctionProps) {

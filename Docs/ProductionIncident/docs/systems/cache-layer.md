@@ -33,4 +33,3 @@ In-memory caches are acceptable initially. Keep APIs shaped so distributed stora
 - Player progression.
 - Leaderboards.
 - Audit/event history.
-

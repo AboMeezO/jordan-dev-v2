@@ -101,4 +101,3 @@ Deliverables:
 Exit criteria:
 
 - Stats can be computed from session state and event history.
-

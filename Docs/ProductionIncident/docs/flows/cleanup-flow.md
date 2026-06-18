@@ -43,4 +43,3 @@ Session end, manual cancellation, unrecoverable adapter failure, timeout, bot sh
 - Edit active prompts to disabled state.
 - Send final summary where appropriate.
 - Ignore missing/deleted messages during cleanup.
-

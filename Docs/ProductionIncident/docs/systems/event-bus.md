@@ -38,4 +38,3 @@ Each event includes:
 - Untyped Node `EventEmitter` with string payloads.
 - Using events as commands.
 - Event handlers that silently mutate several unrelated systems.
-

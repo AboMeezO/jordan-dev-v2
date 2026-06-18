@@ -9,13 +9,14 @@ import { remindersCommand } from "./reminders.js";
 import { shellCommandTrees } from "./shell/index.js";
 import { toolsCommandTree } from "./tools/root.js";
 
-export const chatCommandTrees: readonly ChatCommandDefinition[] = [
-  remindCommand,
-  remindersCommand,
-  jdCommand,
-  ...shellCommandTrees,
-  toolsCommandTree,
-  ...discordCommandTrees,
-  githubCommandTree,
-  netCommandTree,
-];
+export const chatCommandTrees: readonly ChatCommandDefinition[] =
+	[
+		remindCommand,
+		remindersCommand,
+		jdCommand,
+		...shellCommandTrees,
+		toolsCommandTree,
+		...discordCommandTrees,
+		githubCommandTree,
+		netCommandTree,
+	];

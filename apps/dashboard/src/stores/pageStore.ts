@@ -27,6 +27,6 @@ export const useSettingsStore = create(
     }),
     {
       name: 'settings',
-    }
-  )
+    },
+  ),
 );

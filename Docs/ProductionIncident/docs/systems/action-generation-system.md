@@ -34,4 +34,3 @@
 - Too few actions: use fallback safe actions configured in data.
 - Role-locked action with no matching player: hide or keep disabled based on rule.
 - Duplicate semantic actions: deduplicate by action ID or exclusive group.
-

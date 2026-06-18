@@ -39,4 +39,3 @@ Director tick, manual debug command, chain reaction, or recovery complication.
 ## Discord Actions
 
 None directly. Renderer reacts to emitted view/event.
-

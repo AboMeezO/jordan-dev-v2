@@ -86,7 +86,7 @@ export const ChannelSelect = forwardRef<SelectInstance<Option, false>, Props>(
     const selected = value != null ? channelsQuery.data?.find((c) => c.id === value) : null;
     const options = useMemo(
       () => (channelsQuery.data != null ? mapOptions(channelsQuery.data) : []),
-      [channelsQuery.data]
+      [channelsQuery.data],
     );
 
     return (
@@ -101,7 +101,7 @@ export const ChannelSelect = forwardRef<SelectInstance<Option, false>, Props>(
         {...rest}
       />
     );
-  }
+  },
 );
 
 ChannelSelect.displayName = 'ChannelSelect';

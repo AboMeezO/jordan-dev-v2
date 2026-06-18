@@ -42,4 +42,3 @@ Examples:
 - Passing Discord objects through ports.
 - Letting adapters decide domain outcomes.
 - Hiding randomization inside static helpers instead of injecting `RandomSource`.
-

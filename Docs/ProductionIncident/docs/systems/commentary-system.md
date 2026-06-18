@@ -39,4 +39,3 @@ It evaluates commentary rules and emits one or more cues with priority and coold
 - Per-session commentary cooldown map.
 - Optional recent cue history to reduce repetition.
 - Readonly commentary rule catalog.
-

@@ -15,19 +15,20 @@ import { uptimeCommand } from "./uptime.js";
 import { whichCommand } from "./which.js";
 import { whoamiCommand } from "./whoami.js";
 
-export const shellCommandTrees: readonly ChatCommandDefinition[] = [
-  whoamiCommand,
-  idCommand,
-  groupsCommand,
-  hostnameCommand,
-  pwdCommand,
-  dateCommand,
-  uptimeCommand,
-  unameCommand,
-  psCommand,
-  envCommand,
-  lsCommand,
-  manCommand,
-  sudoCommand,
-  whichCommand,
-];
+export const shellCommandTrees: readonly ChatCommandDefinition[] =
+	[
+		whoamiCommand,
+		idCommand,
+		groupsCommand,
+		hostnameCommand,
+		pwdCommand,
+		dateCommand,
+		uptimeCommand,
+		unameCommand,
+		psCommand,
+		envCommand,
+		lsCommand,
+		manCommand,
+		sudoCommand,
+		whichCommand,
+	];

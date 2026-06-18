@@ -31,4 +31,3 @@ The global architectural rule is non-negotiable:
 6. `systems/session-manager.md`
 7. `systems/incident-engine.md`
 8. Flow documents relevant to the feature being implemented.
-

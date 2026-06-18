@@ -50,4 +50,3 @@ The escalation director requests an incident spawn, or a chain reaction schedule
 - Edit vote progress if supported.
 - Disable components after close.
 - Send outcome summary.
-

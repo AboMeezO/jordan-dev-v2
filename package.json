@@ -1,51 +1,51 @@
 {
-  "name": "jordan-devs-platform",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "packageManager": "pnpm@10.25.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@clerk/shared",
-      "esbuild",
-      "lightningcss",
-      "unrs-resolver"
-    ]
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "dev": "pnpm run dev:bot",
-    "dev:bot": "pnpm --dir apps/bot dev",
-    "dev:backend": "pnpm --dir packages/shared build && pnpm --dir apps/backend dev",
-    "dev:web": "pnpm --dir apps/web dev",
-    "dev:dashboard": "pnpm --dir apps/dashboard dev",
-    "build": "pnpm run build:shared && pnpm run build:backend && pnpm run build:web && pnpm run build:bot && pnpm run build:dashboard",
-    "build:bot": "pnpm --dir apps/bot build",
-    "build:backend": "pnpm --dir apps/backend build",
-    "build:shared": "pnpm --dir packages/shared build",
-    "build:web": "pnpm --dir apps/web build",
-    "build:dashboard": "pnpm --dir apps/dashboard build",
-    "lint": "eslint --no-config-lookup --config eslint.config.js apps/backend/src apps/bot/index.ts apps/bot/src apps/web/src packages/shared/src",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "test:phase1": "pnpm --dir apps/bot test:phase1",
-    "check": "npm run lint && npm run build"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@types/node": "^25.9.1",
-    "eslint": "^10.4.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-simple-import-sort": "^13.0.0",
-    "eslint-plugin-unused-imports": "^4.4.1",
-    "globals": "^17.6.0",
-    "prettier": "^3.8.3",
-    "tsx": "^4.22.3",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.4"
-  }
+	"name": "jordan-devs-platform",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@10.25.0",
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@clerk/shared",
+			"esbuild",
+			"lightningcss",
+			"unrs-resolver"
+		]
+	},
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "pnpm run dev:bot",
+		"dev:bot": "pnpm --dir apps/bot dev",
+		"dev:backend": "pnpm --dir packages/shared build && pnpm --dir apps/backend dev",
+		"dev:web": "pnpm --dir apps/web dev",
+		"dev:dashboard": "pnpm --dir apps/dashboard dev",
+		"build": "pnpm run build:shared && pnpm run build:backend && pnpm run build:web && pnpm run build:bot && pnpm run build:dashboard",
+		"build:bot": "pnpm --dir apps/bot build",
+		"build:backend": "pnpm --dir apps/backend build",
+		"build:shared": "pnpm --dir packages/shared build",
+		"build:web": "pnpm --dir apps/web build",
+		"build:dashboard": "pnpm --dir apps/dashboard build",
+		"lint": "eslint --no-config-lookup --config eslint.config.js apps/backend/src apps/bot/index.ts apps/bot/src apps/web/src packages/shared/src",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"test:phase1": "pnpm --dir apps/bot test:phase1",
+		"check": "npm run lint && npm run build"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^25.9.1",
+		"eslint": "^10.4.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-simple-import-sort": "^13.0.0",
+		"eslint-plugin-unused-imports": "^4.4.1",
+		"globals": "^17.6.0",
+		"prettier": "^3.8.3",
+		"tsx": "^4.22.3",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.59.4"
+	}
 }

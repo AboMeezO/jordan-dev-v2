@@ -6,7 +6,7 @@ import type { FormCardProps } from './Form';
 type ControlledInputProps<
   T,
   TFieldValue extends FieldValues,
-  TName extends Path<TFieldValue>
+  TName extends Path<TFieldValue>,
 > = Override<
   T,
   {
@@ -17,9 +17,9 @@ type ControlledInputProps<
 
 export type ControlledInput<Props, V = unknown> = <
   TFieldValues extends FieldValues,
-  TName extends FieldPathByValue<TFieldValues, V>
+  TName extends FieldPathByValue<TFieldValues, V>,
 >(
-  props: ControlledInputProps<Props, TFieldValues, TName>
+  props: ControlledInputProps<Props, TFieldValues, TName>,
 ) => ReactElement;
 
 export type WithControl<T> = T & {

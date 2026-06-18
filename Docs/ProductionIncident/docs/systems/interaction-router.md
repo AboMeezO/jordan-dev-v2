@@ -41,4 +41,3 @@ The exact encoder/decoder should be centralized and tested.
 - Duplicate vote.
 - Interaction arrives after cleanup.
 - Discord acknowledgement timeout.
-

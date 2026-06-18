@@ -42,4 +42,3 @@
 - Hard-coded `setInterval` calls in Discord handlers.
 - Escalation based on rendered message content.
 - Unbounded incident spawning without active incident limits.
-

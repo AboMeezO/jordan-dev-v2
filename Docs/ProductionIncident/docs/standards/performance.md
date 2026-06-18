@@ -25,4 +25,3 @@ Initial state can be in memory. Design the ports so future persistence can store
 - Leaderboards.
 - Template versions.
 - Audit/event logs.
-

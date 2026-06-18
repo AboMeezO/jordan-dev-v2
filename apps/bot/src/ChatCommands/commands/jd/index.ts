@@ -7,33 +7,33 @@ import { serverGroup } from "./server/index.js";
 import { toolsGroup } from "./tooling/index.js";
 
 export const jdCommand = commandTree({
-  aliases: ["jdev"],
-  allowPrefixless: true,
-  description: "Jordan Devs command examples.",
-  name: "jd",
-  permission: "public",
-  subcommands: [
-    helpCommand,
-    pingCommand,
-    echoCommand,
-    toolsGroup,
-    serverGroup,
-  ],
-  usage: {
-    examples: [
-      {
-        command: "jd ping",
-        description: "Check command dispatch.",
-      },
-      {
-        command: "man whoami",
-        description: "Show a shell-style command guide.",
-      },
-    ],
-    formats: ["jd <subcommand>", "jd <group> <subcommand>"],
-    useCases: [
-      "Try nested command syntax without using slash commands.",
-      "Explore command guide rendering.",
-    ],
-  },
+	aliases: ["jdev"],
+	allowPrefixless: true,
+	description: "Jordan Devs command examples.",
+	name: "jd",
+	permission: "public",
+	subcommands: [
+		helpCommand,
+		pingCommand,
+		echoCommand,
+		toolsGroup,
+		serverGroup,
+	],
+	usage: {
+		examples: [
+			{
+				command: "jd ping",
+				description: "Check command dispatch.",
+			},
+			{
+				command: "man whoami",
+				description: "Show a shell-style command guide.",
+			},
+		],
+		formats: ["jd <subcommand>", "jd <group> <subcommand>"],
+		useCases: [
+			"Try nested command syntax without using slash commands.",
+			"Explore command guide rendering.",
+		],
+	},
 });

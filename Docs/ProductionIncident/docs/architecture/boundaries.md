@@ -46,14 +46,14 @@ Suggested examples:
 
 ```ts
 interface IncidentPromptView {
-  readonly kind: "incident-prompt";
-  readonly sessionId: SessionId;
-  readonly incidentId: IncidentId;
-  readonly title: string;
-  readonly description: string;
-  readonly severity: IncidentSeverity;
-  readonly expiresAt: UnixMillis;
-  readonly actions: readonly ActionOptionView[];
+	readonly kind: "incident-prompt";
+	readonly sessionId: SessionId;
+	readonly incidentId: IncidentId;
+	readonly title: string;
+	readonly description: string;
+	readonly severity: IncidentSeverity;
+	readonly expiresAt: UnixMillis;
+	readonly actions: readonly ActionOptionView[];
 }
 ```
 
@@ -87,4 +87,3 @@ Suggested adapter ports:
 - Reading current session state from message content.
 - Using Discord channel IDs as the only engine session identity without a branded type.
 - Letting timer callbacks call Discord directly from inside engine classes.
-

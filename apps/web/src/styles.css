@@ -1,5 +1,4 @@
-
-@import "tailwindcss";
+@import 'tailwindcss';
 
 * {
   box-sizing: border-box;
@@ -13,8 +12,7 @@ body,
 
 body {
   margin: 0;
-  font-family:
-    ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
   text-rendering: optimizeLegibility;
 }
 

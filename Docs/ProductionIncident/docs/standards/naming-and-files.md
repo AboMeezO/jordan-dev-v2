@@ -41,4 +41,3 @@ Avoid dumping all game types into one global `types.ts`.
 - Application services may import systems and ports.
 - Discord adapter may import application commands and view models.
 - Infrastructure may implement ports but should not leak implementation details upstream.
-

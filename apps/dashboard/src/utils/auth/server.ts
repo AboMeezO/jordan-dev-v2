@@ -36,7 +36,7 @@ export function middleware_hasServerSession(req: NextRequest) {
 export function getServerSession(
   req: IncomingMessage & {
     cookies: NextApiRequestCookies;
-  }
+  },
 ) {
   const raw = req.cookies[TokenCookie];
 

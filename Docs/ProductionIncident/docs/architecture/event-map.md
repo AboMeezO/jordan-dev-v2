@@ -61,4 +61,3 @@ This map gives implementation teams a shared starting point for typed event defi
 - Do not include Discord objects.
 - Do not include mutable session references.
 - Do not include functions.
-

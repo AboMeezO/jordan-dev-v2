@@ -17,7 +17,7 @@ export function botRequest<T extends Options>(session: AccessToken, options: T):
         credentials: 'include',
         mode: 'cors',
       },
-      options.request
+      options.request,
     ),
   };
 }
@@ -32,7 +32,7 @@ export function discordRequest<T extends Options>(accessToken: string, options: 
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      options.request
+      options.request,
     ),
   };
 }

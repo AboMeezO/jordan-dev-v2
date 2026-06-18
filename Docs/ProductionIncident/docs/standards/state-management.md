@@ -37,4 +37,3 @@ Cleanup must:
 - Clear session cache entries.
 - Emit cleanup events.
 - Ask adapters to disable stale Discord components.
-

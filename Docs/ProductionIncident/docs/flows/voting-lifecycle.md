@@ -46,4 +46,3 @@ An incident is generated with action options.
 - Optionally send ephemeral confirmation.
 - Edit incident prompt to show closed state.
 - Disable action components.
-

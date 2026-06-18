@@ -46,7 +46,7 @@ export function SwitchField(
     id?: string;
     label?: ReactNode;
     desc?: ReactNode;
-  } & SwitchProps
+  } & SwitchProps,
 ) {
   const { id, label, desc, ...rest } = props;
 

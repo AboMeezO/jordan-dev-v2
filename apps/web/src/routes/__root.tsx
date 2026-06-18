@@ -1,6 +1,6 @@
 import { ClerkProvider } from '@clerk/tanstack-react-start'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createRootRoute,HeadContent, Scripts } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import appCss from '../styles.css?url'
@@ -39,7 +39,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ClerkProvider>
-          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
         </ClerkProvider>
         <Scripts />
       </body>

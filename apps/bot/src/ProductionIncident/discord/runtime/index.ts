@@ -1,5 +1,4 @@
 export {
-  productionIncidentCommandData,
-  ProductionIncidentDiscordService,
+	productionIncidentCommandData,
+	ProductionIncidentDiscordService,
 } from "./production-incident-discord-service.js";
-

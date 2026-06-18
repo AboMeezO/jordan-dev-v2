@@ -64,4 +64,3 @@ Required concepts:
 ## Versioning
 
 Add a schema version to template files once the first implementation exists. The loader should reject unsupported major versions and provide migration notes for minor versions.
-

@@ -59,4 +59,3 @@ Input commands arrive from application services. The manager updates session sta
 - Lifecycle state as discriminated union.
 - Public methods return result unions.
 - Runtime snapshots exposed as readonly.
-

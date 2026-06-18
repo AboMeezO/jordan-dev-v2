@@ -2,7 +2,9 @@ import { resolve } from "node:path";
 
 import { config } from "dotenv";
 
-config({ path: resolve(import.meta.dirname, "../../.env") });
+config({
+	path: resolve(import.meta.dirname, "../../.env"),
+});
 
 import { Bot } from "./src/app.js";
 

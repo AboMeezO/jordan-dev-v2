@@ -12,7 +12,7 @@ export const InputForm = forwardRef<HTMLInputElement, InputFormProps>(
         <Input variant="main" ref={ref} {...props} />
       </FormCard>
     );
-  }
+  },
 );
 
 InputForm.displayName = 'InputForm';

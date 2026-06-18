@@ -1,31 +1,32 @@
-
 import {
-  type ChatInputCommandInteraction,
-  SlashCommandBuilder,
+	type ChatInputCommandInteraction,
+	SlashCommandBuilder,
 } from "discord.js";
 
 import { listUserReminders } from "../Reminders/reminder-command.js";
 import {
-  buildReminderPanel,
-  reminderInteractionFlags,
+	buildReminderPanel,
+	reminderInteractionFlags,
 } from "../Reminders/reminder-panel.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("reminders")
-  .setDescription("Inspect and manage your active reminders.");
+	.setName("reminders")
+	.setDescription(
+		"Inspect and manage your active reminders.",
+	);
 
 export async function run({
-  interaction,
+	interaction,
 }: {
-  readonly interaction: ChatInputCommandInteraction;
+	readonly interaction: ChatInputCommandInteraction;
 }): Promise<void> {
-  const reminders = await listUserReminders(
-    interaction.client,
-    interaction.user.id,
-  );
+	const reminders = await listUserReminders(
+		interaction.client,
+		interaction.user.id,
+	);
 
-  await interaction.reply({
-    components: [buildReminderPanel({ reminders })],
-    flags: reminderInteractionFlags(),
-  });
+	await interaction.reply({
+		components: [buildReminderPanel({ reminders })],
+		flags: reminderInteractionFlags(),
+	});
 }

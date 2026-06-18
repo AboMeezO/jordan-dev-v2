@@ -21,11 +21,18 @@ Required expectations:
 Use stable domain types:
 
 ```ts
-type GameStatus = "waiting" | "running" | "recovering" | "ended";
+type GameStatus =
+	| "waiting"
+	| "running"
+	| "recovering"
+	| "ended";
 
 interface RunningSessionState {
-  readonly status: "running";
-  readonly activeIncidents: ReadonlyMap<IncidentId, Incident>;
+	readonly status: "running";
+	readonly activeIncidents: ReadonlyMap<
+		IncidentId,
+		Incident
+	>;
 }
 ```
 
@@ -37,10 +44,10 @@ Events must be typed as discriminated unions:
 
 ```ts
 type GameEvent =
-  | SessionStartedEvent
-  | IncidentGeneratedEvent
-  | VoteSubmittedEvent
-  | IncidentResolvedEvent;
+	| SessionStartedEvent
+	| IncidentGeneratedEvent
+	| VoteSubmittedEvent
+	| IncidentResolvedEvent;
 ```
 
 Event handlers must receive typed payloads. Avoid untyped event emitter names and unstructured payloads.
@@ -76,4 +83,3 @@ Do not reuse Discord payloads as domain objects.
 - `as SomeType` after JSON parsing without validation.
 - Direct `Math.random()` calls inside domain systems.
 - Direct `Date.now()` calls inside domain systems.
-

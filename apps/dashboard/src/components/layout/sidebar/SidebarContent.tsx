@@ -39,7 +39,7 @@ export function SidebarContent() {
 
         return config.guild.filter(guild) && contains;
       }),
-    [guilds.data, filter]
+    [guilds.data, filter],
   );
 
   return (

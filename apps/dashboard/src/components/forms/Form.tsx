@@ -68,7 +68,7 @@ export function FormCard({
 
 export type FormCardControllerProps<
   TFieldValue extends FieldValues,
-  TName extends Path<TFieldValue>
+  TName extends Path<TFieldValue>,
 > = {
   control: Omit<FormCardProps, 'error' | 'children'>;
   controller: UseControllerProps<TFieldValue, TName>;
@@ -77,7 +77,7 @@ export type FormCardControllerProps<
 
 export function FormCardController<
   TFieldValue extends FieldValues,
-  TName extends Path<TFieldValue>
+  TName extends Path<TFieldValue>,
 >({ control, controller, render }: FormCardControllerProps<TFieldValue, TName>) {
   return (
     <Controller

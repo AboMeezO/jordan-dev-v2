@@ -49,4 +49,3 @@ Minimum checks:
 - Template lookup is constant time.
 - Vote submission does not scan unrelated sessions.
 - Cleanup removes scheduler handles.
-

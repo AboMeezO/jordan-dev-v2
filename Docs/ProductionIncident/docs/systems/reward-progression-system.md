@@ -37,4 +37,3 @@ At session end:
 - Clamp rewards.
 - Make failure sessions still produce contribution rewards where configured.
 - Version progression rules before persistence is introduced.
-

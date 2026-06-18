@@ -100,18 +100,26 @@ function Home() {
                 type="button"
               >
                 <CheckCircle2 aria-hidden="true" size={18} />
-                {verification.isPending ? 'Verifying...' : 'Complete verification'}
+                {verification.isPending
+                  ? 'Verifying...'
+                  : 'Complete verification'}
               </button>
             </div>
           ) : (
             <div className="grid gap-3">
               <SignInButton mode="modal">
-                <button className="h-12 bg-[#171717] px-4 font-bold text-white" type="button">
+                <button
+                  className="h-12 bg-[#171717] px-4 font-bold text-white"
+                  type="button"
+                >
                   Sign in
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="h-12 border border-[#171717] px-4 font-bold" type="button">
+                <button
+                  className="h-12 border border-[#171717] px-4 font-bold"
+                  type="button"
+                >
                   Create account
                 </button>
               </SignUpButton>

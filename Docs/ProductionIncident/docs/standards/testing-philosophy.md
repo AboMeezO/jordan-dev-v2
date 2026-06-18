@@ -26,4 +26,3 @@ Adapter tests should assert:
 - Missing session handling.
 
 Do not require live Discord API access for standard CI tests.
-

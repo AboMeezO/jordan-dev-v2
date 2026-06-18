@@ -39,4 +39,3 @@ Roles can be assigned randomly, by lobby choice, or by deterministic balancing. 
 - Reusing Discord guild role IDs as game role IDs.
 - Hard-coding role checks in Discord button handlers.
 - Letting role assignment depend on join order unless explicitly intended.
-

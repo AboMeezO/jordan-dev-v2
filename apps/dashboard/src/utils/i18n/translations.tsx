@@ -13,7 +13,7 @@ export type Translation<Model extends TranslationModel> = {
 
 export function element<Languages extends string, Model extends TranslationModel>(
   config: I18nConfig<Languages, Model>,
-  key: keyof Model | ((model: Model) => ReactNode)
+  key: keyof Model | ((model: Model) => ReactNode),
 ): ReactElement {
   return <config.T text={key} />;
 }

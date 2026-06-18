@@ -81,4 +81,3 @@ Forbidden:
 7. Player interactions return as typed commands.
 8. Engine systems update state and emit more events.
 9. Cleanup removes timers, cache entries, and stale Discord components.
-

@@ -57,7 +57,7 @@ export const useMemeFeature: UseFormRender<MemeFeature> = (data, onSubmit) => {
         JSON.stringify({
           channel: e.channel,
           source: e.source,
-        })
+        }),
       );
 
       reset(data);

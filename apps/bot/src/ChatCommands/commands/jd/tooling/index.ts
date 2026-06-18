@@ -15,41 +15,43 @@ import { urlCommand } from "../../tools/url.js";
 import { uuidCommand } from "../../tools/uuid.js";
 
 export const toolsGroup = commandGroup({
-  description: "Developer utility tools.",
-  name: "tools",
-  category: "Dev Utilities",
-  subcommands: [
-    argsCommand,
-    moderationGroup,
-    jsonCommand,
-    base64Command,
-    urlCommand,
-    hashCommand,
-    uuidCommand,
-    timestampCommand,
-    caseCommand,
-    slugCommand,
-    morseCommand,
-    snowflakeCommand,
-    colorCommand,
-  ],
-  usage: {
-    examples: [
-      {
-        command: 'jd tools args --env=prod "quoted text"',
-        description: "Inspect parsed positional args and options.",
-      },
-      {
-        command: 'jd tools json format \'{"a":1}\'',
-        description: "Format JSON.",
-      },
-      {
-        command: "jd tools base64 encode hello",
-        description: "Encode Base64.",
-      },
-    ],
-    formats: ["jd tools <subcommand>"],
-    useCases: ["Developer-oriented utilities for everyday tasks."],
-  },
+	description: "Developer utility tools.",
+	name: "tools",
+	category: "Dev Utilities",
+	subcommands: [
+		argsCommand,
+		moderationGroup,
+		jsonCommand,
+		base64Command,
+		urlCommand,
+		hashCommand,
+		uuidCommand,
+		timestampCommand,
+		caseCommand,
+		slugCommand,
+		morseCommand,
+		snowflakeCommand,
+		colorCommand,
+	],
+	usage: {
+		examples: [
+			{
+				command: 'jd tools args --env=prod "quoted text"',
+				description:
+					"Inspect parsed positional args and options.",
+			},
+			{
+				command: "jd tools json format '{\"a\":1}'",
+				description: "Format JSON.",
+			},
+			{
+				command: "jd tools base64 encode hello",
+				description: "Encode Base64.",
+			},
+		],
+		formats: ["jd tools <subcommand>"],
+		useCases: [
+			"Developer-oriented utilities for everyday tasks.",
+		],
+	},
 });
-

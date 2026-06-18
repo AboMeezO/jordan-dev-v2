@@ -59,4 +59,3 @@ Events should not include Discord objects or mutable domain entities.
 - Letting event handlers mutate unrelated session state without going through a system.
 - Swallowing all handler errors silently.
 - Using untyped string payloads.
-

@@ -38,4 +38,3 @@ Only application use cases and engine systems change game state.
 - Defer or reply within Discord timing requirements.
 - Send ephemeral errors for invalid user actions.
 - Edit messages after successful state changes.
-

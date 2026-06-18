@@ -37,4 +37,3 @@
 - Directly editing stats from unrelated systems.
 - Duplicating session status in multiple caches.
 - Returning mutable arrays/maps.
-

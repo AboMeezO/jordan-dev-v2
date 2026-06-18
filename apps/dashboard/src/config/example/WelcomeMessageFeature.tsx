@@ -98,7 +98,7 @@ export const useWelcomeMessageFeature: UseFormRender<WelcomeMessageFeature> = (d
         JSON.stringify({
           message: e.message,
           channel: e.channel,
-        })
+        }),
       );
 
       reset(data);

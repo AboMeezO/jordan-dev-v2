@@ -48,4 +48,3 @@ Resolution applies success/failure effects, emits outcome events, and may reques
 - No available actions: reject template during validation if possible.
 - Incident already resolved: return typed error.
 - Session ended during voting: expire incident without stat effects.
-

@@ -13,24 +13,24 @@ import { urlCommand } from "./url.js";
 import { uuidCommand } from "./uuid.js";
 
 export const toolsGroup = commandGroup({
-  name: "tools",
-  description: "Developer utility tools.",
-  category: "Dev Utilities",
-  cooldown: 1_000,
-  availability: {
-    contexts: ["guild", "dm"],
-  },
-  subcommands: [
-    jsonCommand,
-    base64Command,
-    urlCommand,
-    hashCommand,
-    uuidCommand,
-    timestampCommand,
-    caseCommand,
-    slugCommand,
-    morseCommand,
-    snowflakeCommand,
-    colorCommand,
-  ],
+	name: "tools",
+	description: "Developer utility tools.",
+	category: "Dev Utilities",
+	cooldown: 1_000,
+	availability: {
+		contexts: ["guild", "dm"],
+	},
+	subcommands: [
+		jsonCommand,
+		base64Command,
+		urlCommand,
+		hashCommand,
+		uuidCommand,
+		timestampCommand,
+		caseCommand,
+		slugCommand,
+		morseCommand,
+		snowflakeCommand,
+		colorCommand,
+	],
 });

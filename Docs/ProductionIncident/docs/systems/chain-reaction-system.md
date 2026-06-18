@@ -33,4 +33,3 @@
 - If session ends before delayed reaction, cancel it.
 - If target template is missing, fail startup validation.
 - If rule would exceed depth, emit skipped diagnostic event.
-

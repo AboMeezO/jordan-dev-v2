@@ -1,23 +1,38 @@
 import assert from "node:assert/strict";
 
 import {
-  ansiShellOutput,
-  errorOutput,
-  escapeMentions,
-  formatErrorBoundary,
-  safeCodeBlock,
-  safeInline,
-  safeOutput,
-  unknownErrorOutput,
+	ansiShellOutput,
+	errorOutput,
+	escapeMentions,
+	formatErrorBoundary,
+	safeCodeBlock,
+	safeInline,
+	safeOutput,
+	unknownErrorOutput,
 } from "./output.js";
 
 assert.equal(escapeMentions("hello world"), "hello world");
-assert.equal(escapeMentions("@everyone"), "@\u200beveryone");
+assert.equal(
+	escapeMentions("@everyone"),
+	"@\u200beveryone",
+);
 assert.equal(escapeMentions("@here"), "@\u200bhere");
-assert.equal(escapeMentions("<@123456789012345678>"), "<@\u200b123456789012345678>");
-assert.equal(escapeMentions("<@!123456789012345678>"), "<@\u200b123456789012345678>");
-assert.equal(escapeMentions("<@&123456789012345678>"), "<@&\u200b123456789012345678>");
-assert.equal(escapeMentions("<#123456789012345678>"), "<#\u200b123456789012345678>");
+assert.equal(
+	escapeMentions("<@123456789012345678>"),
+	"<@\u200b123456789012345678>",
+);
+assert.equal(
+	escapeMentions("<@!123456789012345678>"),
+	"<@\u200b123456789012345678>",
+);
+assert.equal(
+	escapeMentions("<@&123456789012345678>"),
+	"<@&\u200b123456789012345678>",
+);
+assert.equal(
+	escapeMentions("<#123456789012345678>"),
+	"<#\u200b123456789012345678>",
+);
 
 const longStr = "x".repeat(2000);
 assert.equal(safeInline(longStr).length, 1900);
@@ -45,23 +60,26 @@ assert.ok("attachment" in bigOutput);
 
 assert.equal(errorOutput("error message"), "error message");
 assert.equal(
-  errorOutput("@everyone error"),
-  "@\u200beveryone error",
+	errorOutput("@everyone error"),
+	"@\u200beveryone error",
 );
 
-assert.equal(unknownErrorOutput(), "An unexpected error occurred. Please try again later.");
+assert.equal(
+	unknownErrorOutput(),
+	"An unexpected error occurred. Please try again later.",
+);
 
 assert.equal(
-  formatErrorBoundary("user error"),
-  "user error",
+	formatErrorBoundary("user error"),
+	"user error",
 );
 assert.equal(
-  formatErrorBoundary("stack trace detected"),
-  "An unexpected error occurred. Please try again later.",
+	formatErrorBoundary("stack trace detected"),
+	"An unexpected error occurred. Please try again later.",
 );
 assert.equal(
-  formatErrorBoundary(new Error("connection failed")),
-  "connection failed",
+	formatErrorBoundary(new Error("connection failed")),
+	"connection failed",
 );
 
 console.log("output.test.ts passed");

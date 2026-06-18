@@ -35,4 +35,3 @@ Suggested operations:
 - Timer callback must verify session still exists.
 - Timer callback must verify target incident/action is still valid.
 - Cleanup must cancel all session-scoped timers.
-

@@ -93,7 +93,9 @@ const avatarUrl = user.displayAvatarURL({ size: 1024 });
 For server avatar, use the guild member object.
 
 ```js
-const memberAvatar = member.displayAvatarURL({ size: 1024 });
+const memberAvatar = member.displayAvatarURL({
+	size: 1024,
+});
 ```
 
 ## Validation Rules
@@ -173,7 +175,9 @@ The tool should support:
 Fetch the full user with force when banner data may not be cached.
 
 ```js
-const user = await client.users.fetch(userId, { force: true });
+const user = await client.users.fetch(userId, {
+	force: true,
+});
 const bannerUrl = user.bannerURL({ size: 1024 });
 ```
 
@@ -404,15 +408,17 @@ const parsed = new URL(input);
 Resolve the hostname and reject private IPs before making a request.
 
 ```js
-const addresses = await dns.lookup(parsed.hostname, { all: true });
+const addresses = await dns.lookup(parsed.hostname, {
+	all: true,
+});
 ```
 
 Fetch one redirect step at a time using manual redirects.
 
 ```js
 const response = await fetch(url, {
-  method: "HEAD",
-  redirect: "manual",
+	method: "HEAD",
+	redirect: "manual",
 });
 ```
 
@@ -714,8 +720,8 @@ Use `slugify` with strict mode.
 
 ```js
 const slug = slugify(input, {
-  lower: true,
-  strict: true,
+	lower: true,
+	strict: true,
 });
 ```
 
@@ -723,8 +729,8 @@ For custom separators:
 
 ```js
 const slug = slugify(input, {
-  lower: true,
-  replacement: "-",
+	lower: true,
+	replacement: "-",
 });
 ```
 
@@ -813,9 +819,9 @@ Use a map for encoding.
 
 ```js
 const morse = {
-  A: ".-",
-  B: "-...",
-  C: "-.-.",
+	A: ".-",
+	B: "-...",
+	C: "-.-.",
 };
 ```
 
@@ -823,7 +829,10 @@ For decoding, reverse the map.
 
 ```js
 const reverse = Object.fromEntries(
-  Object.entries(morse).map(([letter, code]) => [code, letter]),
+	Object.entries(morse).map(([letter, code]) => [
+		code,
+		letter,
+	]),
 );
 ```
 

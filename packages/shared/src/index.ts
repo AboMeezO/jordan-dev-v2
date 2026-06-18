@@ -1,10 +1,10 @@
 export type {
-  CompleteVerificationRequest,
-  VerificationProfile,
-  VerificationResult,
+	CompleteVerificationRequest,
+	VerificationProfile,
+	VerificationResult,
 } from "./verification.js";
 export {
-  completeVerificationRequestSchema,
-  verificationProfileSchema,
-  verificationResultSchema,
+	completeVerificationRequestSchema,
+	verificationProfileSchema,
+	verificationResultSchema,
 } from "./verification.js";

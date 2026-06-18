@@ -48,4 +48,3 @@ Optional cached view models or summaries:
 - Recomputing template indexes during every incident generation.
 - Keeping ended sessions forever.
 - Mutating cached templates during runtime.
-

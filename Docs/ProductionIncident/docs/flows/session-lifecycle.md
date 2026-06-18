@@ -49,4 +49,3 @@ A player starts the game through a Discord command such as `/dev incident`.
 - Optionally create thread.
 - Send lobby message.
 - Send role information through ephemeral responses or private follow-ups where supported.
-

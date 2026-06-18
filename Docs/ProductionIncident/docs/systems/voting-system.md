@@ -42,4 +42,3 @@ Define deterministic tie behavior before implementation. Recommended:
 - Unknown action: typed `ActionNotAvailable`.
 - Unknown player: typed `PlayerNotInSession`.
 - Role not allowed: typed `RoleNotAllowed`.
-

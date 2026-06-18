@@ -40,4 +40,3 @@ Players successfully resolve enough incidents, stats stabilize, or a dedicated r
 
 - Send recovery update.
 - Reflect improved stats in next rendered view.
-

@@ -59,4 +59,3 @@ This registry is adapter state, not engine state.
 - If a message send fails, report an adapter error and leave engine state consistent.
 - If a component edit fails because the message is gone, record it and continue cleanup.
 - If a user interacts with an expired component, call the application layer first or respond with a Discord-only expired message depending on whether the engine session still exists.
-

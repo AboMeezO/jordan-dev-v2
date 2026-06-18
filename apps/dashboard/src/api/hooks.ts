@@ -74,7 +74,7 @@ export function useGuildInfoQuery(guild: string) {
       refetchOnWindowFocus: true,
       retry: false,
       staleTime: 0,
-    }
+    },
   );
 }
 
@@ -116,7 +116,7 @@ export function useEnableFeatureMutation() {
           }
         });
       },
-    }
+    },
   );
 }
 
@@ -137,7 +137,7 @@ export function useUpdateFeatureMutation() {
 
         return client.setQueryData(key, updated);
       },
-    }
+    },
   );
 }
 

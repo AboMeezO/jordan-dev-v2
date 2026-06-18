@@ -46,4 +46,3 @@ An action fails, a vote selects a risky option, no players vote, or stats hit a 
 - Disable voting components.
 - Send failure outcome.
 - Send chain reaction or escalation warning where configured.
-

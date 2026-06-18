@@ -1,320 +1,375 @@
 import type {
-  ChatCommandInvocation,
-  ChatCommandOptionValue,
-  ChatCommandParseResult,
-  ChatCommandRedirect,
-  ChatCommandSegment,
+	ChatCommandInvocation,
+	ChatCommandOptionValue,
+	ChatCommandParseResult,
+	ChatCommandRedirect,
+	ChatCommandSegment,
 } from "./types.js";
 
 type Token =
-  | {
-      readonly kind: "word";
-      readonly value: string;
-    }
-  | {
-      readonly kind: "operator";
-      readonly value: "|" | "&&" | "||" | ";" | ">" | ">>" | "<" | "2>";
-    };
+	| {
+			readonly kind: "word";
+			readonly value: string;
+	  }
+	| {
+			readonly kind: "operator";
+			readonly value:
+				| "|"
+				| "&&"
+				| "||"
+				| ";"
+				| ">"
+				| ">>"
+				| "<"
+				| "2>";
+	  };
 
-type OperatorTokenValue = Extract<Token, { readonly kind: "operator" }>["value"];
+type OperatorTokenValue = Extract<
+	Token,
+	{ readonly kind: "operator" }
+>["value"];
 
 export function parseChatCommandInput(
-  content: string,
-  prefix: string,
+	content: string,
+	prefix: string,
 ): ChatCommandParseResult | undefined {
-  const trimmed = content.trim();
+	const trimmed = content.trim();
 
-  if (!trimmed.startsWith(prefix)) {
-    return undefined;
-  }
+	if (!trimmed.startsWith(prefix)) {
+		return undefined;
+	}
 
-  const input = trimmed.slice(prefix.length).trim();
+	const input = trimmed.slice(prefix.length).trim();
 
-  if (input.length === 0) {
-    return undefined;
-  }
+	if (input.length === 0) {
+		return undefined;
+	}
 
-  const tokens = tokenizeShellLike(input);
-  const segments = buildSegments(tokens);
+	const tokens = tokenizeShellLike(input);
+	const segments = buildSegments(tokens);
 
-  if (segments.length === 0 || segments[0]?.words.length === 0) {
-    return undefined;
-  }
+	if (
+		segments.length === 0 ||
+		segments[0]?.words.length === 0
+	) {
+		return undefined;
+	}
 
-  return { prefix, segments };
+	return { prefix, segments };
 }
 
 export function createInvocation(
-  source: ChatCommandParseResult,
-  commandPath: readonly string[],
-  rawArgs: readonly string[],
+	source: ChatCommandParseResult,
+	commandPath: readonly string[],
+	rawArgs: readonly string[],
 ): ChatCommandInvocation {
-  const { options, positionalArgs } = parseArguments(rawArgs);
+	const { options, positionalArgs } =
+		parseArguments(rawArgs);
 
-  return {
-    commandPath,
-    options,
-    positionalArgs,
-    prefix: source.prefix,
-    rawArgs,
-    source,
-  };
+	return {
+		commandPath,
+		options,
+		positionalArgs,
+		prefix: source.prefix,
+		rawArgs,
+		source,
+	};
 }
 
-export function tokenizeShellLike(input: string): readonly Token[] {
-  const tokens: Token[] = [];
-  let current = "";
-  let quote: "'" | '"' | undefined;
-  let escaping = false;
+export function tokenizeShellLike(
+	input: string,
+): readonly Token[] {
+	const tokens: Token[] = [];
+	let current = "";
+	let quote: "'" | '"' | undefined;
+	let escaping = false;
 
-  for (let index = 0; index < input.length; index += 1) {
-    const character = input[index];
+	for (let index = 0; index < input.length; index += 1) {
+		const character = input[index];
 
-    if (!character) {
-      continue;
-    }
+		if (!character) {
+			continue;
+		}
 
-    if (escaping) {
-      current += character;
-      escaping = false;
-      continue;
-    }
+		if (escaping) {
+			current += character;
+			escaping = false;
+			continue;
+		}
 
-    if (character === "\\") {
-      escaping = true;
-      continue;
-    }
+		if (character === "\\") {
+			escaping = true;
+			continue;
+		}
 
-    if (quote) {
-      if (character === quote) {
-        quote = undefined;
-      } else {
-        current += character;
-      }
+		if (quote) {
+			if (character === quote) {
+				quote = undefined;
+			} else {
+				current += character;
+			}
 
-      continue;
-    }
+			continue;
+		}
 
-    if (character === "'" || character === '"') {
-      quote = character;
-      continue;
-    }
+		if (character === "'" || character === '"') {
+			quote = character;
+			continue;
+		}
 
-    if (/\s/.test(character)) {
-      pushWord(tokens, current);
-      current = "";
-      continue;
-    }
+		if (/\s/.test(character)) {
+			pushWord(tokens, current);
+			current = "";
+			continue;
+		}
 
-    const discordToken = readDiscordAngleToken(input, index);
+		const discordToken = readDiscordAngleToken(
+			input,
+			index,
+		);
 
-    if (discordToken) {
-      current += discordToken.value;
-      index += discordToken.length - 1;
-      continue;
-    }
+		if (discordToken) {
+			current += discordToken.value;
+			index += discordToken.length - 1;
+			continue;
+		}
 
-    const operator = readOperator(input, index);
+		const operator = readOperator(input, index);
 
-    if (operator) {
-      pushWord(tokens, current);
-      current = "";
-      tokens.push({ kind: "operator", value: operator.value });
-      index += operator.length - 1;
-      continue;
-    }
+		if (operator) {
+			pushWord(tokens, current);
+			current = "";
+			tokens.push({
+				kind: "operator",
+				value: operator.value,
+			});
+			index += operator.length - 1;
+			continue;
+		}
 
-    current += character;
-  }
+		current += character;
+	}
 
-  if (escaping) {
-    current += "\\";
-  }
+	if (escaping) {
+		current += "\\";
+	}
 
-  pushWord(tokens, current);
-  return tokens;
+	pushWord(tokens, current);
+	return tokens;
 }
 
 function readDiscordAngleToken(
-  input: string,
-  index: number,
-): { readonly value: string; readonly length: number } | undefined {
-  if (input[index] !== "<" || !"@#:".includes(input[index + 1] ?? "")) {
-    return undefined;
-  }
+	input: string,
+	index: number,
+):
+	| { readonly value: string; readonly length: number }
+	| undefined {
+	if (
+		input[index] !== "<" ||
+		!"@#:".includes(input[index + 1] ?? "")
+	) {
+		return undefined;
+	}
 
-  const endIndex = input.indexOf(">", index + 1);
+	const endIndex = input.indexOf(">", index + 1);
 
-  if (endIndex === -1) {
-    return undefined;
-  }
+	if (endIndex === -1) {
+		return undefined;
+	}
 
-  const value = input.slice(index, endIndex + 1);
+	const value = input.slice(index, endIndex + 1);
 
-  return { length: value.length, value };
+	return { length: value.length, value };
 }
 
-function buildSegments(tokens: readonly Token[]): readonly ChatCommandSegment[] {
-  const segments: ChatCommandSegment[] = [];
-  let words: string[] = [];
-  let operators: ChatCommandSegment["operators"] = [];
-  let redirects: ChatCommandRedirect[] = [];
+function buildSegments(
+	tokens: readonly Token[],
+): readonly ChatCommandSegment[] {
+	const segments: ChatCommandSegment[] = [];
+	let words: string[] = [];
+	let operators: ChatCommandSegment["operators"] = [];
+	let redirects: ChatCommandRedirect[] = [];
 
-  for (let index = 0; index < tokens.length; index += 1) {
-    const token = tokens[index];
+	for (let index = 0; index < tokens.length; index += 1) {
+		const token = tokens[index];
 
-    if (!token) {
-      continue;
-    }
+		if (!token) {
+			continue;
+		}
 
-    if (token.kind === "word") {
-      words.push(token.value);
-      continue;
-    }
+		if (token.kind === "word") {
+			words.push(token.value);
+			continue;
+		}
 
-    if (token.value === ">" || token.value === ">>" || token.value === "<" || token.value === "2>") {
-      const next = tokens[index + 1];
-      redirects.push({
-        index,
-        operator: token.value,
-        target: next?.kind === "word" ? next.value : undefined,
-      });
+		if (
+			token.value === ">" ||
+			token.value === ">>" ||
+			token.value === "<" ||
+			token.value === "2>"
+		) {
+			const next = tokens[index + 1];
+			redirects.push({
+				index,
+				operator: token.value,
+				target:
+					next?.kind === "word" ? next.value : undefined,
+			});
 
-      if (next?.kind === "word") {
-        index += 1;
-      }
+			if (next?.kind === "word") {
+				index += 1;
+			}
 
-      continue;
-    }
+			continue;
+		}
 
-    operators = [...operators, { index, value: token.value }];
-    segments.push({ operators, redirects, words });
-    words = [];
-    operators = [];
-    redirects = [];
-  }
+		operators = [
+			...operators,
+			{ index, value: token.value },
+		];
+		segments.push({ operators, redirects, words });
+		words = [];
+		operators = [];
+		redirects = [];
+	}
 
-  segments.push({ operators, redirects, words });
+	segments.push({ operators, redirects, words });
 
-  return segments.filter(
-    (segment) =>
-      segment.words.length > 0 ||
-      segment.operators.length > 0 ||
-      segment.redirects.length > 0,
-  );
+	return segments.filter(
+		(segment) =>
+			segment.words.length > 0 ||
+			segment.operators.length > 0 ||
+			segment.redirects.length > 0,
+	);
 }
 
 function parseArguments(args: readonly string[]): {
-  readonly options: Readonly<Record<string, ChatCommandOptionValue>>;
-  readonly positionalArgs: readonly string[];
+	readonly options: Readonly<
+		Record<string, ChatCommandOptionValue>
+	>;
+	readonly positionalArgs: readonly string[];
 } {
-  const options: Record<string, ChatCommandOptionValue> = {};
-  const positionalArgs: string[] = [];
-  let forcePositional = false;
+	const options: Record<string, ChatCommandOptionValue> =
+		{};
+	const positionalArgs: string[] = [];
+	let forcePositional = false;
 
-  for (const arg of args) {
-    if (forcePositional) {
-      positionalArgs.push(arg);
-      continue;
-    }
+	for (const arg of args) {
+		if (forcePositional) {
+			positionalArgs.push(arg);
+			continue;
+		}
 
-    if (arg === "--") {
-      forcePositional = true;
-      continue;
-    }
+		if (arg === "--") {
+			forcePositional = true;
+			continue;
+		}
 
-    if (arg.startsWith("--") && arg.length > 2) {
-      const [name, value] = splitOption(arg.slice(2));
+		if (arg.startsWith("--") && arg.length > 2) {
+			const [name, value] = splitOption(arg.slice(2));
 
-      if (name) {
-        addOption(options, name, value);
-        continue;
-      }
-    }
+			if (name) {
+				addOption(options, name, value);
+				continue;
+			}
+		}
 
-    if (/^-[A-Za-z]{2,}$/.test(arg)) {
-      for (const name of arg.slice(1)) {
-        addOption(options, name, undefined);
-      }
-      continue;
-    }
+		if (/^-[A-Za-z]{2,}$/.test(arg)) {
+			for (const name of arg.slice(1)) {
+				addOption(options, name, undefined);
+			}
+			continue;
+		}
 
-    if (/^-[^-]=/.test(arg)) {
-      addOption(options, arg[1] ?? "", arg.slice(3));
-      continue;
-    }
+		if (/^-[^-]=/.test(arg)) {
+			addOption(options, arg[1] ?? "", arg.slice(3));
+			continue;
+		}
 
-    positionalArgs.push(arg);
-  }
+		positionalArgs.push(arg);
+	}
 
-  return { options, positionalArgs };
+	return { options, positionalArgs };
 }
 
-function splitOption(input: string): readonly [string, string | undefined] {
-  const separatorIndex = input.indexOf("=");
+function splitOption(
+	input: string,
+): readonly [string, string | undefined] {
+	const separatorIndex = input.indexOf("=");
 
-  if (separatorIndex === -1) {
-    return [input, undefined];
-  }
+	if (separatorIndex === -1) {
+		return [input, undefined];
+	}
 
-  return [input.slice(0, separatorIndex), input.slice(separatorIndex + 1)];
+	return [
+		input.slice(0, separatorIndex),
+		input.slice(separatorIndex + 1),
+	];
 }
 
 function addOption(
-  options: Record<string, ChatCommandOptionValue>,
-  name: string,
-  value: string | undefined,
+	options: Record<string, ChatCommandOptionValue>,
+	name: string,
+	value: string | undefined,
 ): void {
-  if (!name) {
-    return;
-  }
+	if (!name) {
+		return;
+	}
 
-  const current = options[name];
+	const current = options[name];
 
-  if (value === undefined) {
-    options[name] = current ?? true;
-    return;
-  }
+	if (value === undefined) {
+		options[name] = current ?? true;
+		return;
+	}
 
-  if (current === undefined || current === true) {
-    options[name] = [value];
-    return;
-  }
+	if (current === undefined || current === true) {
+		options[name] = [value];
+		return;
+	}
 
-  options[name] = [...current, value];
+	options[name] = [...current, value];
 }
 
 function readOperator(
-  input: string,
-  index: number,
-): { readonly value: OperatorTokenValue; readonly length: number } | undefined {
-  const twoCharacterOperator = input.slice(index, index + 2);
+	input: string,
+	index: number,
+):
+	| {
+			readonly value: OperatorTokenValue;
+			readonly length: number;
+	  }
+	| undefined {
+	const twoCharacterOperator = input.slice(
+		index,
+		index + 2,
+	);
 
-  if (
-    twoCharacterOperator === "&&" ||
-    twoCharacterOperator === "||" ||
-    twoCharacterOperator === ">>" ||
-    twoCharacterOperator === "2>"
-  ) {
-    return { length: 2, value: twoCharacterOperator };
-  }
+	if (
+		twoCharacterOperator === "&&" ||
+		twoCharacterOperator === "||" ||
+		twoCharacterOperator === ">>" ||
+		twoCharacterOperator === "2>"
+	) {
+		return { length: 2, value: twoCharacterOperator };
+	}
 
-  const oneCharacterOperator = input[index];
+	const oneCharacterOperator = input[index];
 
-  if (
-    oneCharacterOperator === "|" ||
-    oneCharacterOperator === ";" ||
-    oneCharacterOperator === ">" ||
-    oneCharacterOperator === "<"
-  ) {
-    return { length: 1, value: oneCharacterOperator };
-  }
+	if (
+		oneCharacterOperator === "|" ||
+		oneCharacterOperator === ";" ||
+		oneCharacterOperator === ">" ||
+		oneCharacterOperator === "<"
+	) {
+		return { length: 1, value: oneCharacterOperator };
+	}
 
-  return undefined;
+	return undefined;
 }
 
 function pushWord(tokens: Token[], value: string): void {
-  if (value.length > 0) {
-    tokens.push({ kind: "word", value });
-  }
+	if (value.length > 0) {
+		tokens.push({ kind: "word", value });
+	}
 }

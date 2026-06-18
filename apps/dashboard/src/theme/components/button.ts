@@ -25,13 +25,13 @@ export const buttonStyles = defineStyleConfig({
       borderRadius: '50px',
       bg: mode(
         'linear-gradient(to right bottom, var(--chakra-colors-brand-500), var(--chakra-colors-brand-400))',
-        'linear-gradient(to right bottom, var(--chakra-colors-brand-400), var(--chakra-colors-brand-500))'
+        'linear-gradient(to right bottom, var(--chakra-colors-brand-400), var(--chakra-colors-brand-500))',
       )(props),
       color: 'white',
       rounded: 'xl',
       boxShadow: mode(
         '1px 2px 5px var(--chakra-colors-brand-400)',
-        '1px 2px 15px var(--chakra-colors-brand-400)'
+        '1px 2px 15px var(--chakra-colors-brand-400)',
       )(props),
     })),
     secondary: defineStyle({

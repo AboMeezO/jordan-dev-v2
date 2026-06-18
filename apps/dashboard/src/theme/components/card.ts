@@ -3,7 +3,7 @@ import { createMultiStyleConfigHelpers } from '@chakra-ui/styled-system';
 import { light, dark } from '@/theme/colors';
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
-  cardAnatomy.keys
+  cardAnatomy.keys,
 );
 
 export const cardStyles = defineMultiStyleConfig({

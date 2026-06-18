@@ -6,6 +6,6 @@ export type { GameplayManagerDependencies } from "./gameplay/index.js";
 export { ProductionIncidentGameplayManager } from "./gameplay/index.js";
 export type { SessionLifecycleManagerDependencies } from "./session/index.js";
 export {
-  InMemoryStateManager,
-  SessionLifecycleManager,
+	InMemoryStateManager,
+	SessionLifecycleManager,
 } from "./session/index.js";
