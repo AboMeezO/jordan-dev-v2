@@ -6,6 +6,21 @@ import { subcommand } from "#ChatCommands";
 import { safeInline, safeOutput } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
 
+const PRIVACY_KEYWORDS = [
+	"redacted for privacy",
+	"whoisguard",
+	"whoisprotect",
+	"privacyprotect",
+	"privacy service",
+	"data redacted",
+	"personal data",
+	"gdrp",
+	"redacted",
+] as const;
+
+const DOMAIN_COOLDOWN_MS = 15_000;
+const domainCooldowns = new Map<string, number>();
+
 const whoisSchema = z.object({
 	domain: textInputSchema(253),
 });
@@ -51,13 +66,25 @@ export const whoisCommand = subcommand({
 		}
 
 		const domain = parsed.data.domain;
+	const domainKey = domain.toLowerCase();
+
+	const lastQuery = domainCooldowns.get(domainKey);
+	if (lastQuery && Date.now() - lastQuery < DOMAIN_COOLDOWN_MS) {
+		await message.reply(
+			`WHOIS for "${domain}" was queried recently. Please wait before querying it again.`,
+		);
+		return;
+	}
 
 		try {
+			domainCooldowns.set(domainKey, Date.now());
+
 			const result = await whoisDomain(domain, {
 				timeout: 10000,
 			});
 
 			const flat: string[] = [];
+			let hasPrivacy = false;
 
 			for (const [, data] of Object.entries(result) as [
 				string,
@@ -69,6 +96,13 @@ export const whoisCommand = subcommand({
 							continue;
 						}
 						const str = String(value).slice(0, 200);
+						const lower = str.toLowerCase();
+						if (
+							!hasPrivacy &&
+							PRIVACY_KEYWORDS.some((kw) => lower.includes(kw))
+						) {
+							hasPrivacy = true;
+						}
 						flat.push(`${key}=${str}`);
 					}
 				}
@@ -79,7 +113,16 @@ export const whoisCommand = subcommand({
 				return;
 			}
 
-			const output = safeOutput(flat.join("\n"));
+			if (hasPrivacy) {
+				flat.unshift("whois_privacy=true");
+			}
+
+			const truncated = flat.slice(0, 15);
+			if (flat.length > 15) {
+				truncated.push(`... and ${flat.length - 15} more fields (use attachment for full data)`);
+			}
+
+			const output = safeOutput(truncated.join("\n"));
 
 			if ("content" in output) {
 				await message.reply(output.content);

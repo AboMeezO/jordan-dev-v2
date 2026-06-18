@@ -7,6 +7,7 @@ import {
 } from "#ChatCommands";
 
 import { shellOutput } from "./format.js";
+import { logCommandExecution } from "#AuditLog";
 
 export const sudoCommand = commandTree({
 	allowPrefixless: true,
@@ -115,6 +116,18 @@ export const sudoCommand = commandTree({
 			);
 			return;
 		}
+
+		logCommandExecution({
+			command: `sudo ${resolution.invocation.commandPath.join(" ")}`,
+			userId: context.message.author.id,
+			userTag: context.message.author.tag,
+			guildId: context.message.guild?.id ?? null,
+			channelId: context.message.channelId,
+			timestamp: new Date().toISOString(),
+			sudo: true,
+			elevated: true,
+			args: resolution.invocation.rawArgs.join(" "),
+		}).catch((error) => console.error("[sudo] audit log failed:", error));
 
 		await context.message.reply(
 			shellOutput([

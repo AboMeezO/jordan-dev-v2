@@ -35,6 +35,7 @@ const knownCommands = [
 	["tools", "snowflake"],
 	["tools", "color"],
 	["which"],
+	["context"],
 	["avatar"],
 	["banner"],
 	["serverinfo"],

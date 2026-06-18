@@ -31,6 +31,8 @@
 		"#Utilities": "./dist/src/Utilities/index.js",
 		"#Database": "./dist/src/Database/index.js",
 		"#ChatCommands": "./dist/src/ChatCommands/index.js",
+		"#Config": "./dist/src/config.js",
+		"#AuditLog": "./dist/src/audit-log.js",
 		"#Assets": "./Assets/"
 	},
 	"devDependencies": {

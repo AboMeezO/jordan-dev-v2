@@ -16,6 +16,8 @@
 			"#Utilities": ["src/Utilities/index.ts"],
 			"#Database": ["src/Database/index.ts"],
 			"#ChatCommands": ["src/ChatCommands/index.ts"],
+			"#Config": ["src/config.ts"],
+			"#AuditLog": ["src/audit-log.ts"],
 			"#Assets": ["Assets/"]
 		}
 	},

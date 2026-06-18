@@ -6,23 +6,25 @@ import {
 	shellOutput,
 } from "./format.js";
 
-export const envCommand = commandTree({
+export const contextCommand = commandTree({
+	aliases: ["env", "discord-env"],
 	allowPrefixless: true,
 	description:
 		"Print safe Discord command environment values.",
-	name: "env",
+	name: "context",
 	permission: "public",
 	usage: {
 		examples: [
 			{
-				command: "env",
+				command: "context",
 				description:
 					"Show safe server/channel/user context for command execution.",
 			},
 		],
-		formats: ["env"],
+		formats: ["context"],
 		notes: [
 			"This command intentionally does not print process environment variables.",
+			"Formerly named `env` — renamed to avoid confusion with Unix environment variables.",
 		],
 		useCases: [
 			"Debug command context without exposing secrets.",

@@ -1,7 +1,7 @@
 import type { ChatCommandDefinition } from "#ChatCommands";
 
 import { dateCommand } from "./date.js";
-import { envCommand } from "./env.js";
+import { contextCommand } from "./context.js";
 import { groupsCommand } from "./groups.js";
 import { hostnameCommand } from "./hostname.js";
 import { idCommand } from "./id.js";
@@ -26,7 +26,7 @@ export const shellCommandTrees: readonly ChatCommandDefinition[] =
 		uptimeCommand,
 		unameCommand,
 		psCommand,
-		envCommand,
+		contextCommand,
 		lsCommand,
 		manCommand,
 		sudoCommand,

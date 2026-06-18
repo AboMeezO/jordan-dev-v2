@@ -81,6 +81,9 @@ export const jwtCommand = subcommand({
 				description: "Decode a JWT token.",
 			},
 		],
+		notes: [
+			"WARNING: Decoded tokens are visible to everyone in this channel. Do NOT paste real session tokens.",
+		],
 	},
 	async execute({ invocation, message }) {
 		const verifyUrl = invocation.options.verify as
@@ -113,10 +116,17 @@ export const jwtCommand = subcommand({
 
 			if (verifyUrl) {
 				try {
+					const abortController = new AbortController();
+					const timeoutId = setTimeout(
+						() => abortController.abort(),
+						10_000,
+					);
 					const JWKS = createRemoteJWKSet(
 						new URL(verifyUrl),
+						{ timeout: 10_000 },
 					);
 					await jwtVerify(parsed.data.token, JWKS);
+					clearTimeout(timeoutId);
 					verified = "Signature verified successfully.";
 				} catch (err) {
 					if (
@@ -137,6 +147,10 @@ export const jwtCommand = subcommand({
 			}
 
 			const lines: string[] = [];
+
+			lines.push("! WARNING: This token is visible to everyone in this channel.");
+			lines.push("! Do NOT paste real session or access tokens.");
+			lines.push("");
 
 			lines.push("--- Header ---");
 			for (const [key, value] of Object.entries(header)) {

@@ -5,6 +5,10 @@ import { z } from "zod";
 import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
+import { botConfig } from "#Config";
+
+const DOMAIN_COOLDOWN_MS = 5_000;
+const domainCooldowns = new Map<string, number>();
 
 const RECORD_TYPES = [
 	"A",
@@ -146,7 +150,17 @@ export const dnsCommand = subcommand({
 
 		const { domain: hostname, type } = parsed.data;
 
+		const domainKey = hostname.toLowerCase();
+		const lastQuery = domainCooldowns.get(domainKey);
+		if (lastQuery && Date.now() - lastQuery < DOMAIN_COOLDOWN_MS) {
+			await message.reply(
+				`Domain "${hostname}" was queried recently. Please wait before querying it again.`,
+			);
+			return;
+		}
+
 		try {
+			domainCooldowns.set(domainKey, Date.now());
 			const records = await resolveDNS(hostname, type);
 
 			if (records.length === 0) {

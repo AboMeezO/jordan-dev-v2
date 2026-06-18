@@ -3,7 +3,8 @@ import { z } from "zod";
 import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
-import { safeFetch } from "#ChatCommands";
+
+import { scanUrl } from "./url-scan-scanner.js";
 
 const urlScanSchema = z.object({
 	url: textInputSchema(2000),
@@ -13,9 +14,9 @@ export const urlScanCommand = subcommand({
 	name: "url-scan",
 	aliases: ["scan-url", "check-url"],
 	description:
-		"Scan a URL to check its safety and response status.",
+		"Scan a URL to check its safety. Uses VirusTotal (if configured) or local heuristics.",
 	category: "Network / Security Tools",
-	cooldown: 5_000,
+	cooldown: 10_000,
 	inputLimits: { maxInputLength: 2000 },
 	availability: {
 		contexts: ["guild", "dm"],
@@ -32,7 +33,7 @@ export const urlScanCommand = subcommand({
 		examples: [
 			{
 				command: "url-scan https://example.com",
-				description: "Check URL safety.",
+				description: "Check URL safety with available scanners.",
 			},
 		],
 	},
@@ -61,65 +62,23 @@ export const urlScanCommand = subcommand({
 			return;
 		}
 
-		try {
-			const startTime = Date.now();
-			const response = await safeFetch(url);
-			const elapsed = Date.now() - startTime;
+		const result = await scanUrl(url);
 
-			const headers: Record<string, string> = {};
+		const lines: string[] = [
+			`url=${url}`,
+			`scanner=${result.scanner}`,
+			`safe=${result.safe}`,
+			`cached=${result.cached}`,
+		];
 
-			for (const [key, value] of Object.entries(
-				response.headers,
-			)) {
-				headers[key] =
-					value.length > 100
-						? value.slice(0, 100) + "..."
-						: value;
-			}
-
-			const lines = [
-				`url=${url}`,
-				`status=${response.status}`,
-				`status_text=${response.statusText || "OK"}`,
-				`timing=${elapsed}ms`,
-				`content_type=${headers["content-type"] ?? "(unknown)"}`,
-				`        content_length=${headers["content-length"] ?? "(unknown)"}`,
-				`server=${headers.server ?? "(unknown)"}`,
-			];
-
-			if (headers["x-frame-options"]) {
-				lines.push(
-					`x_frame_options=${headers["x-frame-options"]}`,
-				);
-			}
-
-			if (headers["strict-transport-security"]) {
-				lines.push(`hsts_present=true`);
-			}
-
-			await message.reply(
-				safeInline(lines.join("\n"), 1900),
-			);
-		} catch (error) {
-			const err = error as Error;
-
-			if (
-				err.message.includes("blocked") ||
-				err.message.includes("private") ||
-				err.message.includes("loopback")
-			) {
-				await message.reply(
-					"URL blocked: targets a private or internal network address.",
-				);
-			} else if (err.message.includes("ENOTFOUND")) {
-				await message.reply("URL could not be resolved.");
-			} else if (err.message.includes("timeout")) {
-				await message.reply("URL request timed out.");
-			} else if (err.message.includes("certificate")) {
-				await message.reply("SSL/TLS certificate error.");
-			} else {
-				await message.reply(`Scan failed: ${err.message}`);
-			}
+		if (result.positives !== undefined && result.total !== undefined) {
+			lines.push(`virustotal_positives=${result.positives}/${result.total}`);
 		}
+
+		lines.push(...result.scanDetails);
+
+		await message.reply(
+			safeInline(lines.join("\n"), 1900),
+		);
 	},
 });

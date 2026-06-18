@@ -2,6 +2,9 @@ import { CommandKit } from "commandkit";
 import { Client, GatewayIntentBits } from "discord.js";
 import path from "path";
 
+import { migrateAuditSchema } from "#AuditLog";
+import { validateConfig } from "#Config";
+
 export class Bot {
 	private client: Client;
 
@@ -15,6 +18,12 @@ export class Bot {
 	}
 
 	public initialize(): void {
+		validateConfig();
+
+		migrateAuditSchema().catch((error) => {
+			console.error("[bot] Audit schema migration failed:", error);
+		});
+
 		new CommandKit({
 			// @ts-expect-error - discord.js ESM/CJS type mismatch in NodeNext
 			client: this.client,

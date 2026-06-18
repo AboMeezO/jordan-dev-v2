@@ -85,4 +85,29 @@ assert.equal(
 	"An unexpected network error occurred.",
 );
 
+// Test that safeFetch protocol validation rejects non-http/https
+{
+	const { safeFetch } = await import("./network.js");
+	
+	try {
+		await safeFetch("ftp://example.com");
+		assert.fail("Expected safeFetch to throw for ftp://");
+	} catch (error: unknown) {
+		assert.ok(
+			error instanceof Error &&
+			error.message.includes("Only http: and https: protocols are allowed"),
+		);
+	}
+
+	try {
+		await safeFetch("file:///etc/passwd");
+		assert.fail("Expected safeFetch to throw for file://");
+	} catch (error: unknown) {
+		assert.ok(
+			error instanceof Error &&
+			error.message.includes("Only http: and https: protocols are allowed"),
+		);
+	}
+}
+
 console.log("network.test.ts passed");

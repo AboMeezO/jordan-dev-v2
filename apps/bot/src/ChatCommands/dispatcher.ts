@@ -13,6 +13,7 @@ import type {
 } from "./registry.js";
 import type { ChatCommandParseResult } from "./types.js";
 import { renderUsageGuide } from "./usage-guide.js";
+import { logCommandExecution } from "#AuditLog";
 
 export interface DispatchChatCommandInput {
 	readonly client: Client;
@@ -112,6 +113,23 @@ export async function dispatchChatCommand(
 		registry: input.registry,
 	});
 
+	const elevated =
+		resolution.permission !== "public" &&
+		resolution.permission !== "guild-member";
+	logCommandExecution({
+		command: resolution.invocation.commandPath.join(" "),
+		userId: input.message.author.id,
+		userTag: input.message.author.tag,
+		guildId: input.message.guild?.id ?? null,
+		channelId: input.message.channelId,
+		timestamp: new Date().toISOString(),
+		sudo: false,
+		elevated,
+		args: resolution.invocation.rawArgs.join(" "),
+	}).catch((error) =>
+		console.error("[dispatch] audit log failed:", error),
+	);
+
 	return true;
 }
 
@@ -166,6 +184,23 @@ export async function executeChatCommandResolution(
 		message: input.message,
 		registry: input.registry,
 	});
+
+	const elevated =
+		resolution.permission !== "public" &&
+		resolution.permission !== "guild-member";
+	logCommandExecution({
+		command: resolution.invocation.commandPath.join(" "),
+		userId: input.message.author.id,
+		userTag: input.message.author.tag,
+		guildId: input.message.guild?.id ?? null,
+		channelId: input.message.channelId,
+		timestamp: new Date().toISOString(),
+		sudo: false,
+		elevated,
+		args: resolution.invocation.rawArgs.join(" "),
+	}).catch((error) =>
+		console.error("[dispatch] audit log failed:", error),
+	);
 
 	return true;
 }
