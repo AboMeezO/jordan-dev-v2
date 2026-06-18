@@ -1,4 +1,5 @@
 export { checkCommandAvailability } from "./availability.js";
+export { checkCooldown, formatRemainingTime } from "./cooldown.js";
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
 export {
   dispatchChatCommand,
