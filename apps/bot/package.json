@@ -13,7 +13,9 @@
   "dependencies": {
     "commandkit": "github:AboMeezO/DevRoots-Commandkit",
     "discord.js": "^14.26.4",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "fastest-levenshtein": "^1.0.16",
+    "zod": "^4.4.3"
   },
   "imports": {
     "#Utilities": "./dist/src/Utilities/index.js",
