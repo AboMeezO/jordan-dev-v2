@@ -1,9 +1,5 @@
 import { Client, Message } from "discord.js";
-import { resolve } from "node:path";
 
-import { config } from "dotenv";
-
-config({ path: resolve(import.meta.dirname, "../../../../.env") });
 const URL_AT_START_REGEX = /^\s*(https?:\/\/[^\s<>()]+)/i;
 
 const NO_LINK_ROASTS = [
