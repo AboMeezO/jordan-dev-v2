@@ -1,13 +1,48 @@
 import { distance } from "fastest-levenshtein";
 
-import { commandTree } from "#ChatCommands";
+import {
+	commandTree,
+	renderCommandTree,
+	toTreeNode,
+} from "#ChatCommands";
 import { shellOutput } from "./format.js";
+
+interface FlatEntry {
+	readonly name: string;
+	readonly aliases: readonly string[];
+	readonly path: string;
+}
+
+function collectFlatNames(
+	registry: import("#ChatCommands").ChatCommandRegistry,
+): FlatEntry[] {
+	const entries: FlatEntry[] = [];
+
+	function walk(
+		nodes: import("#ChatCommands").CommandTreeNode[],
+	): void {
+		for (const node of nodes) {
+			entries.push({
+				aliases: node.aliases,
+				name: node.name,
+				path: node.path.join(" "),
+			});
+
+			if (node.children.length > 0) {
+				walk(node.children);
+			}
+		}
+	}
+
+	walk(registry.listRootTreeNodes());
+	return entries;
+}
 
 export const whichCommand = commandTree({
 	aliases: ["where"],
 	allowPrefixless: true,
 	description:
-		"Show whether a bot tool exists and display its metadata.",
+		"Show whether a bot tool exists and display its command tree.",
 	name: "which",
 	permission: "public",
 	usage: {
@@ -22,11 +57,12 @@ export const whichCommand = commandTree({
 			{
 				command: "which whoami",
 				description:
-					"Show metadata for the whoami command.",
+					"Show the command tree for the whoami command.",
 			},
 			{
-				command: "which json",
-				description: "Show metadata for the json tool.",
+				command: "which tools json",
+				description:
+					"Show the command tree for the json subcommand.",
 			},
 			{
 				command: "which nonexistent",
@@ -53,65 +89,27 @@ export const whichCommand = commandTree({
 			return;
 		}
 
-		const allCommands = collectAllCommands(
-			registry.listRootCommands(),
-		);
+		const path = input.split(/\s+/);
+		const resolved = registry.find(path, "");
 
-		const direct = allCommands.find(
-			(cmd) =>
-				cmd.name.toLowerCase() === input ||
-				cmd.aliases?.some((a) => a.toLowerCase() === input),
-		);
-
-		if (direct) {
-			const lines: string[] = [
-				`found=true`,
-				`name=${direct.name}`,
-				`category=${direct.category ?? "uncategorized"}`,
-				`description=${direct.description}`,
-			];
-
-			if (direct.aliases && direct.aliases.length > 0) {
-				lines.push(`aliases=${direct.aliases.join(", ")}`);
-			}
-
-			if (
-				direct.permission &&
-				direct.permission !== "public"
-			) {
-				lines.push(`permission=${direct.permission}`);
-			}
-
-			if (direct.enabled === false) {
-				lines.push("status=disabled");
-			}
-
-			if (direct.ownerOnly) {
-				lines.push("access=owner-only");
-			}
-
-			if (direct.devOnly) {
-				lines.push("access=dev-only");
-			}
-
-			if (direct.availability?.contexts) {
-				lines.push(
-					`contexts=${direct.availability.contexts.join(", ")}`,
-				);
-			}
-
-			if (direct.cooldown) {
-				lines.push(`cooldown=${direct.cooldown}ms`);
-			}
-
-			await message.reply(shellOutput(lines));
+		if (resolved) {
+			const treeNode = toTreeNode(
+				resolved.command,
+				path,
+			);
+			const tree = renderCommandTree([treeNode]);
+			await message.reply(
+				shellOutput([`found=true`, `path=${path.join(" ")}`, "", tree]),
+			);
 			return;
 		}
 
-		const suggestions = allCommands
-			.map((cmd) => ({
-				name: cmd.name,
-				score: distance(input, cmd.name),
+		const allEntries = collectFlatNames(registry);
+		const suggestions = allEntries
+			.map((entry) => ({
+				name: entry.name,
+				path: entry.path,
+				score: distance(input, entry.name),
 			}))
 			.sort((a, b) => a.score - b.score)
 			.filter((s) => s.score <= 5)
@@ -122,7 +120,7 @@ export const whichCommand = commandTree({
 				shellOutput([
 					`found=false`,
 					`input=${input}`,
-					...suggestions.map((s) => `suggestion=${s.name}`),
+					...suggestions.map((s) => `suggestion=${s.path}`),
 				]),
 			);
 		} else {
@@ -132,78 +130,3 @@ export const whichCommand = commandTree({
 		}
 	},
 });
-
-interface FlatCommandInfo {
-	readonly name: string;
-	readonly aliases: readonly string[] | undefined;
-	readonly category: string | undefined;
-	readonly description: string;
-	readonly permission: string | undefined;
-	readonly enabled: boolean | undefined;
-	readonly ownerOnly: boolean | undefined;
-	readonly devOnly: boolean | undefined;
-	readonly cooldown: number | undefined;
-	readonly availability:
-		| { readonly contexts?: readonly string[] }
-		| undefined;
-}
-
-function collectAllCommands(
-	definitions: readonly {
-		readonly name: string;
-		readonly aliases?: readonly string[];
-		readonly category?: string;
-		readonly description: string;
-		readonly permission?: string;
-		readonly enabled?: boolean;
-		readonly ownerOnly?: boolean;
-		readonly devOnly?: boolean;
-		readonly cooldown?: number;
-		readonly subcommands?: readonly unknown[];
-		readonly availability?: {
-			readonly contexts?: readonly string[];
-		};
-	}[],
-): FlatCommandInfo[] {
-	const result: FlatCommandInfo[] = [];
-
-	function walk(
-		defs: readonly {
-			readonly name: string;
-			readonly aliases?: readonly string[];
-			readonly category?: string;
-			readonly description: string;
-			readonly permission?: string;
-			readonly enabled?: boolean;
-			readonly ownerOnly?: boolean;
-			readonly devOnly?: boolean;
-			readonly cooldown?: number;
-			readonly subcommands?: readonly unknown[];
-			readonly availability?: {
-				readonly contexts?: readonly string[];
-			};
-		}[],
-	): void {
-		for (const def of defs) {
-			result.push({
-				aliases: def.aliases,
-				category: def.category,
-				description: def.description,
-				name: def.name,
-				permission: def.permission,
-				enabled: def.enabled,
-				ownerOnly: def.ownerOnly,
-				devOnly: def.devOnly,
-				cooldown: def.cooldown,
-				availability: def.availability,
-			});
-
-			if (def.subcommands && def.subcommands.length > 0) {
-				walk(def.subcommands as typeof defs);
-			}
-		}
-	}
-
-	walk(definitions);
-	return result;
-}
