@@ -61,6 +61,14 @@ async function scanDirectory(
 			continue;
 		}
 
+		if (entry.name === "index.ts" || entry.name === "index.js") {
+			continue;
+		}
+
+		if (entry.name === "root.ts" || entry.name === "root.js") {
+			continue;
+		}
+
 		try {
 			const mod = await import(pathToFileURL(fullPath).href);
 
@@ -93,6 +101,10 @@ export async function loadCommandDefinitions(
 		seen.add(cmd);
 		seenNames.add(cmd.name.toLowerCase());
 		result.push(cmd);
+
+		for (const sub of cmd.subcommands ?? []) {
+			seen.add(sub);
+		}
 	}
 
 	if (manifest) {

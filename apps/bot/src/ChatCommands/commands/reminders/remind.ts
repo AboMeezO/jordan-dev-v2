@@ -3,7 +3,7 @@ import { commandTree } from "#ChatCommands";
 import {
 	parsePrefixReminderArgs,
 	scheduleReminder,
-} from "../../Reminders/reminder-command.js";
+} from "../../../Reminders/reminder-command.js";
 
 export const remindCommand = commandTree({
 	description: "Schedule a reminder.",

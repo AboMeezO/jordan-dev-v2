@@ -7,7 +7,7 @@ import {
 	parseChatCommandInput,
 } from "#ChatCommands";
 
-import { shellOutput } from "./format.js";
+import { shellOutput } from "../../format.js";
 import { logCommandExecution } from "#AuditLog";
 
 const log = new Logger("sudo");

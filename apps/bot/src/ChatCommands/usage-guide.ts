@@ -204,14 +204,19 @@ export function renderCommandTree(
 		const node = nodes[i];
 		if (!node) continue;
 		const isLast = i === nodes.length - 1;
-		const connector = isLast ? "└── " : "├── ";
+		const connector = isLast ? "└─ " : "├─ ";
 		const label = `${node.allowPrefixless ? "" : "!"}${node.name}`;
+		const suffix = node.children.length === 0
+			? " (λ)"
+			: node.kind === "group"
+				? " [group]"
+				: "";
 		const meta = buildNodeMeta(node);
-		const line = `${prefix}${connector}${label}${meta}`;
+		const line = `${prefix}${connector}${label}${suffix}${meta}`;
 		lines.push(line);
 
 		if (node.children.length > 0) {
-			const childPrefix = prefix + (isLast ? "    " : "│   ");
+			const childPrefix = prefix + (isLast ? "   " : "│  ");
 			lines.push(
 				renderCommandTree(node.children, childPrefix),
 			);

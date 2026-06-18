@@ -1,6 +1,6 @@
 import { commandTree } from "#ChatCommands";
 
-import { shellOutput } from "./format.js";
+import { shellOutput } from "../../format.js";
 
 export const hostnameCommand = commandTree({
 	allowPrefixless: true,

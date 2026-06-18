@@ -3,7 +3,7 @@ import { commandTree } from "#ChatCommands";
 import {
 	shellOutput,
 	sortedRootCommands,
-} from "./format.js";
+} from "../../format.js";
 
 export const lsCommand = commandTree({
 	allowPrefixless: true,

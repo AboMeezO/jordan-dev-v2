@@ -4,7 +4,7 @@ import {
 	channelKind,
 	channelPath,
 	shellOutput,
-} from "./format.js";
+} from "../../format.js";
 
 export const contextCommand = commandTree({
 	aliases: ["env", "discord-env"],

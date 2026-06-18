@@ -1,10 +1,10 @@
 import { commandTree } from "#ChatCommands";
 
-import { listUserReminders } from "../../Reminders/reminder-command.js";
+import { listUserReminders } from "../../../Reminders/reminder-command.js";
 import {
 	buildReminderPanel,
 	reminderMessageFlags,
-} from "../../Reminders/reminder-panel.js";
+} from "../../../Reminders/reminder-panel.js";
 
 export const remindersCommand = commandTree({
 	aliases: ["reminder-list"],

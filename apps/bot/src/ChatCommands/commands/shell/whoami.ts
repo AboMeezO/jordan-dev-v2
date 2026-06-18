@@ -6,7 +6,7 @@ import {
 	roleNames,
 	shellOutput,
 	userDisplayName,
-} from "./format.js";
+} from "../../format.js";
 
 export const whoamiCommand = commandTree({
 	aliases: ["who"],

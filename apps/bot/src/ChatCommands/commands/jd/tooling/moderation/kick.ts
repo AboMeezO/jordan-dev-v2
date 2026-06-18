@@ -1,6 +1,6 @@
 import { subcommand } from "#ChatCommands";
 
-import { shellOutput } from "../../../shell/format.js";
+import { shellOutput } from "../../../../format.js";
 import {
 	ensureCanModerateMember,
 	KICK_PERMISSION,

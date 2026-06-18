@@ -5,7 +5,7 @@ import {
 	permissionNames,
 	roleNames,
 	shellOutput,
-} from "./format.js";
+} from "../../format.js";
 
 export const idCommand = commandTree({
 	allowPrefixless: true,

@@ -1,6 +1,6 @@
 import { commandTree } from "#ChatCommands";
 
-import { channelPath, shellOutput } from "./format.js";
+import { channelPath, shellOutput } from "../../format.js";
 
 export const pwdCommand = commandTree({
 	allowPrefixless: true,

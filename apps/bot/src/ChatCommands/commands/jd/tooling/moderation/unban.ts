@@ -1,6 +1,6 @@
 import { subcommand } from "#ChatCommands";
 
-import { shellOutput } from "../../../shell/format.js";
+import { shellOutput } from "../../../../format.js";
 import {
 	BAN_PERMISSION,
 	MODERATION_USAGE_NOTES,

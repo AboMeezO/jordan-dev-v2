@@ -4,7 +4,7 @@ import {
 	roleNames,
 	shellOutput,
 	userDisplayName,
-} from "./format.js";
+} from "../../format.js";
 
 export const groupsCommand = commandTree({
 	aliases: ["roles"],

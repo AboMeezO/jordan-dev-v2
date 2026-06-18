@@ -1,6 +1,6 @@
 import { commandTree } from "#ChatCommands";
 
-import { formatDuration, shellOutput } from "./format.js";
+import { formatDuration, shellOutput } from "../../format.js";
 
 export const psCommand = commandTree({
 	allowPrefixless: true,

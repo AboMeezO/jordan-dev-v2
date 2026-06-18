@@ -27,15 +27,13 @@ export default async function (
 	log.info(`Client is ready as ${client.user?.tag}`);
 
 	const registry = await createDefaultChatCommandRegistry();
-	const trees = registry.listRootTreeNodes();
+		const trees = registry.listRootTreeNodes();
 	const total = countTreeNodes(trees);
 
-	log.info(`Loaded ${total} chat commands`);
-
-	for (const tree of trees) {
-		const rendered = renderCommandTree([tree]);
-		for (const line of rendered.split("\n")) {
-			log.debug(line);
-		}
+	const allLines = [`Loaded ${total} commands:`, renderCommandTree(trees)];
+	for (const line of allLines.join("\n").split("\n")) {
+		log.debug(line);
 	}
+
+	log.info(`Loaded ${total} chat commands`);
 }

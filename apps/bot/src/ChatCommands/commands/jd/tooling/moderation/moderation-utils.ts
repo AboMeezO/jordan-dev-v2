@@ -8,7 +8,7 @@ import {
 
 import type { ChatCommandContext } from "#ChatCommands";
 
-import { shellOutput } from "../../../shell/format.js";
+import { shellOutput } from "../../../../format.js";
 
 const DISCORD_ID_PATTERN = /^\d{17,20}$/;
 const MENTION_PATTERN = /^<@!?(\d{17,20})>$/;
