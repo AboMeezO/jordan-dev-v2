@@ -30,6 +30,8 @@
     "build:dashboard": "pnpm --dir apps/dashboard build",
     "lint": "eslint --no-config-lookup --config eslint.config.js apps/backend/src apps/bot/index.ts apps/bot/src apps/web/src packages/shared/src",
     "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:phase1": "pnpm --dir apps/bot test:phase1",
     "check": "npm run lint && npm run build"
   },

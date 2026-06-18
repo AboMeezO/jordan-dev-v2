@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+.output
+.tanstack
+.tmp
+.temp
+coverage
+pnpm-lock.yaml
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
