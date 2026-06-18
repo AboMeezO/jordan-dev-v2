@@ -1,13 +1,41 @@
 import type { Client } from "discord.js";
 
 import { Logger } from "#Logger";
+import {
+	createDefaultChatCommandRegistry,
+	renderCommandTree,
+} from "../../ChatCommands/index.js";
 import { getReminderService } from "../../Reminders/index.js";
 
 const log = new Logger("client-ready");
+
+function countTreeNodes(
+	nodes: readonly import("../../ChatCommands/index.js").CommandTreeNode[],
+): number {
+	let count = 0;
+	for (const node of nodes) {
+		count += 1;
+		count += countTreeNodes(node.children);
+	}
+	return count;
+}
 
 export default async function (
 	client: Client,
 ): Promise<void> {
 	await getReminderService(client).initialize();
 	log.info(`Client is ready as ${client.user?.tag}`);
+
+	const registry = createDefaultChatCommandRegistry();
+	const trees = registry.listRootTreeNodes();
+	const total = countTreeNodes(trees);
+
+	log.info(`Loaded ${total} chat commands`);
+
+	for (const tree of trees) {
+		const rendered = renderCommandTree([tree]);
+		for (const line of rendered.split("\n")) {
+			log.debug(line);
+		}
+	}
 }
