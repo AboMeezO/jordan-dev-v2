@@ -3,6 +3,7 @@ import type {
 	ChatCommandUsageExample,
 	ChatCommandUsageGuide,
 	ChatPermissionLevel,
+	CommandTreeNode,
 } from "./types.js";
 
 export interface RenderUsageGuideInput {
@@ -191,6 +192,84 @@ function formatSubcommands(
 		(subcommand) =>
 			`- \`${subcommand.name}\` - ${subcommand.description}`,
 	);
+}
+
+export function renderCommandTree(
+	nodes: readonly CommandTreeNode[],
+	prefix: string = "",
+): string {
+	const lines: string[] = [];
+
+	for (let i = 0; i < nodes.length; i++) {
+		const node = nodes[i];
+		if (!node) continue;
+		const isLast = i === nodes.length - 1;
+		const connector = isLast ? "└── " : "├── ";
+		const label = `${node.allowPrefixless ? "" : "!"}${node.name}`;
+		const meta = buildNodeMeta(node);
+		const line = `${prefix}${connector}${label}${meta}`;
+		lines.push(line);
+
+		if (node.children.length > 0) {
+			const childPrefix = prefix + (isLast ? "    " : "│   ");
+			lines.push(
+				renderCommandTree(node.children, childPrefix),
+			);
+		}
+	}
+
+	return lines.join("\n");
+}
+
+export function renderCommandTreeShell(
+	nodes: readonly CommandTreeNode[],
+): string[] {
+	const result: string[] = [];
+
+	function walk(
+		treeNodes: readonly CommandTreeNode[],
+		parentPath: readonly string[],
+	): void {
+		for (const node of treeNodes) {
+			const fullPath = [...parentPath, node.name];
+			const pathStr = fullPath.join(" ");
+			const kind = node.kind === "subcommand" ? "sub" : node.kind;
+
+			result.push(`command=${pathStr}`);
+			result.push(`  kind=${kind}`);
+			result.push(`  description=${node.description}`);
+			result.push(`  permission=${node.permission}`);
+			result.push(`  prefixless=${node.allowPrefixless}`);
+			result.push(`  enabled=${node.enabled}`);
+			result.push(`  category=${node.category ?? ""}`);
+			result.push(`  aliases=${node.aliases.join(",")}`);
+
+			if (node.children.length > 0) {
+				walk(node.children, fullPath);
+			}
+		}
+	}
+
+	walk(nodes, []);
+	return result;
+}
+
+function buildNodeMeta(node: CommandTreeNode): string {
+	const parts: string[] = [];
+
+	if (node.category) {
+		parts.push(`[${node.category}]`);
+	}
+
+	if (!node.enabled) {
+		parts.push("(disabled)");
+	}
+
+	if (node.permission !== "public") {
+		parts.push(`(${node.permission})`);
+	}
+
+	return parts.length > 0 ? ` ${parts.join(" ")}` : "";
 }
 
 function appendUsageSection(

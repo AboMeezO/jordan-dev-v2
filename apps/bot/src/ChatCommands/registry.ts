@@ -3,8 +3,10 @@ import { maxPermissionLevel } from "./permissions.js";
 import type {
 	ChatCommandDefinition,
 	ChatCommandInvocation,
+	ChatCommandNodeKind,
 	ChatCommandParseResult,
 	ChatPermissionLevel,
+	CommandTreeNode,
 } from "./types.js";
 
 export interface ChatCommandResolution {
@@ -157,6 +159,19 @@ export class ChatCommandRegistry {
 		return uniqueSubcommands(this.commands);
 	}
 
+	public listRootTreeNodes(): CommandTreeNode[] {
+		const seen = new Set<ChatCommandDefinition>();
+		const nodes: CommandTreeNode[] = [];
+
+		for (const command of this.commands.values()) {
+			if (seen.has(command.definition)) continue;
+			seen.add(command.definition);
+			nodes.push(toTreeNode(command.definition, [command.definition.name]));
+		}
+
+		return nodes;
+	}
+
 	private addToMap(
 		map: Map<string, StoredCommand>,
 		command: ChatCommandDefinition,
@@ -198,4 +213,36 @@ function uniqueSubcommands(
 	return Array.from(
 		new Set(Array.from(commands.values())),
 	).map((command) => command.definition);
+}
+
+export function toTreeNode(
+	definition: ChatCommandDefinition,
+	path: readonly string[],
+	depth: number = 0,
+): CommandTreeNode {
+	const maxDepth = 5;
+
+	return {
+		aliases: definition.aliases ?? [],
+		allowPrefixless: definition.allowPrefixless !== false,
+		category: definition.category ?? null,
+		children:
+			depth < maxDepth
+				? (definition.subcommands ?? [])
+						.filter(
+							(s): s is ChatCommandDefinition =>
+								s !== undefined,
+						)
+						.map((sub) =>
+							toTreeNode(sub, [...path, sub.name], depth + 1),
+						)
+				: [],
+		cooldown: definition.cooldown ?? null,
+		description: definition.description,
+		enabled: definition.enabled !== false,
+		kind: definition.kind ?? ("command" as ChatCommandNodeKind),
+		name: definition.name,
+		path,
+		permission: definition.permission ?? "public",
+	};
 }

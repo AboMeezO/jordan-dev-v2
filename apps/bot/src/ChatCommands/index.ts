@@ -58,7 +58,7 @@ export {
 	canUseChatCommand,
 	comparePermissionLevels,
 } from "./permissions.js";
-export { ChatCommandRegistry } from "./registry.js";
+export { ChatCommandRegistry, toTreeNode } from "./registry.js";
 export type {
 	ChatCommandArgumentGuide,
 	ChatCommandAvailabilityScope,
@@ -72,9 +72,15 @@ export type {
 	ChatCommandParseResult,
 	ChatCommandUsageExample,
 	ChatCommandUsageGuide,
+	ChatCommandRedirect,
+	ChatCommandSegment,
+	ChatCommandOperator,
 	ChatPermissionLevel,
+	CommandTreeNode,
 } from "./types.js";
 export {
 	renderCommandList,
+	renderCommandTree,
+	renderCommandTreeShell,
 	renderUsageGuide,
 } from "./usage-guide.js";

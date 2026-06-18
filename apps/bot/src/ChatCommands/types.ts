@@ -141,3 +141,17 @@ export interface ChatCommandRedirect {
 	readonly target: string | undefined;
 	readonly index: number;
 }
+
+export interface CommandTreeNode {
+	readonly name: string;
+	readonly kind: ChatCommandNodeKind;
+	readonly description: string;
+	readonly category: string | null;
+	readonly permission: ChatPermissionLevel;
+	readonly aliases: readonly string[];
+	readonly allowPrefixless: boolean;
+	readonly enabled: boolean;
+	readonly cooldown: number | null;
+	readonly path: readonly string[];
+	readonly children: CommandTreeNode[];
+}
