@@ -79,7 +79,7 @@ function colorizeShellLine(line: string): string {
 		return ansi(line, "blue");
 	}
 
-	return ansi(line, "white");
+	return ansi(line, "green");
 }
 
 function colorizeKeyValueLine(
@@ -162,7 +162,7 @@ function colorizeLooseToken(token: string): string {
 		return ansi(token, "yellow");
 	}
 
-	return ansi(token, "white");
+	return ansi(token, "green");
 }
 
 function keyColorFor(key: string): AnsiColor {

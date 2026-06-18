@@ -31,9 +31,5 @@ export default async function (
 	const total = countTreeNodes(trees);
 
 	const allLines = [`Loaded ${total} commands:`, renderCommandTree(trees)];
-	for (const line of allLines.join("\n").split("\n")) {
-		log.debug(line);
-	}
-
-	log.info(`Loaded ${total} chat commands`);
+	console.log(allLines.join("\n"));
 }
