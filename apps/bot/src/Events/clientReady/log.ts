@@ -26,7 +26,7 @@ export default async function (
 	await getReminderService(client).initialize();
 	log.info(`Client is ready as ${client.user?.tag}`);
 
-	const registry = createDefaultChatCommandRegistry();
+	const registry = await createDefaultChatCommandRegistry();
 	const trees = registry.listRootTreeNodes();
 	const total = countTreeNodes(trees);
 
