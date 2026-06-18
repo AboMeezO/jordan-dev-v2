@@ -1,5 +1,8 @@
+import { Logger } from "#Logger";
 import { getDatabase } from "#Database";
 import type { DatabaseAdapter, DatabaseTransaction } from "#Database";
+
+const log = new Logger("audit-log");
 
 interface CommandAuditEntry {
 	command: string;
@@ -81,6 +84,6 @@ export async function logCommandExecution(
 			);
 		});
 	} catch (error) {
-		console.error("[audit-log] Failed to write audit entry:", error);
+		log.error("Failed to write audit entry:", error);
 	}
 }

@@ -1,3 +1,4 @@
+import { Logger } from "#Logger";
 import {
 	canUseChatCommand,
 	commandTree,
@@ -8,6 +9,8 @@ import {
 
 import { shellOutput } from "./format.js";
 import { logCommandExecution } from "#AuditLog";
+
+const log = new Logger("sudo");
 
 export const sudoCommand = commandTree({
 	allowPrefixless: true,
@@ -127,7 +130,7 @@ export const sudoCommand = commandTree({
 			sudo: true,
 			elevated: true,
 			args: resolution.invocation.rawArgs.join(" "),
-		}).catch((error) => console.error("[sudo] audit log failed:", error));
+		}).catch((error) => log.error("audit log failed:", error));
 
 		await context.message.reply(
 			shellOutput([

@@ -1,5 +1,6 @@
 import type { Client, Message } from "discord.js";
 
+import { Logger } from "#Logger";
 import { checkCommandAvailability } from "./availability.js";
 import {
 	checkCooldown,
@@ -14,6 +15,8 @@ import type {
 import type { ChatCommandParseResult } from "./types.js";
 import { renderUsageGuide } from "./usage-guide.js";
 import { logCommandExecution } from "#AuditLog";
+
+const log = new Logger("dispatch");
 
 export interface DispatchChatCommandInput {
 	readonly client: Client;
@@ -127,7 +130,7 @@ export async function dispatchChatCommand(
 		elevated,
 		args: resolution.invocation.rawArgs.join(" "),
 	}).catch((error) =>
-		console.error("[dispatch] audit log failed:", error),
+		log.error("audit log failed:", error),
 	);
 
 	return true;
@@ -199,7 +202,7 @@ export async function executeChatCommandResolution(
 		elevated,
 		args: resolution.invocation.rawArgs.join(" "),
 	}).catch((error) =>
-		console.error("[dispatch] audit log failed:", error),
+		log.error("audit log failed:", error),
 	);
 
 	return true;

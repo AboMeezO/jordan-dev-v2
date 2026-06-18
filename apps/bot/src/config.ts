@@ -1,3 +1,7 @@
+import { Logger } from "#Logger";
+
+const log = new Logger("config");
+
 function requireEnv(name: string): () => string {
 	return () => {
 		const value = process.env[name];
@@ -52,6 +56,6 @@ export const botConfig = {
 export function validateConfig(): void {
 	botConfig.discord.token;
 	if (!botConfig.scanning.virustotalApiKey) {
-		console.warn("[config] VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only");
+		log.warn("VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only");
 	}
 }

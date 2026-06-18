@@ -33,6 +33,7 @@
 		"#ChatCommands": "./dist/src/ChatCommands/index.js",
 		"#Config": "./dist/src/config.js",
 		"#AuditLog": "./dist/src/audit-log.js",
+		"#Logger": "./dist/src/Logger/index.js",
 		"#Assets": "./Assets/"
 	},
 	"devDependencies": {

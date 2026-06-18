@@ -18,6 +18,7 @@
 			"#ChatCommands": ["src/ChatCommands/index.ts"],
 			"#Config": ["src/config.ts"],
 			"#AuditLog": ["src/audit-log.ts"],
+			"#Logger": ["src/Logger/index.ts"],
 			"#Assets": ["Assets/"]
 		}
 	},

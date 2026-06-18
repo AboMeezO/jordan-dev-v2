@@ -17,6 +17,8 @@ import {
 	TextDisplayBuilder,
 } from "discord.js";
 
+import { Logger } from "#Logger";
+
 import {
 	type Action,
 	EngineKernel,
@@ -32,6 +34,8 @@ import {
 	SeededRandomSource,
 	type SessionId,
 } from "../../engine/index.js";
+
+const log = new Logger("ProductionIncidentDiscord");
 import { DiscordCustomIdCodec } from "../interactions/discord-custom-id-codec.js";
 import { DiscordSessionRegistry } from "../registry/discord-session-registry.js";
 import { DiscordIncidentRenderer } from "../renderers/discord-incident-renderer.js";
@@ -1605,11 +1609,7 @@ export class ProductionIncidentDiscordService {
 		message: string,
 		metadata: Readonly<Record<string, unknown>>,
 	): void {
-		console.log(
-			"[ProductionIncidentDiscord]",
-			message,
-			metadata,
-		);
+		log.debug(message, metadata);
 	}
 
 	private errorCode(error: unknown): string | undefined {

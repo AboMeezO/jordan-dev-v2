@@ -2,8 +2,11 @@ import { CommandKit } from "commandkit";
 import { Client, GatewayIntentBits } from "discord.js";
 import path from "path";
 
+import { Logger } from "#Logger";
 import { migrateAuditSchema } from "#AuditLog";
 import { validateConfig } from "#Config";
+
+const log = new Logger("bot");
 
 export class Bot {
 	private client: Client;
@@ -21,7 +24,7 @@ export class Bot {
 		validateConfig();
 
 		migrateAuditSchema().catch((error) => {
-			console.error("[bot] Audit schema migration failed:", error);
+			log.error("Audit schema migration failed:", error);
 		});
 
 		new CommandKit({
