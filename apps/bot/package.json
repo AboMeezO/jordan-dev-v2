@@ -34,6 +34,7 @@
 		"#Config": "./dist/src/config.js",
 		"#AuditLog": "./dist/src/audit-log.js",
 		"#Logger": "./dist/src/Logger/index.js",
+		"#ComponentsV2": "./dist/src/ComponentsV2/index.js",
 		"#Assets": "./Assets/"
 	},
 	"devDependencies": {

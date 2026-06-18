@@ -14,8 +14,9 @@ import {
 	MessageFlags,
 	SeparatorBuilder,
 	SlashCommandBuilder,
-	TextDisplayBuilder,
 } from "discord.js";
+
+import { buildContainer } from "#ComponentsV2";
 
 import { Logger } from "#Logger";
 
@@ -1482,13 +1483,10 @@ export class ProductionIncidentDiscordService {
 		const rows = this.resolveButtonRows(payload);
 
 		if (payload.useComponentsV2 === true) {
-			const container = new ContainerBuilder()
-				.setAccentColor(payload.accentColor ?? 0x02fe97)
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(
-						payload.content,
-					),
-				);
+			const container = buildContainer({
+				accentColor: payload.accentColor ?? 0x02fe97,
+				content: payload.content,
+			});
 
 			if (rows.length > 0) {
 				container.addSeparatorComponents(

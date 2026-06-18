@@ -13,6 +13,15 @@ import {
 	TextInputStyle,
 } from "discord.js";
 
+import {
+	buildButtonRow,
+	buildContainer,
+	buildTextDisplay,
+	componentsV2Flags,
+	componentsV2EphemeralFlags,
+} from "#ComponentsV2";
+
+import type { ButtonInput } from "#ComponentsV2";
 import type { ReminderRecord } from "./reminder-service.js";
 
 export const REMINDER_CUSTOM_ID_PREFIX = "rem";
@@ -25,37 +34,35 @@ export interface ReminderPanelInput {
 }
 
 export function reminderInteractionFlags(): readonly [
-	MessageFlags.IsComponentsV2,
-	MessageFlags.Ephemeral,
+	typeof MessageFlags.IsComponentsV2,
+	typeof MessageFlags.Ephemeral,
 ] {
-	return [
-		MessageFlags.IsComponentsV2,
-		MessageFlags.Ephemeral,
-	];
+	return componentsV2EphemeralFlags();
 }
 
 export function reminderMessageFlags(): readonly [
-	MessageFlags.IsComponentsV2,
+	typeof MessageFlags.IsComponentsV2,
 ] {
-	return [MessageFlags.IsComponentsV2];
+	return componentsV2Flags();
 }
 
 export function buildReminderPanel(
 	input: ReminderPanelInput,
 ): ContainerBuilder {
+	const summary = buildPanelSummary(input);
+
+	if (input.reminders.length === 0) {
+		return buildContainer({
+			accentColor: 0x02fe97,
+			content: summary,
+		});
+	}
+
 	const container = new ContainerBuilder()
 		.setAccentColor(0x02fe97)
 		.addTextDisplayComponents(
-			new TextDisplayBuilder().setContent(
-				buildPanelSummary(input),
-			),
-		);
-
-	if (input.reminders.length === 0) {
-		return container;
-	}
-
-	container
+			new TextDisplayBuilder().setContent(summary),
+		)
 		.addSeparatorComponents(
 			new SeparatorBuilder().setDivider(true),
 		)
@@ -69,6 +76,44 @@ export function buildReminderPanel(
 		);
 
 	if (input.selectedReminder) {
+		const actionButtons: ButtonInput[] = [
+			{
+				customId: buildReminderCustomId(
+					"edit-message",
+					input.selectedReminder.id,
+				),
+				label: "Edit message",
+				style: "primary",
+			},
+			{
+				customId: buildReminderCustomId(
+					"edit-time",
+					input.selectedReminder.id,
+				),
+				label: "Edit time",
+				style: "primary",
+			},
+			{
+				customId: buildReminderCustomId(
+					"toggle-delivery",
+					input.selectedReminder.id,
+				),
+				label:
+					input.selectedReminder.delivery === "dm"
+						? "Use channel"
+						: "Use DM",
+				style: "secondary",
+			},
+			{
+				customId: buildReminderCustomId(
+					"cancel",
+					input.selectedReminder.id,
+				),
+				label: "Cancel",
+				style: "danger",
+			},
+		];
+
 		container
 			.addSeparatorComponents(
 				new SeparatorBuilder().setDivider(true),
@@ -78,50 +123,7 @@ export function buildReminderPanel(
 					buildReminderDetail(input.selectedReminder),
 				),
 			)
-			.addActionRowComponents(
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setCustomId(
-							buildReminderCustomId(
-								"edit-message",
-								input.selectedReminder.id,
-							),
-						)
-						.setLabel("Edit message")
-						.setStyle(ButtonStyle.Primary),
-					new ButtonBuilder()
-						.setCustomId(
-							buildReminderCustomId(
-								"edit-time",
-								input.selectedReminder.id,
-							),
-						)
-						.setLabel("Edit time")
-						.setStyle(ButtonStyle.Primary),
-					new ButtonBuilder()
-						.setCustomId(
-							buildReminderCustomId(
-								"toggle-delivery",
-								input.selectedReminder.id,
-							),
-						)
-						.setLabel(
-							input.selectedReminder.delivery === "dm"
-								? "Use channel"
-								: "Use DM",
-						)
-						.setStyle(ButtonStyle.Secondary),
-					new ButtonBuilder()
-						.setCustomId(
-							buildReminderCustomId(
-								"cancel",
-								input.selectedReminder.id,
-							),
-						)
-						.setLabel("Cancel")
-						.setStyle(ButtonStyle.Danger),
-				),
-			);
+			.addActionRowComponents(buildButtonRow(actionButtons));
 	}
 
 	return container;
