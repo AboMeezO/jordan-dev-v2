@@ -2,6 +2,16 @@ export { checkCommandAvailability } from "./availability.js";
 export { checkCooldown, formatRemainingTime } from "./cooldown.js";
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
 export {
+  ansiShellOutput,
+  errorOutput,
+  escapeMentions,
+  formatErrorBoundary,
+  safeCodeBlock,
+  safeInline,
+  safeOutput,
+  unknownErrorOutput,
+} from "./output.js";
+export {
   base64Schema,
   discordSnowflakeSchema,
   domainSchema,
