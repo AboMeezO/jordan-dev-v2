@@ -1,3 +1,4 @@
+export { checkCommandAvailability } from "./availability.js";
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
 export {
   dispatchChatCommand,
