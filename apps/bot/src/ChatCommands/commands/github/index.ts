@@ -14,6 +14,7 @@ export const githubCommandTree = commandTree({
   availability: {
     contexts: ["guild", "dm"],
   },
+  allowPrefixless: true,
   subcommands: [
     githubUserCommand,
     githubRepoCommand,
