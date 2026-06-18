@@ -116,17 +116,10 @@ export const jwtCommand = subcommand({
 
 			if (verifyUrl) {
 				try {
-					const abortController = new AbortController();
-					const timeoutId = setTimeout(
-						() => abortController.abort(),
-						10_000,
-					);
 					const JWKS = createRemoteJWKSet(
 						new URL(verifyUrl),
-						{ timeout: 10_000 },
 					);
 					await jwtVerify(parsed.data.token, JWKS);
-					clearTimeout(timeoutId);
 					verified = "Signature verified successfully.";
 				} catch (err) {
 					if (
