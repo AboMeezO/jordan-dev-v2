@@ -12,8 +12,10 @@ export {
 export { ChatCommandRegistry } from "./registry.js";
 export type {
   ChatCommandArgumentGuide,
+  ChatCommandAvailabilityScope,
   ChatCommandContext,
   ChatCommandDefinition,
+  ChatCommandInputLimits,
   ChatCommandInvocation,
   ChatCommandNodeKind,
   ChatCommandOptionGuide,

@@ -18,8 +18,40 @@ export function renderUsageGuide(input: RenderUsageGuideInput): string {
   const label = `${input.prefix}${input.commandPath.join(" ")}`;
   const lines = [`**${label}**`, input.command.description];
 
+  const meta: string[] = [];
+
+  if (input.command.category) {
+    meta.push(`Category: \`${input.command.category}\``);
+  }
+
   if (input.permission && input.permission !== "public") {
-    lines.push("", `Permission: \`${input.permission}\``);
+    meta.push(`Permission: \`${input.permission}\``);
+  }
+
+  if (input.command.cooldown) {
+    meta.push(`Cooldown: ${input.command.cooldown}ms`);
+  }
+
+  if (input.command.ownerOnly) {
+    meta.push("Owner only");
+  }
+
+  if (input.command.devOnly) {
+    meta.push("Dev only");
+  }
+
+  if (input.command.enabled === false) {
+    meta.push("**Disabled**");
+  }
+
+  if (input.command.availability?.contexts) {
+    meta.push(
+      `Allowed in: ${input.command.availability.contexts.join(", ")}`,
+    );
+  }
+
+  if (meta.length > 0) {
+    lines.push("", ...meta);
   }
 
   appendUsageSection(lines, "Formats", formatFormats(label, usage));
@@ -40,10 +72,21 @@ export function renderCommandList(
 
   for (const command of commands) {
     const prefix = command.allowPrefixless === true ? "" : "!";
-    lines.push(`- \`${prefix}${command.name}\` - ${command.description}`);
+    let entry = `- \`${prefix}${command.name}\``;
+
+    if (command.category) {
+      entry += ` [${command.category}]`;
+    }
+
+    if (command.enabled === false) {
+      entry += " (disabled)";
+    }
+
+    entry += ` - ${command.description}`;
+    lines.push(entry);
   }
 
-  lines.push("", "Use `jd help <command>` for a detailed guide.");
+  lines.push("", "Use `man <command>` for a detailed guide.");
 
   return lines.join("\n").slice(0, 1900);
 }

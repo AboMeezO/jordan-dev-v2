@@ -16,6 +16,21 @@ export interface ChatCommandContext {
   readonly registry: ChatCommandRegistry;
 }
 
+export interface ChatCommandAvailabilityScope {
+  readonly contexts?: readonly ("guild" | "dm")[];
+  readonly guildIds?: { readonly allow?: readonly string[]; readonly deny?: readonly string[] };
+  readonly channelIds?: { readonly allow?: readonly string[]; readonly deny?: readonly string[] };
+  readonly categoryIds?: { readonly allow?: readonly string[]; readonly deny?: readonly string[] };
+  readonly roleIds?: { readonly allow?: readonly string[]; readonly deny?: readonly string[] };
+  readonly userIds?: { readonly allow?: readonly string[]; readonly deny?: readonly string[] };
+  readonly nsfwOnly?: boolean;
+}
+
+export interface ChatCommandInputLimits {
+  readonly maxInputLength?: number;
+  readonly maxOutputLength?: number;
+}
+
 export interface ChatCommandDefinition {
   readonly name: string;
   readonly aliases?: readonly string[];
@@ -26,6 +41,15 @@ export interface ChatCommandDefinition {
   readonly subcommands?: readonly ChatCommandDefinition[];
   readonly usage?: ChatCommandUsageGuide;
   readonly execute?: (context: ChatCommandContext) => Promise<void> | void;
+
+  readonly category?: string;
+  readonly enabled?: boolean;
+  readonly devOnly?: boolean;
+  readonly ownerOnly?: boolean;
+  readonly cooldown?: number;
+  readonly inputLimits?: ChatCommandInputLimits;
+  readonly outputMode?: "inline" | "attachment" | "inline-or-attachment";
+  readonly availability?: ChatCommandAvailabilityScope;
 }
 
 export type ChatCommandNodeKind = "command" | "group" | "subcommand";
