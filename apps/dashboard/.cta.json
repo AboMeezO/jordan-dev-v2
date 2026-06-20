@@ -1,0 +1,30 @@
+{
+  "projectName": "dashboard",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "git": false,
+  "install": true,
+  "intent": true,
+  "addOnOptions": {},
+  "includeExamples": false,
+  "envVarValues": {},
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "clerk",
+    "tanstack-query",
+    "table",
+    "form",
+    "store",
+    "db",
+    "ai",
+    "shadcn",
+    "t3env",
+    "mcp",
+    "eslint",
+    "nitro"
+  ]
+}
