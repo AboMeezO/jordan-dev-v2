@@ -1,219 +1,323 @@
-> Deprecated
->
-> Please consider other alternatives. You may continuously use it but no support will be provided.
+Welcome to your new TanStack Start app!
 
-![banner](./document/preview-new.png)
+# Getting Started
 
-# Discord Bot Dashboard Template
+To run this application:
 
-Using Typescript, Next.js 13, React 18 and Chakra ui 2.0
+```bash
+pnpm install
+pnpm dev
+```
 
-- Support Light/Dark theme
-- Multi languages support (i18n)
-- Typescript support
-- Nice UI & UX + Fast performance
-- Flexiable and Customizable
-- Detailed Documentation
+# Building For Production
 
-**Video:** https://youtu.be/IdMPjT5PzVk <br/>
-**Live Demo:** https://demo-bot.vercel.app
+To build this application for production:
 
-- Only 'Welcome message' Feature is Supported
+```bash
+pnpm build
+```
 
-## Review (not the latest version)
+## Testing
 
-|                  Light                   |                  Dark                  |
-| :--------------------------------------: | :------------------------------------: |
-| ![light-mode](./document/home-light.png) | ![dark-mode](./document/home-dark.png) |
+This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
-## Getting Started
+```bash
+pnpm test
+```
 
-As a template, you need to customize a few things in order to get it work
+## Styling
 
-### Before that
+This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-- Install Node.js, and a Package Manager (ex: npm or pnpm)
+### Removing Tailwind CSS
 
-### Required Skills
+If you prefer not to use Tailwind CSS:
 
-- Basic knowledge about React.js
-- Able to read javascript/typescript
+1. Remove the demo pages in `src/routes/demo/`
+2. Replace the Tailwind import in `src/styles.css` with your own styles
+3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
+4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
 
-### Set up
+## Linting & Formatting
 
-1. **Clone the repo**
-   <br>
-   `git clone https://github.com/fuma_nama/discord-bot-dashboard-next.git`
-2. **Install dependencies**
-   <br>
-   We always prefer [`PNpm`](https://pnpm.io)
+This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
 
-   |      NPM      |      PNPM      |
-   | :-----------: | :------------: |
-   | `npm install` | `pnpm install` |
+```bash
+pnpm lint
+pnpm format
+pnpm check
+```
 
-3. **Customize files**
-   <br>
-   The file structure of this project
-   | Path | Description |
-   | ------------------------------------- | ------------- |
-   | [src/pages/\*](./src/pages) | All the pages |
-   | [src/components/\*](./src/components) | Components |
-   | [src/api/\*](./src/api) | API utils |
-   | [src/config/\*](./src/api) | Common configurations |
-4. **Define Features**
-   <br>
-   The dashboard has built-in support for configuring features
-   <br>
-   Users are able to enable/disable features and config the feature after enabling it
+## Setting up Clerk
 
-   **Customize all typings in [src/config/types/custom-types.ts](./src/config/types/custom-types.ts)**
-   <br>
-   `CustomFeatures` is used for defining features and options, see the example for more details
-
-   **Open [src/config/features](./src/config/features.tsx)**
-   <br>
-   You can see how a feature is configured
-
-   ```tsx
-   'feature-id': {
-        name: 'Feature name',
-        description: 'Description about this feature',
-        icon: <Icon as={BsMusicNoteBeamed} />, //give it a cool icon
-        useRender: (data) => {
-            //render the form
-        },
-    }
+1. Sign up at [clerk.com](https://clerk.com) and create an application
+2. Copy the **Publishable Key** from the Clerk dashboard
+3. Set it in your `.env.local`:
+   ```bash
+   VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
    ```
+4. Visit the demo route at `/demo/clerk` once `npm run dev` is running
 
-   The `useRender` property is used to render Feature Configuration Panel <br>
-   Take a look at [here](./src/config/example/WelcomeMessageFeature.tsx) for examples
+### What's wired up
 
-5. **Configure General Information**
-   <br>
-   Modify [src/config/common.tsx](./src/config/common.tsx)
-   - Bot name & icon
-   - Invite url _(example: https://discord.com/oauth2/authorize?client_id=1234&scope=bot)_
-   - Guild settings
-6. **Configure Environment variables**
-   <br>
-   Those variables in [.env.example](./.env.example) are required
-   <br>
-   You can define environment variables by creating a `.env` file
-7. **Setup Backend Server**
-   <br>
-   In order to let the dashboard connected with your discord bot, you will need a backend server
-   <br>
-   You can implement it in any programming languages
+- **`<ClerkProvider>`** at the app root (`src/integrations/clerk/provider.tsx`) handles auth context for the whole tree
+- **`<SignInButton>` / `<UserButton>`** in the header swap based on auth state
+- **`/demo/clerk`** shows Clerk's prebuilt sign-in UI and a signed-in greeting
 
-   Read [here](#backend-development) for a guide to develop your own server
+### Protecting a route
 
-8. **Done!**
-   <br>
-   Start the app by `pnpm run dev` _(depends on your package manager)_
-   <br>
-   Then you should see the app started in port `3000`
+Wrap any component in `<SignedIn>` / `<SignedOut>`:
 
-   [Localization](./document/localization.md) | [Forms](./document/form.md)
+```tsx
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
 
-## Authorization
-
-We are using the [API Routes](https://nextjs.org/docs/api-routes/introduction) of Next.js to handle Authorization
-
-### Configure the Application
-
-1. Open Discord Developer Portal
-2. Create your OAuth2 application in https://discord.com/developers/applications
-3. In `<Your Application>` -> OAuth2 -> Redirects
-
-   Add `<APP_URL>/api/auth/callback` url to the redirects
-
-   For Example: `http://localhost:3000/api/auth/callback` <br>
-   **This is required for Authorization**
-
-### Authorization Flow
-
-**`Login -> Discord OAuth -> API Routes -> Client`**
-
-- Login (`/api/auth/login`)
-  <br>
-  - Redirects user to discord oauth url
-- Open Discord OAuth url
-  - User authorizes the application
-  - Redirect back to `/api/auth/callback`
-- API Routes
-  - Store the access token in http-only cookies
-  - Redirect back to home page
-
-### Token Expiration
-
-The Discord access token can be expired or unauthorized by the user <br>
-We will require the user to login again after getting `401` error from the Discord API
-
-The refresh token won't be used, but you are able to customize the Authorization Flow
-
-## Backend Development
-
-Check [src/api/bot.ts](./src/api/bot.ts), it defined a built-in API for fetching data
-
-You can use `express.js` (Node.js), `Rocket` (Rust) or any libraries/languages to develop your own server
-<br>
-Usually the server runs along with your discord bot (in the same program)
-<br>
-Moreover, you can use redis instead of connecting to the bot server directly
-
-### Official Example
-
-[Node.js (Typescript)](https://github.com/fuma-nama/discord-dashboard-backend-next)
-
-### Authorization
-
-The client will pass their access token via the `Authorization` header
-
-```
-Bearer MY_TOKEN_1212112
+function ProtectedPage() {
+  return (
+    <>
+      <SignedIn>
+        <YourPageContent />
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
+  )
+}
 ```
 
-### Required Routes
+For server-side checks (route loaders, server functions), see the Clerk docs on [`auth()`](https://clerk.com/docs/references/backend/auth).
 
-You may extend it for more functions
+### Production checklist
 
-GET `/guilds/{guild}`
+- Replace the test keys with **production keys** from a dedicated production Clerk instance
+- Configure your production domain under **Domains** in the Clerk dashboard
+- Set up social providers (Google, GitHub, etc.) under **User & Authentication → Social Connections**
 
-- Get guild info (`custom-types.ts > CustomGuildInfo`)
-- **Respond 404 or `null` if bot hasn't joined the guild**
+# TanStack Chat Application
 
-GET `/guilds/{guild}/features/{feature}`
+Am example chat application built with TanStack Start, TanStack Store, and Claude AI.
 
-- Get Feature options (`custom-types.ts > CustomFeatures[K]`)
-- **Respond 404 if not enabled**
+## .env Updates
 
-PATCH `/guilds/{guild}/features/{feature}`
+```env
+ANTHROPIC_API_KEY=your_anthropic_api_key
+```
 
-- Update feature options
-- With custom body (defined in `config/features`)
-- Respond updated feature options
+## ✨ Features
 
-POST `/guilds/{guild}/features/{feature}`
+### AI Capabilities
 
-- Enable a feature
+- 🤖 Powered by Claude 3.5 Sonnet
+- 📝 Rich markdown formatting with syntax highlighting
+- 🎯 Customizable system prompts for tailored AI behavior
+- 🔄 Real-time message updates and streaming responses (coming soon)
 
-DELETE `/guilds/{guild}/features/{feature}`
+### User Experience
 
-- Disable a feature
+- 🎨 Modern UI with Tailwind CSS and Lucide icons
+- 🔍 Conversation management and history
+- 🔐 Secure API key management
+- 📋 Markdown rendering with code highlighting
 
-GET `/guilds/{guild}/roles`
+### Technical Features
 
-- Get Roles of the guild
-- Responds a list of [Role Object](https://discord.com/developers/docs/topics/permissions#role-object) _(Same as discord documentation)_
+- 📦 Centralized state management with TanStack Store
+- 🔌 Extensible architecture for multiple AI providers
+- 🛠️ TypeScript for type safety
 
-GET `/guilds/{guild}/channels`
+## Architecture
 
-- Get Channels of the guild
-- Responds a list of [Guild Channel](https://discord.com/developers/docs/resources/channel#channel-object) _(Same as discord documentation)_
+### Tech Stack
 
-## Any issues?
+- **Frontend Framework**: TanStack Start
+- **Routing**: TanStack Router
+- **State Management**: TanStack Store
+- **Styling**: Tailwind CSS
+- **AI Integration**: Anthropic's Claude API
 
-Feel free to ask a question by opening a issue
+## Shadcn
 
-**Love this project?** Give this repo a star!
+Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+
+```bash
+pnpm dlx shadcn@latest add button
+```
+
+## T3Env
+
+- You can use T3Env to add type safety to your environment variables.
+- Add Environment variables to the `src/env.mjs` file.
+- Use the environment variables in your code.
+
+### Usage
+
+```ts
+import { env } from '#/env'
+
+console.log(env.VITE_APP_TITLE)
+```
+
+## Deploy with Nitro
+
+This project uses Nitro as a generic server adapter, so it can run on any Node-compatible host.
+
+```bash
+npm run build
+node dist/server/index.mjs
+```
+
+The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
+
+For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see https://v3.nitro.build/deploy.
+
+## Routing
+
+This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+
+### Adding A Route
+
+To add a new route to your application just add a new file in the `./src/routes` directory.
+
+TanStack will automatically generate the content of the route file for you.
+
+Now that you have two routes you can use a `Link` component to navigate between them.
+
+### Adding Links
+
+To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+
+```tsx
+import { Link } from '@tanstack/react-router'
+```
+
+Then anywhere in your JSX you can use it like so:
+
+```tsx
+<Link to="/about">About</Link>
+```
+
+This will create a link that will navigate to the `/about` route.
+
+More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+
+### Using A Layout
+
+In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
+
+Here is an example layout that includes a header:
+
+```tsx
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'My App' },
+    ],
+  }),
+  shellComponent: ({ children }) => (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <header>
+          <nav>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+          </nav>
+        </header>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  ),
+})
+```
+
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+
+## Server Functions
+
+TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+
+```tsx
+import { createServerFn } from '@tanstack/react-start'
+
+const getServerTime = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  return new Date().toISOString()
+})
+
+// Use in a component
+function MyComponent() {
+  const [time, setTime] = useState('')
+
+  useEffect(() => {
+    getServerTime().then(setTime)
+  }, [])
+
+  return <div>Server time: {time}</div>
+}
+```
+
+## API Routes
+
+You can create API routes by using the `server` property in your route definitions:
+
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { json } from '@tanstack/react-start'
+
+export const Route = createFileRoute('/api/hello')({
+  server: {
+    handlers: {
+      GET: () => json({ message: 'Hello, World!' }),
+    },
+  },
+})
+```
+
+## Data Fetching
+
+There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+
+For example:
+
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/people')({
+  loader: async () => {
+    const response = await fetch('https://swapi.dev/api/people')
+    return response.json()
+  },
+  component: PeopleComponent,
+})
+
+function PeopleComponent() {
+  const data = Route.useLoaderData()
+  return (
+    <ul>
+      {data.results.map((person) => (
+        <li key={person.name}>{person.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+
+# Demo files
+
+Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+
+# Learn More
+
+You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+
+For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
