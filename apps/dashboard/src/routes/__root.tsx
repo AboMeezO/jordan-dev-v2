@@ -3,12 +3,10 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import { lazy, Suspense } from 'react'
 
 import ClerkProvider from '../integrations/clerk/provider'
 
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
@@ -19,6 +17,10 @@ interface MyRouterContext {
 }
 
 const themeBootScript = `(function(){try{var theme=window.localStorage.getItem('dashboard-theme');var isDark=theme==='dark'||(!theme&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',isDark);document.body&&document.body.classList.toggle('dark',isDark);}catch(error){}})();`
+
+const Devtools = import.meta.env.DEV
+  ? lazy(() => import('../components/dev/Devtools'))
+  : null
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
@@ -63,18 +65,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
         <ClerkProvider>
           {children}
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-              TanStackQueryDevtools,
-            ]}
-          />
+          {Devtools ? (
+            <Suspense fallback={null}>
+              <Devtools />
+            </Suspense>
+          ) : null}
         </ClerkProvider>
         <Scripts />
       </body>
