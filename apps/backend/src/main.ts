@@ -7,6 +7,7 @@ import {
 } from "@nestjs/platform-fastify";
 
 import { AppModule } from "./app.module.js";
+import { ApiExceptionFilter } from "./common/filters/api-exception.filter.js";
 import { BackendConfigService } from "./config/app.config.js";
 
 async function bootstrap(): Promise<void> {
@@ -17,6 +18,7 @@ async function bootstrap(): Promise<void> {
 		);
 
 	const config = app.get(BackendConfigService);
+	app.useGlobalFilters(new ApiExceptionFilter(config));
 
 	app.enableCors({
 		credentials: true,
