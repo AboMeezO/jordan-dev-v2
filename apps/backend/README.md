@@ -54,6 +54,7 @@ DATABASE_URL
 Optional/defaulted:
 
 ```txt
+INITIAL_ADMIN_CLERK_USER_ID=user_...
 NODE_ENV=development
 PORT=3001
 FRONTEND_ORIGIN=http://localhost:3000
@@ -106,6 +107,7 @@ Migration workflow:
 pnpm --dir apps/backend db:validate
 pnpm --dir apps/backend db:migrate
 pnpm --dir apps/backend db:generate
+pnpm --dir apps/backend permissions:bootstrap
 ```
 
 Run migrations before starting the backend against a fresh local database.
@@ -146,7 +148,17 @@ Frontend permission gates are UX only. Backend guards and data checks are the se
 
 Reason: startup-time database writes are hidden production side effects. Permission synchronization should run as an explicit operational step when permissions are added or changed, or as part of a future seed/admin migration workflow.
 
-Until that workflow exists, run synchronization from a deliberate script or maintenance task that imports `AuthorizationService` and calls `syncKnownPermissions()` after database migrations have been applied.
+Run the explicit bootstrap command after migrations:
+
+```bash
+pnpm --dir apps/backend permissions:bootstrap
+```
+
+The command always syncs known permissions from `@jordan-devs/shared`.
+
+If `INITIAL_ADMIN_CLERK_USER_ID` is set, the command also creates or updates an `admin` role with all known permissions, upserts a local user for that Clerk user ID, and assigns the role. Use a Clerk user ID such as `user_...`, not an email address.
+
+If `INITIAL_ADMIN_CLERK_USER_ID` is unset, the command only syncs known permissions and does not assign any administrator role.
 
 ## API Error Format
 
@@ -154,9 +166,9 @@ Successful responses are wrapped by a global response interceptor:
 
 ```ts
 type ApiSuccessResponse<T> = {
-  success: true;
-  data: T;
-  meta?: Record<string, unknown>;
+	success: true;
+	data: T;
+	meta?: Record<string, unknown>;
 };
 ```
 
@@ -166,9 +178,9 @@ API errors are normalized to:
 
 ```ts
 type ApiError = {
-  code: string;
-  message: string;
-  fieldErrors?: Record<string, string[]>;
+	code: string;
+	message: string;
+	fieldErrors?: Record<string, string[]>;
 };
 ```
 

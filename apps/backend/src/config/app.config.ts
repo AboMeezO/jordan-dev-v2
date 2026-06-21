@@ -34,6 +34,10 @@ export class BackendConfigService {
 		return this.env.CLERK_AUTHORIZED_PARTIES;
 	}
 
+	public get initialAdminClerkUserId() {
+		return this.env.INITIAL_ADMIN_CLERK_USER_ID;
+	}
+
 	public get isProduction() {
 		return this.env.NODE_ENV === "production";
 	}

@@ -6,13 +6,23 @@ import {
 } from "@jordan-devs/shared";
 import { Injectable } from "@nestjs/common";
 
-import type { DatabaseTransactionClient } from "../../database/database.service.js";
+import {
+	DatabaseService,
+	type DatabaseTransactionClient,
+} from "../../database/database.service.js";
 import { AuthorizationRepository } from "./authorization.repository.js";
+
+export type PermissionBootstrapResult = {
+	readonly adminRoleAssignedUsers: number;
+	readonly adminRoleName: string;
+	readonly knownPermissionsSynced: number;
+};
 
 @Injectable()
 export class AuthorizationService {
 	constructor(
 		private readonly authorization: AuthorizationRepository,
+		private readonly database: DatabaseService,
 	) {}
 
 	getEffectivePermissions(
@@ -45,6 +55,55 @@ export class AuthorizationService {
 		return this.authorization.syncKnownPermissions(
 			Object.values(permissions),
 			transaction,
+		);
+	}
+
+	bootstrapPermissions(
+		adminClerkUserIds: readonly string[],
+	): Promise<PermissionBootstrapResult> {
+		const knownPermissions = Object.values(permissions);
+		const adminRoleName = "admin";
+
+		return this.database.transaction(
+			async (transaction) => {
+				await this.authorization.syncKnownPermissions(
+					knownPermissions,
+					transaction,
+				);
+
+				if (adminClerkUserIds.length === 0) {
+					return {
+						adminRoleAssignedUsers: 0,
+						adminRoleName,
+						knownPermissionsSynced: knownPermissions.length,
+					};
+				}
+
+				const roleId =
+					await this.authorization.upsertRoleWithPermissions(
+						{
+							description:
+								"Initial administrator role with all known permissions.",
+							name: adminRoleName,
+							permissions: knownPermissions,
+						},
+						transaction,
+					);
+				const assignedUsers =
+					await this.authorization.assignRoleToClerkUsers(
+						{
+							clerkUserIds: adminClerkUserIds,
+							roleId,
+						},
+						transaction,
+					);
+
+				return {
+					adminRoleAssignedUsers: assignedUsers,
+					adminRoleName,
+					knownPermissionsSynced: knownPermissions.length,
+				};
+			},
 		);
 	}
 }

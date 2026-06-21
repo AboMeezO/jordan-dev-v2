@@ -11,7 +11,8 @@
 		"test": "vitest run",
 		"db:generate": "prisma generate",
 		"db:migrate": "prisma migrate dev",
-		"db:validate": "prisma validate"
+		"db:validate": "prisma validate",
+		"permissions:bootstrap": "pnpm db:generate && tsx src/modules/authorization/bootstrap-permissions.ts"
 	},
 	"dependencies": {
 		"@clerk/backend": "^2.22.0",

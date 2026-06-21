@@ -21,6 +21,14 @@ The current schema intentionally includes only the identity and authorization
 tables needed for future features. Business tables should be added with the
 first real feature that needs them.
 
-Known permission IDs are not synchronized on application startup. Run
-permission synchronization explicitly after migrations when shared permission
-IDs are added or changed.
+Known permission IDs are not synchronized on application startup. Run the
+explicit bootstrap command after migrations when shared permission IDs are
+added or changed:
+
+```bash
+pnpm --dir apps/backend permissions:bootstrap
+```
+
+Set `INITIAL_ADMIN_CLERK_USER_ID` to a Clerk user ID when an initial local
+administrator role should be assigned. Leave it unset to sync only the
+permission catalog.

@@ -10,7 +10,9 @@ const commaSeparatedListSchema = z
 			.filter((item) => item.length > 0),
 	);
 
-export function createBackendEnv(runtimeEnv: NodeJS.ProcessEnv) {
+export function createBackendEnv(
+	runtimeEnv: NodeJS.ProcessEnv,
+) {
 	return createEnv({
 		emptyStringAsUndefined: true,
 		runtimeEnv,
@@ -21,12 +23,22 @@ export function createBackendEnv(runtimeEnv: NodeJS.ProcessEnv) {
 			CLERK_SECRET_KEY: z.string().min(1),
 			DATABASE_URL: z.string().min(1),
 			FRONTEND_ORIGIN: commaSeparatedListSchema.optional(),
+			INITIAL_ADMIN_CLERK_USER_ID: z
+				.string()
+				.min(1)
+				.optional(),
 			NODE_ENV: z
 				.enum(["development", "test", "production"])
 				.default("development"),
-			PORT: z.coerce.number().int().positive().default(3001),
+			PORT: z.coerce
+				.number()
+				.int()
+				.positive()
+				.default(3001),
 		},
 	});
 }
 
-export type BackendEnv = ReturnType<typeof createBackendEnv>;
+export type BackendEnv = ReturnType<
+	typeof createBackendEnv
+>;
