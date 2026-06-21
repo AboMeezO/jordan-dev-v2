@@ -20,3 +20,7 @@ Concurrency protection should come from:
 The current schema intentionally includes only the identity and authorization
 tables needed for future features. Business tables should be added with the
 first real feature that needs them.
+
+Known permission IDs are not synchronized on application startup. Run
+permission synchronization explicitly after migrations when shared permission
+IDs are added or changed.

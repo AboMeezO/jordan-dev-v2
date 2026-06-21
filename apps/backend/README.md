@@ -120,6 +120,14 @@ AuthorizationService
 
 Frontend permission gates are UX only. Backend guards and data checks are the security boundary.
 
+### Permission Synchronization
+
+`AuthorizationService.syncKnownPermissions()` can upsert the shared permission IDs into the database, but it is intentionally not run automatically at application startup.
+
+Reason: startup-time database writes are hidden production side effects. Permission synchronization should run as an explicit operational step when permissions are added or changed, or as part of a future seed/admin migration workflow.
+
+Until that workflow exists, run synchronization from a deliberate script or maintenance task that imports `AuthorizationService` and calls `syncKnownPermissions()` after database migrations have been applied.
+
 ## API Error Format
 
 Successful responses are wrapped by a global response interceptor:
