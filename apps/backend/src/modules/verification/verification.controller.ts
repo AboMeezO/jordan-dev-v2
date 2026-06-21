@@ -2,14 +2,11 @@ import {
 	completeVerificationRequestSchema,
 	type VerificationResult,
 } from "@jordan-devs/shared";
-import {
-	Body,
-	Controller,
-	Headers,
-	Post,
-	UnauthorizedException,
-} from "@nestjs/common";
+import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 
+import { CurrentUser } from "../../common/decorators/current-user.decorator.js";
+import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
+import { ClerkAuthGuard } from "../auth/clerk-auth.guard.js";
 import { VerificationService } from "./verification.service.js";
 
 @Controller("verification")
@@ -19,40 +16,16 @@ export class VerificationController {
 	) {}
 
 	@Post("complete")
+	@UseGuards(ClerkAuthGuard)
 	public async complete(
-		@Headers("authorization")
-		authorization: string | undefined,
+		@CurrentUser() user: AuthenticatedUser,
 		@Body() body: unknown,
 	): Promise<VerificationResult> {
-		const token = extractBearerToken(authorization);
-
-		if (token === undefined) {
-			throw new UnauthorizedException(
-				"Missing Bearer token.",
-			);
-		}
-
 		const request =
 			completeVerificationRequestSchema.parse(body);
 		return this.verificationService.completeVerification(
-			token,
+			user,
 			request,
 		);
 	}
-}
-
-function extractBearerToken(
-	authorization: string | undefined,
-): string | undefined {
-	const [scheme, token] = authorization?.split(" ") ?? [];
-
-	if (
-		scheme?.toLowerCase() !== "bearer" ||
-		token === undefined ||
-		token.length === 0
-	) {
-		return undefined;
-	}
-
-	return token;
 }
