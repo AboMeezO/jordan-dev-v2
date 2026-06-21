@@ -7,6 +7,7 @@ import { lazy, Suspense } from 'react'
 
 import ClerkProvider from '../integrations/clerk/provider'
 
+import { ThemeSync } from '../features/theme/theme-store'
 
 import appCss from '../styles.css?url'
 
@@ -16,7 +17,7 @@ interface MyRouterContext {
   queryClient: QueryClient
 }
 
-const themeBootScript = `(function(){try{var theme=window.localStorage.getItem('dashboard-theme');var isDark=theme==='dark'||(!theme&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',isDark);document.body&&document.body.classList.toggle('dark',isDark);}catch(error){}})();`
+const themeBootScript = `(function(){try{var theme=window.localStorage.getItem('dashboard-theme')||'system';var systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var isDark=theme==='dark'||(theme==='system'&&systemDark);document.documentElement.classList.toggle('dark',isDark);document.body&&document.body.classList.toggle('dark',isDark);}catch(error){}})();`
 
 const Devtools = import.meta.env.DEV
   ? lazy(() => import('../components/dev/Devtools'))
@@ -59,6 +60,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body suppressHydrationWarning>
         <ClerkProvider>
+          <ThemeSync />
           {children}
           {Devtools ? (
             <Suspense fallback={null}>
