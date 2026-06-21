@@ -8,6 +8,7 @@ import {
 
 import { AppModule } from "./app.module.js";
 import { ApiExceptionFilter } from "./common/filters/api-exception.filter.js";
+import { ApiResponseInterceptor } from "./common/interceptors/api-response.interceptor.js";
 import { BackendConfigService } from "./config/app.config.js";
 
 async function bootstrap(): Promise<void> {
@@ -19,6 +20,7 @@ async function bootstrap(): Promise<void> {
 
 	const config = app.get(BackendConfigService);
 	app.useGlobalFilters(new ApiExceptionFilter(config));
+	app.useGlobalInterceptors(new ApiResponseInterceptor());
 
 	app.enableCors({
 		credentials: true,
