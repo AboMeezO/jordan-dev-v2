@@ -1,48 +1,27 @@
-import { verifyToken } from "@clerk/backend";
 import type {
 	CompleteVerificationRequest,
 	VerificationResult,
 } from "@jordan-devs/shared";
-import {
-	Injectable,
-	UnauthorizedException,
-} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+
+import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
 
 @Injectable()
 export class VerificationService {
 	public async completeVerification(
-		token: string,
+		user: AuthenticatedUser,
 		request: CompleteVerificationRequest,
 	): Promise<VerificationResult> {
-		const clerkUserId = await this.verifyClerkToken(token);
-
 		return {
 			profile: {
-				clerkUserId,
+				clerkUserId: user.clerkUserId,
 				discordUserId: request.discordUserId,
-				email: null,
+				email: user.email,
 				guildId: request.guildId,
 			},
+			// Discord role granting is not implemented yet; keep the
+			// response explicit instead of pretending the side effect ran.
 			roleGranted: false,
 		};
-	}
-
-	private async verifyClerkToken(
-		token: string,
-	): Promise<string> {
-		try {
-			const verifiedToken = await verifyToken(token, {
-				authorizedParties:
-					process.env.CLERK_AUTHORIZED_PARTIES?.split(","),
-				jwtKey: process.env.CLERK_JWT_KEY,
-				secretKey: process.env.CLERK_SECRET_KEY,
-			});
-
-			return verifiedToken.sub;
-		} catch {
-			throw new UnauthorizedException(
-				"Clerk token could not be verified.",
-			);
-		}
 	}
 }
