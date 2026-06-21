@@ -1,12 +1,14 @@
-import { Injectable } from "@nestjs/common";
 import type { Permission } from "@jordan-devs/shared";
+import { Injectable } from "@nestjs/common";
 
 import {
 	DatabaseService,
 	type DatabaseTransactionClient,
 } from "../../database/database.service.js";
 
-type DatabaseClient = DatabaseService | DatabaseTransactionClient;
+type DatabaseClient =
+	| DatabaseService
+	| DatabaseTransactionClient;
 
 @Injectable()
 export class AuthorizationRepository {
@@ -16,20 +18,21 @@ export class AuthorizationRepository {
 		userId: string,
 		client: DatabaseClient = this.database,
 	): Promise<readonly Permission[]> {
-		const rolePermissions = await client.rolePermission.findMany({
-			where: {
-				role: {
-					users: {
-						some: {
-							userId,
+		const rolePermissions =
+			await client.rolePermission.findMany({
+				where: {
+					role: {
+						users: {
+							some: {
+								userId,
+							},
 						},
 					},
 				},
-			},
-			select: {
-				permissionId: true,
-			},
-		});
+				select: {
+					permissionId: true,
+				},
+			});
 
 		return [
 			...new Set(
@@ -56,4 +59,3 @@ export class AuthorizationRepository {
 		);
 	}
 }
-

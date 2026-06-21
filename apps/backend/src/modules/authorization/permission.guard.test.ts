@@ -1,11 +1,14 @@
 import {
+	type Permission,
+	permissions,
+} from "@jordan-devs/shared";
+import type { ExecutionContext } from "@nestjs/common";
+import {
 	ForbiddenException,
 	UnauthorizedException,
 } from "@nestjs/common";
-import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
-import { permissions, type Permission } from "@jordan-devs/shared";
 import { describe, expect, it, vi } from "vitest";
 
 import type { PermissionRequirement } from "../../common/types/permission-requirement.js";
@@ -19,7 +22,9 @@ describe("PermissionGuard", () => {
 			mockAuthorization([]),
 		);
 
-		await expect(guard.canActivate(mockContext())).resolves.toBe(true);
+		await expect(
+			guard.canActivate(mockContext()),
+		).resolves.toBe(true);
 	});
 
 	it("requires an authenticated request when permissions are declared", async () => {
@@ -31,9 +36,9 @@ describe("PermissionGuard", () => {
 			mockAuthorization([]),
 		);
 
-		await expect(guard.canActivate(mockContext())).rejects.toBeInstanceOf(
-			UnauthorizedException,
-		);
+		await expect(
+			guard.canActivate(mockContext()),
+		).rejects.toBeInstanceOf(UnauthorizedException);
 	});
 
 	it("denies missing permissions", async () => {
@@ -46,7 +51,9 @@ describe("PermissionGuard", () => {
 		);
 
 		await expect(
-			guard.canActivate(mockContext({ localUserId: "user_123" })),
+			guard.canActivate(
+				mockContext({ localUserId: "user_123" }),
+			),
 		).rejects.toBeInstanceOf(ForbiddenException);
 	});
 
@@ -60,7 +67,9 @@ describe("PermissionGuard", () => {
 		);
 
 		await expect(
-			guard.canActivate(mockContext({ localUserId: "user_123" })),
+			guard.canActivate(
+				mockContext({ localUserId: "user_123" }),
+			),
 		).resolves.toBe(true);
 	});
 });
@@ -85,15 +94,23 @@ function mockAuthorization(
 	userPermissions: readonly Permission[],
 ): AuthorizationService {
 	const authorization: AuthorizationServiceMock = {
-		getEffectivePermissions: vi.fn(async () => userPermissions),
+		getEffectivePermissions: vi.fn(() =>
+			Promise.resolve(userPermissions),
+		),
 		canAll: vi.fn(
-			(granted: readonly string[], required: readonly Permission[]) =>
+			(
+				granted: readonly string[],
+				required: readonly Permission[],
+			) =>
 				required.every((permission) =>
 					granted.includes(permission),
 				),
 		),
 		canAny: vi.fn(
-			(granted: readonly string[], required: readonly Permission[]) =>
+			(
+				granted: readonly string[],
+				required: readonly Permission[],
+			) =>
 				required.some((permission) =>
 					granted.includes(permission),
 				),
@@ -103,6 +120,12 @@ function mockAuthorization(
 	return authorization as AuthorizationService;
 }
 
-function mockContext(user?: { localUserId: string }): ExecutionContext {
-	return new ExecutionContextHost([{ user }], class {}, () => undefined);
+function mockContext(user?: {
+	localUserId: string;
+}): ExecutionContext {
+	return new ExecutionContextHost(
+		[{ user }],
+		class {},
+		() => undefined,
+	);
 }

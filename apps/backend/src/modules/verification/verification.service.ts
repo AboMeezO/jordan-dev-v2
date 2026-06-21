@@ -8,10 +8,10 @@ import type { AuthenticatedUser } from "../../common/types/authenticated-request
 
 @Injectable()
 export class VerificationService {
-	public async completeVerification(
+	public completeVerification(
 		user: AuthenticatedUser,
 		request: CompleteVerificationRequest,
-	): Promise<VerificationResult> {
+	): VerificationResult {
 		return {
 			profile: {
 				clerkUserId: user.clerkUserId,

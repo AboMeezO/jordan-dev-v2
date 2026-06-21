@@ -9,17 +9,21 @@ describe("UserService", () => {
 			UserRepository,
 			"upsertFromClerkIdentity"
 		> = {
-			upsertFromClerkIdentity: vi.fn(async () => ({
-				id: "user_123",
-				clerkUserId: "clerk_123",
-				email: "user@example.com",
-				displayName: "User",
-				avatarUrl: null,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			})),
+			upsertFromClerkIdentity: vi.fn(() =>
+				Promise.resolve({
+					id: "user_123",
+					clerkUserId: "clerk_123",
+					email: "user@example.com",
+					displayName: "User",
+					avatarUrl: null,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				}),
+			),
 		};
-		const service = new UserService(repository as UserRepository);
+		const service = new UserService(
+			repository as UserRepository,
+		);
 
 		await expect(
 			service.upsertFromClerkIdentity({
@@ -30,7 +34,9 @@ describe("UserService", () => {
 			id: "user_123",
 			clerkUserId: "clerk_123",
 		});
-		expect(repository.upsertFromClerkIdentity).toHaveBeenCalledWith(
+		expect(
+			repository.upsertFromClerkIdentity,
+		).toHaveBeenCalledWith(
 			{
 				clerkUserId: "clerk_123",
 				email: "user@example.com",
@@ -39,4 +45,3 @@ describe("UserService", () => {
 		);
 	});
 });
-

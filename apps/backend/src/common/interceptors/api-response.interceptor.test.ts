@@ -1,4 +1,4 @@
-import type { CallHandler, ExecutionContext } from "@nestjs/common";
+import type { ExecutionContext } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { firstValueFrom, of } from "rxjs";
@@ -12,12 +12,9 @@ describe("ApiResponseInterceptor", () => {
 			mockReflector(false),
 		);
 		const result = await firstValueFrom(
-			interceptor.intercept(
-				mockContext(),
-				{
-					handle: () => of({ status: "ok" }),
-				} as CallHandler,
-			),
+			interceptor.intercept(mockContext(), {
+				handle: () => of({ status: "ok" }),
+			}),
 		);
 
 		expect(result).toEqual({
@@ -32,12 +29,9 @@ describe("ApiResponseInterceptor", () => {
 		);
 		const payload = { raw: true };
 		const result = await firstValueFrom(
-			interceptor.intercept(
-				mockContext(),
-				{
-					handle: () => of(payload),
-				} as CallHandler,
-			),
+			interceptor.intercept(mockContext(), {
+				handle: () => of(payload),
+			}),
 		);
 
 		expect(result).toBe(payload);
@@ -54,5 +48,9 @@ function mockReflector(skipTransform: boolean): Reflector {
 }
 
 function mockContext(): ExecutionContext {
-	return new ExecutionContextHost([], class {}, () => undefined);
+	return new ExecutionContextHost(
+		[],
+		class {},
+		() => undefined,
+	);
 }

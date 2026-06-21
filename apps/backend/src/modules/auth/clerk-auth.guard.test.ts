@@ -1,5 +1,5 @@
-import { UnauthorizedException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
+import { UnauthorizedException } from "@nestjs/common";
 import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { describe, expect, it, vi } from "vitest";
 
@@ -9,7 +9,9 @@ import { ClerkAuthGuard } from "./clerk-auth.guard.js";
 
 describe("ClerkAuthGuard", () => {
 	it("rejects requests without a bearer token", async () => {
-		const guard = new ClerkAuthGuard(mockAuthService(undefined));
+		const guard = new ClerkAuthGuard(
+			mockAuthService(undefined),
+		);
 
 		await expect(
 			guard.canActivate(mockContext(undefined)),
@@ -18,14 +20,19 @@ describe("ClerkAuthGuard", () => {
 
 	it("attaches authenticated users to the request", async () => {
 		const auth = mockAuthService("token");
-		const request = { headers: { authorization: "Bearer token" } };
+		const request = {
+			headers: { authorization: "Bearer token" },
+		};
 		const guard = new ClerkAuthGuard(auth);
 
 		await expect(
 			guard.canActivate(mockContext(request)),
 		).resolves.toBe(true);
 		expect(request).toMatchObject({
-			user: { clerkUserId: "clerk_123", localUserId: "user_123" },
+			user: {
+				clerkUserId: "clerk_123",
+				localUserId: "user_123",
+			},
 		});
 	});
 });
@@ -35,16 +42,20 @@ type AuthServiceMock = Pick<
 	"extractBearerToken" | "authenticateBearerToken"
 >;
 
-function mockAuthService(token: string | undefined): AuthService {
+function mockAuthService(
+	token: string | undefined,
+): AuthService {
 	const auth: AuthServiceMock = {
 		extractBearerToken: vi.fn(() => token),
-		authenticateBearerToken: vi.fn(async () => ({
-			clerkUserId: "clerk_123",
-			localUserId: "user_123",
-			email: null,
-			displayName: null,
-			avatarUrl: null,
-		})),
+		authenticateBearerToken: vi.fn(() =>
+			Promise.resolve({
+				clerkUserId: "clerk_123",
+				localUserId: "user_123",
+				email: null,
+				displayName: null,
+				avatarUrl: null,
+			}),
+		),
 	};
 
 	return auth as AuthService;
@@ -55,9 +66,11 @@ type MockRequest = {
 	user?: AuthenticatedUser;
 };
 
-function mockContext(request?: MockRequest): ExecutionContext {
-	const contextRequest = request ?? ({ headers: {} } satisfies MockRequest);
+function mockContext(
+	request?: MockRequest,
+): ExecutionContext {
+	const contextRequest =
+		request ?? ({ headers: {} } satisfies MockRequest);
 
 	return new ExecutionContextHost([contextRequest]);
 }
-

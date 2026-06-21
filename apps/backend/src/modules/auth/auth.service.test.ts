@@ -1,6 +1,12 @@
 import { verifyToken } from "@clerk/backend";
 import { UnauthorizedException } from "@nestjs/common";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 
 import type { BackendConfigService } from "../../config/app.config.js";
 import type { UserService } from "../users/user.service.js";
@@ -20,7 +26,10 @@ describe("AuthService", () => {
 	it.each([
 		["invalid token", new Error("invalid token")],
 		["expired token", new Error("token expired")],
-		["verification failure", new Error("verification failed")],
+		[
+			"verification failure",
+			new Error("verification failed"),
+		],
 	])("%s fails safely", async (_label, error) => {
 		verifyTokenMock.mockRejectedValueOnce(error);
 		const service = createAuthService();
@@ -42,7 +51,8 @@ describe("AuthService", () => {
 	});
 
 	it("maps primary Clerk profile claims into local user identity", async () => {
-		const users = createUserService();
+		const { service: users, upsertFromClerkIdentity } =
+			createUserService();
 		mockVerifiedClaims({
 			sub: "clerk_123",
 			email: "user@example.com",
@@ -56,7 +66,7 @@ describe("AuthService", () => {
 
 		await service.authenticateBearerToken("token");
 
-		expect(users.upsertFromClerkIdentity).toHaveBeenCalledWith({
+		expect(upsertFromClerkIdentity).toHaveBeenCalledWith({
 			clerkUserId: "clerk_123",
 			email: "user@example.com",
 			displayName: "Primary Name",
@@ -65,7 +75,8 @@ describe("AuthService", () => {
 	});
 
 	it("uses fallback Clerk profile claims when primary claims are missing", async () => {
-		const users = createUserService();
+		const { service: users, upsertFromClerkIdentity } =
+			createUserService();
 		mockVerifiedClaims({
 			sub: "clerk_123",
 			email_address: "fallback@example.com",
@@ -76,7 +87,7 @@ describe("AuthService", () => {
 
 		await service.authenticateBearerToken("token");
 
-		expect(users.upsertFromClerkIdentity).toHaveBeenCalledWith({
+		expect(upsertFromClerkIdentity).toHaveBeenCalledWith({
 			clerkUserId: "clerk_123",
 			email: "fallback@example.com",
 			displayName: "Fallback Name",
@@ -85,7 +96,8 @@ describe("AuthService", () => {
 	});
 
 	it("maps missing optional claims to null values", async () => {
-		const users = createUserService();
+		const { service: users, upsertFromClerkIdentity } =
+			createUserService();
 		mockVerifiedClaims({
 			sub: "clerk_123",
 		});
@@ -93,7 +105,7 @@ describe("AuthService", () => {
 
 		await service.authenticateBearerToken("token");
 
-		expect(users.upsertFromClerkIdentity).toHaveBeenCalledWith({
+		expect(upsertFromClerkIdentity).toHaveBeenCalledWith({
 			clerkUserId: "clerk_123",
 			email: null,
 			displayName: null,
@@ -122,14 +134,16 @@ describe("AuthService", () => {
 	});
 });
 
-function mockVerifiedClaims(claims: Record<string, unknown>): void {
+function mockVerifiedClaims(
+	claims: Record<string, unknown>,
+): void {
 	verifyTokenMock.mockResolvedValueOnce(
 		claims as Awaited<ReturnType<typeof verifyToken>>,
 	);
 }
 
 function createAuthService(
-	users: UserService = createUserService(),
+	users: UserService = createUserService().service,
 ): AuthService {
 	const config = {
 		clerkAuthorizedParties: ["http://localhost:3000"],
@@ -140,11 +154,17 @@ function createAuthService(
 	return new AuthService(config, users);
 }
 
-type UserServiceMock = Pick<UserService, "upsertFromClerkIdentity">;
+type UserServiceMock = Pick<
+	UserService,
+	"upsertFromClerkIdentity"
+>;
 
-function createUserService(): UserService {
-	const users: UserServiceMock = {
-		upsertFromClerkIdentity: vi.fn(async () => ({
+function createUserService(): {
+	service: UserService;
+	upsertFromClerkIdentity: UserServiceMock["upsertFromClerkIdentity"];
+} {
+	const upsertFromClerkIdentity = vi.fn(() =>
+		Promise.resolve({
 			id: "user_123",
 			clerkUserId: "clerk_123",
 			email: "persisted@example.com",
@@ -152,8 +172,14 @@ function createUserService(): UserService {
 			avatarUrl: "https://example.com/persisted.png",
 			createdAt: new Date("2026-01-01T00:00:00.000Z"),
 			updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-		})),
+		}),
+	);
+	const users: UserServiceMock = {
+		upsertFromClerkIdentity,
 	};
 
-	return users as UserService;
+	return {
+		service: users as UserService,
+		upsertFromClerkIdentity,
+	};
 }

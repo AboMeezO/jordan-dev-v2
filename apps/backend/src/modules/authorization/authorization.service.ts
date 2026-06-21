@@ -1,8 +1,8 @@
 import {
 	canAll,
 	canAny,
-	permissions,
 	type Permission,
+	permissions,
 } from "@jordan-devs/shared";
 import { Injectable } from "@nestjs/common";
 
@@ -19,7 +19,10 @@ export class AuthorizationService {
 		userId: string,
 		transaction?: DatabaseTransactionClient,
 	): Promise<readonly Permission[]> {
-		return this.authorization.getUserPermissions(userId, transaction);
+		return this.authorization.getUserPermissions(
+			userId,
+			transaction,
+		);
 	}
 
 	canAll(
@@ -45,4 +48,3 @@ export class AuthorizationService {
 		);
 	}
 }
-

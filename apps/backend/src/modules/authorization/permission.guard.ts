@@ -7,11 +7,11 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
-import {
-	PERMISSIONS_METADATA_KEY,
-	type PermissionRequirement,
-} from "../../common/types/permission-requirement.js";
 import type { AuthenticatedRequest } from "../../common/types/authenticated-request.js";
+import {
+	type PermissionRequirement,
+	PERMISSIONS_METADATA_KEY,
+} from "../../common/types/permission-requirement.js";
 import { AuthorizationService } from "./authorization.service.js";
 
 @Injectable()
@@ -21,7 +21,9 @@ export class PermissionGuard implements CanActivate {
 		private readonly authorization: AuthorizationService,
 	) {}
 
-	async canActivate(context: ExecutionContext): Promise<boolean> {
+	async canActivate(
+		context: ExecutionContext,
+	): Promise<boolean> {
 		const requirement =
 			this.reflector.getAllAndOverride<PermissionRequirement>(
 				PERMISSIONS_METADATA_KEY,
@@ -40,7 +42,9 @@ export class PermissionGuard implements CanActivate {
 			.getRequest<AuthenticatedRequest>();
 
 		if (request.user === undefined) {
-			throw new UnauthorizedException("Authentication is required.");
+			throw new UnauthorizedException(
+				"Authentication is required.",
+			);
 		}
 
 		const effectivePermissions =
@@ -61,7 +65,9 @@ export class PermissionGuard implements CanActivate {
 					);
 
 		if (!allowed) {
-			throw new ForbiddenException("Missing required permission.");
+			throw new ForbiddenException(
+				"Missing required permission.",
+			);
 		}
 
 		return true;

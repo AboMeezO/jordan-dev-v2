@@ -10,15 +10,17 @@ import { ZodError } from "zod";
 
 import { BackendConfigService } from "../../config/app.config.js";
 import {
+	type ApiError,
 	ApiErrorException,
 	createApiError,
-	type ApiError,
 } from "../errors/api-error.js";
 import { normalizeZodFieldErrors } from "../validation/zod-validation.pipe.js";
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
-	constructor(private readonly config: BackendConfigService) {}
+	constructor(
+		private readonly config: BackendConfigService,
+	) {}
 
 	catch(exception: unknown, host: ArgumentsHost): void {
 		const response = host
@@ -26,7 +28,9 @@ export class ApiExceptionFilter implements ExceptionFilter {
 			.getResponse<FastifyReply>();
 		const normalized = this.normalizeException(exception);
 
-		response.status(normalized.statusCode).send(normalized.error);
+		response
+			.status(normalized.statusCode)
+			.send(normalized.error);
 	}
 
 	private normalizeException(exception: unknown): {
@@ -57,7 +61,10 @@ export class ApiExceptionFilter implements ExceptionFilter {
 
 			return {
 				statusCode,
-				error: this.normalizeHttpResponse(statusCode, response),
+				error: this.normalizeHttpResponse(
+					statusCode,
+					response,
+				),
 			};
 		}
 
@@ -112,7 +119,8 @@ function isApiError(value: unknown): value is ApiError {
 }
 
 function getResponseMessage(response: object): string {
-	const message = (response as { message?: unknown }).message;
+	const message = (response as { message?: unknown })
+		.message;
 
 	if (Array.isArray(message)) {
 		return message.join(", ");
@@ -126,7 +134,10 @@ function getResponseMessage(response: object): string {
 }
 
 function getErrorMessage(exception: unknown): string {
-	if (exception instanceof Error && exception.message.length > 0) {
+	if (
+		exception instanceof Error &&
+		exception.message.length > 0
+	) {
 		return exception.message;
 	}
 
@@ -135,13 +146,13 @@ function getErrorMessage(exception: unknown): string {
 
 function statusToCode(statusCode: number): string {
 	switch (statusCode) {
-		case HttpStatus.BAD_REQUEST:
+		case 400:
 			return "BAD_REQUEST";
-		case HttpStatus.UNAUTHORIZED:
+		case 401:
 			return "UNAUTHORIZED";
-		case HttpStatus.FORBIDDEN:
+		case 403:
 			return "FORBIDDEN";
-		case HttpStatus.NOT_FOUND:
+		case 404:
 			return "NOT_FOUND";
 		default:
 			return statusCode >= 500
@@ -149,4 +160,3 @@ function statusToCode(statusCode: number): string {
 				: "REQUEST_FAILED";
 	}
 }
-

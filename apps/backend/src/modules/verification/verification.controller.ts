@@ -1,9 +1,14 @@
 import {
-	completeVerificationRequestSchema,
 	type CompleteVerificationRequest,
+	completeVerificationRequestSchema,
 	type VerificationResult,
 } from "@jordan-devs/shared";
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Post,
+	UseGuards,
+} from "@nestjs/common";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator.js";
 import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
@@ -19,11 +24,15 @@ export class VerificationController {
 
 	@Post("complete")
 	@UseGuards(ClerkAuthGuard)
-	public async complete(
+	public complete(
 		@CurrentUser() user: AuthenticatedUser,
-		@Body(new ZodValidationPipe(completeVerificationRequestSchema))
+		@Body(
+			new ZodValidationPipe(
+				completeVerificationRequestSchema,
+			),
+		)
 		request: CompleteVerificationRequest,
-	): Promise<VerificationResult> {
+	): VerificationResult {
 		return this.verificationService.completeVerification(
 			user,
 			request,

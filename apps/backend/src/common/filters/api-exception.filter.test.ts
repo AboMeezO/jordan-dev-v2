@@ -1,17 +1,19 @@
+import type { ArgumentsHost } from "@nestjs/common";
 import {
-	ArgumentsHost,
 	ForbiddenException,
 	UnauthorizedException,
 } from "@nestjs/common";
 import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { describe, expect, it, vi } from "vitest";
 
-import { BackendConfigService } from "../../config/app.config.js";
+import type { BackendConfigService } from "../../config/app.config.js";
 import { ApiExceptionFilter } from "./api-exception.filter.js";
 
 describe("ApiExceptionFilter", () => {
 	it("normalizes auth errors", () => {
-		const sent = runFilter(new UnauthorizedException("No token"));
+		const sent = runFilter(
+			new UnauthorizedException("No token"),
+		);
 
 		expect(sent.statusCode).toBe(401);
 		expect(sent.body).toEqual({
@@ -21,7 +23,9 @@ describe("ApiExceptionFilter", () => {
 	});
 
 	it("normalizes forbidden errors", () => {
-		const sent = runFilter(new ForbiddenException("Denied"));
+		const sent = runFilter(
+			new ForbiddenException("Denied"),
+		);
 
 		expect(sent.statusCode).toBe(403);
 		expect(sent.body).toEqual({
@@ -59,4 +63,3 @@ function runFilter(exception: unknown): {
 
 	return { statusCode, body };
 }
-

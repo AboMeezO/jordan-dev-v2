@@ -1,6 +1,6 @@
-import { HttpStatus, Injectable } from "@nestjs/common";
-import { sessionBootstrapSchema } from "@jordan-devs/shared";
 import type { SessionBootstrap } from "@jordan-devs/shared";
+import { sessionBootstrapSchema } from "@jordan-devs/shared";
+import { HttpStatus, Injectable } from "@nestjs/common";
 
 import {
 	ApiErrorException,
@@ -20,7 +20,9 @@ export class SessionService {
 	async getSessionBootstrap(
 		authenticatedUser: AuthenticatedUser,
 	): Promise<SessionBootstrap> {
-		const user = await this.users.findById(authenticatedUser.localUserId);
+		const user = await this.users.findById(
+			authenticatedUser.localUserId,
+		);
 
 		if (user === null) {
 			throw new ApiErrorException(
@@ -33,7 +35,9 @@ export class SessionService {
 		}
 
 		const permissions =
-			await this.authorization.getEffectivePermissions(user.id);
+			await this.authorization.getEffectivePermissions(
+				user.id,
+			);
 
 		return sessionBootstrapSchema.parse({
 			user: {

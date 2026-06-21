@@ -4,7 +4,7 @@ import type { AuthenticatedUser } from "../../common/types/authenticated-request
 import { VerificationService } from "./verification.service.js";
 
 describe("VerificationService", () => {
-	it("returns the verified user profile and does not fake Discord role granting", async () => {
+	it("returns the verified user profile and does not fake Discord role granting", () => {
 		const service = new VerificationService();
 		const user: AuthenticatedUser = {
 			clerkUserId: "clerk_123",
@@ -14,12 +14,12 @@ describe("VerificationService", () => {
 			avatarUrl: null,
 		};
 
-		await expect(
+		expect(
 			service.completeVerification(user, {
 				discordUserId: "discord_123",
 				guildId: "guild_123",
 			}),
-		).resolves.toEqual({
+		).toEqual({
 			profile: {
 				clerkUserId: "clerk_123",
 				discordUserId: "discord_123",
@@ -30,4 +30,3 @@ describe("VerificationService", () => {
 		});
 	});
 });
-

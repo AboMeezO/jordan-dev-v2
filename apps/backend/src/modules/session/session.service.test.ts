@@ -1,7 +1,16 @@
-import type { Permission } from "@jordan-devs/shared";
+import {
+	type Permission,
+	permissions as knownPermissions,
+} from "@jordan-devs/shared";
 import { sessionBootstrapSchema } from "@jordan-devs/shared";
 import type { User } from "@prisma/client";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 
 import {
 	ApiErrorException,
@@ -25,20 +34,12 @@ describe("SessionService", () => {
 		avatarUrl: "https://example.com/avatar.png",
 	};
 
-	const mockUser = {
-		id: "user_123",
-		clerkUserId: "clerk_123",
-		email: "persisted@example.com",
-		displayName: "Persisted User",
-		avatarUrl: "https://example.com/persisted.png",
-		createdAt: new Date("2026-01-01T00:00:00.000Z"),
-		updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-	} as User;
-
 	it("returns local user and effective permissions", async () => {
 		const service = createSessionService();
 
-		const result = await service.getSessionBootstrap(authenticatedUser);
+		const result = await service.getSessionBootstrap(
+			authenticatedUser,
+		);
 
 		expect(result.user).toEqual({
 			id: "user_123",
@@ -46,34 +47,49 @@ describe("SessionService", () => {
 			email: "persisted@example.com",
 			displayName: "Persisted User",
 			avatarUrl: "https://example.com/persisted.png",
-			createdAt: expect.any(String),
-			updatedAt: expect.any(String),
+			createdAt: result.user.createdAt,
+			updatedAt: result.user.updatedAt,
 		});
-		expect(result.permissions).toEqual(["dashboard:read", "guild:read"]);
+		expect(result.permissions).toEqual([
+			"dashboard:read",
+			"guild:read",
+		]);
 	});
 
 	it("maps createdAt and updatedAt to ISO strings", async () => {
 		const service = createSessionService();
 
-		const result = await service.getSessionBootstrap(authenticatedUser);
+		const result = await service.getSessionBootstrap(
+			authenticatedUser,
+		);
 
-		expect(result.user.createdAt).toBe("2026-01-01T00:00:00.000Z");
-		expect(result.user.updatedAt).toBe("2026-01-01T00:00:00.000Z");
+		expect(result.user.createdAt).toBe(
+			"2026-01-01T00:00:00.000Z",
+		);
+		expect(result.user.updatedAt).toBe(
+			"2026-01-01T00:00:00.000Z",
+		);
 	});
 
 	it("output passes sessionBootstrapSchema", async () => {
 		const service = createSessionService();
 
-		const result = await service.getSessionBootstrap(authenticatedUser);
+		const result = await service.getSessionBootstrap(
+			authenticatedUser,
+		);
 
-		expect(() => sessionBootstrapSchema.parse(result)).not.toThrow();
+		expect(() =>
+			sessionBootstrapSchema.parse(result),
+		).not.toThrow();
 	});
 
 	it("returns permissions: [] when the user has no effective permissions", async () => {
 		const authorization = createAuthorizationService([]);
 		const service = createSessionService(authorization);
 
-		const result = await service.getSessionBootstrap(authenticatedUser);
+		const result = await service.getSessionBootstrap(
+			authenticatedUser,
+		);
 
 		expect(result.permissions).toEqual([]);
 	});
@@ -81,7 +97,9 @@ describe("SessionService", () => {
 	it("does not expose raw Clerk claims", async () => {
 		const service = createSessionService();
 
-		const result = await service.getSessionBootstrap(authenticatedUser);
+		const result = await service.getSessionBootstrap(
+			authenticatedUser,
+		);
 
 		expect(result).not.toHaveProperty("sessionClaims");
 		expect(result).not.toHaveProperty("clerkToken");
@@ -125,10 +143,13 @@ function createAuthorizationService(
 		AuthorizationService,
 		"getEffectivePermissions"
 	> = {
-		getEffectivePermissions: vi.fn(async () =>
-			permissions !== undefined
-				? permissions
-				: (["dashboard:read", "guild:read"] as unknown as readonly Permission[]),
+		getEffectivePermissions: vi.fn(() =>
+			Promise.resolve(
+				permissions ?? [
+					knownPermissions.dashboardRead,
+					knownPermissions.guildRead,
+				],
+			),
 		),
 	};
 
@@ -144,14 +165,16 @@ function mockUserData(): User {
 		avatarUrl: "https://example.com/persisted.png",
 		createdAt: new Date("2026-01-01T00:00:00.000Z"),
 		updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-	} as User;
+	};
 }
 
 type UserServiceMock = Pick<UserService, "findById">;
 
-function createUserService(returnValue: User | null): UserService {
+function createUserService(
+	returnValue: User | null,
+): UserService {
 	const users: UserServiceMock = {
-		findById: vi.fn(async () => returnValue),
+		findById: vi.fn(() => Promise.resolve(returnValue)),
 	};
 
 	return users as UserService;
