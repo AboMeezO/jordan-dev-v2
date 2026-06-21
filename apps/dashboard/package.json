@@ -9,6 +9,7 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
+    "check:bundle": "node scripts/check-bundle-size.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
