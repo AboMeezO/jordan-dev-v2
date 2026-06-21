@@ -400,3 +400,122 @@ function nodeFill(tone: GraphNode['tone']) {
   if (tone === 'danger') return 'var(--nd-accent)'
   return 'var(--nd-text-display)'
 }
+
+export type StatusCountPoint = { label: string; value: number }
+export type RoleCountPoint = { role: string; users: number }
+
+export function VerificationStatusChart({
+  data,
+}: {
+  data: Array<StatusCountPoint>
+}) {
+  const chartData = data.length > 0 ? data : [{ label: 'No data', value: 1 }]
+
+  const accentFill = 'var(--nd-accent)'
+  const displayFill = 'var(--nd-text-display)'
+  const secondaryFill = 'var(--nd-text-secondary)'
+  const successFill = 'var(--nd-success)'
+  const warningFill = 'var(--nd-warning)'
+
+  const fills = [successFill, warningFill, accentFill, displayFill, secondaryFill]
+
+  return (
+    <div className="grid gap-5">
+      <MeasuredChartFrame height={190}>
+        {({ height, width }) => (
+          <PieChart height={height} width={width}>
+            <Tooltip content={<ChartTooltip />} />
+            <Pie
+              cx="50%"
+              cy="50%"
+              data={chartData}
+              dataKey="value"
+              innerRadius={54}
+              isAnimationActive={false}
+              nameKey="label"
+              outerRadius={82}
+              paddingAngle={2}
+              stroke="var(--nd-surface)"
+              strokeWidth={2}
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  fill={fills[index % fills.length]}
+                  key={entry.label}
+                />
+              ))}
+            </Pie>
+          </PieChart>
+        )}
+      </MeasuredChartFrame>
+      <div className="grid gap-2">
+        {chartData.map((segment) => (
+          <div
+            className="flex items-center justify-between border-b border-[var(--nd-border)] pb-2 last:border-0"
+            key={segment.label}
+          >
+            <span className="nd-label">{segment.label}</span>
+            <span className="font-mono text-sm">{segment.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function UsersByRoleChart({
+  data,
+}: {
+  data: Array<RoleCountPoint>
+}) {
+  const chartData = data.length > 0 ? data : [{ role: 'no data', users: 0 }]
+
+  return (
+    <MeasuredChartFrame>
+      {({ height, width }) => (
+        <BarChart
+          data={chartData}
+          height={height}
+          margin={{ bottom: 0, left: -24, right: 4, top: 16 }}
+          width={width}
+        >
+          <CartesianGrid stroke="var(--nd-border)" vertical={false} />
+          <XAxis
+            axisLine={false}
+            dataKey="role"
+            fontFamily="var(--font-mono)"
+            fontSize={10}
+            stroke="var(--nd-text-disabled)"
+            tickLine={false}
+            tickMargin={12}
+          />
+          <YAxis
+            allowDecimals={false}
+            axisLine={false}
+            fontFamily="var(--font-mono)"
+            fontSize={10}
+            stroke="var(--nd-text-disabled)"
+            tickLine={false}
+          />
+          <Tooltip
+            content={<ChartTooltip />}
+            cursor={{ fill: 'var(--nd-surface-raised)' }}
+          />
+          <Bar
+            dataKey="users"
+            isAnimationActive={false}
+            name="Users"
+            radius={0}
+          >
+            {chartData.map((entry) => (
+              <Cell
+                fill="var(--nd-text-display)"
+                key={entry.role}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      )}
+    </MeasuredChartFrame>
+  )
+}
