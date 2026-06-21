@@ -21,7 +21,13 @@ export function ProtectedRoute({
   const { isLoaded, isSignedIn, sessionClaims } = useAuth()
 
   if (!isLoaded) {
-    return <ProtectedRouteState label="Auth" title="[CHECKING SESSION]" />
+    return (
+      <ProtectedRouteState
+        description="We are verifying your dashboard access."
+        label="Auth"
+        title="Checking your session..."
+      />
+    )
   }
 
   if (!isSignedIn) {
@@ -34,6 +40,7 @@ export function ProtectedRoute({
             </Button>
           </SignInButton>
         }
+        description="Use your Jordan Devs account to access the dashboard."
         label="Protected"
         title="Sign in to continue"
       />
@@ -43,8 +50,9 @@ export function ProtectedRoute({
   if (!hasRequiredPermissions(sessionClaims, requiredPermissions)) {
     return (
       <ProtectedRouteState
+        description="Your account is signed in, but it is missing the required dashboard permission."
         label="Forbidden"
-        title="[MISSING PERMISSION]"
+        title="You do not have access"
         tone="danger"
       />
     )
@@ -55,11 +63,13 @@ export function ProtectedRoute({
 
 function ProtectedRouteState({
   action,
+  description,
   label,
   title,
   tone = 'default',
 }: {
   action?: ReactNode
+  description?: string
   label: string
   title: string
   tone?: 'default' | 'danger'
@@ -77,6 +87,11 @@ function ProtectedRouteState({
         >
           {title}
         </h1>
+        {description ? (
+          <p className="mt-3 text-sm leading-6 text-[var(--nd-text-muted)]">
+            {description}
+          </p>
+        ) : null}
         {action ? <div className="mt-6">{action}</div> : null}
       </section>
     </main>
