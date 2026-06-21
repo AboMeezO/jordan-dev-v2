@@ -149,16 +149,18 @@ export function DashboardSidebar({
             </div>
             <Gauge className="size-5 shrink-0 text-[var(--nd-text-secondary)]" />
           </div>
-          <Button
+          <button
             aria-label="Settings"
+            disabled
             className={
               compactMode
-                ? 'h-10 w-full overflow-hidden rounded-full px-0 transition-[padding] duration-180'
-                : 'rounded-full font-mono text-xs uppercase tracking-[0.1em]'
+                ? 'flex h-12 w-full cursor-not-allowed items-center justify-center overflow-hidden text-[var(--nd-text-disabled)] opacity-70 transition-colors duration-180'
+                : 'flex h-12 w-full cursor-not-allowed items-center gap-3 overflow-hidden border-l-2 border-transparent px-3 font-mono text-xs uppercase tracking-[0.1em] text-[var(--nd-text-disabled)] opacity-70 transition-colors duration-180'
             }
-            variant="outline"
+            title="Settings are not available yet"
+            type="button"
           >
-            <Settings className="size-4" />
+            <Settings className="size-5 shrink-0" strokeWidth={1.5} />
             <span
               aria-hidden={compactMode}
               className={`overflow-hidden whitespace-nowrap transition-[width,opacity] duration-180 ${
@@ -167,7 +169,7 @@ export function DashboardSidebar({
             >
               Settings
             </span>
-          </Button>
+          </button>
         </div>
       </div>
     </aside>

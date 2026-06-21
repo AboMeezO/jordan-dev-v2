@@ -164,7 +164,10 @@ export function DashboardOverview({
         <ChartPanel
           action={
             <Button
+              aria-disabled="true"
               className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+              disabled
+              title="Export is not available yet"
               variant="outline"
             >
               Export
@@ -192,14 +195,20 @@ export function DashboardOverview({
             </div>
             <div className="flex gap-2">
               <Button
+                aria-disabled="true"
                 className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+                disabled
+                title="Command actions are not available yet"
                 variant="outline"
               >
                 <Command className="size-4" />
                 Command
               </Button>
               <Button
+                aria-disabled="true"
                 className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+                disabled
+                title="Adding modules is not available yet"
                 variant="outline"
               >
                 Add

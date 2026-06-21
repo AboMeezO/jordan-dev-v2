@@ -75,7 +75,12 @@ export function DashboardTopbar({
         <Moon className="size-4 dark:hidden" />
       </Button>
 
-      <Button className="rounded-full font-mono text-xs uppercase tracking-[0.1em]">
+      <Button
+        aria-disabled="true"
+        className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+        disabled
+        title="Sync is not available yet"
+      >
         <RefreshCcw className="size-4" />
         <span className="hidden sm:inline">Sync</span>
       </Button>
