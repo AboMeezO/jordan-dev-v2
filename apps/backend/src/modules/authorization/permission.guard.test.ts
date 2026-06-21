@@ -3,7 +3,8 @@ import {
 	UnauthorizedException,
 } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
-import type { Reflector } from "@nestjs/core";
+import { Reflector } from "@nestjs/core";
+import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { permissions, type Permission } from "@jordan-devs/shared";
 import { describe, expect, it, vi } from "vitest";
 
@@ -67,15 +68,23 @@ describe("PermissionGuard", () => {
 function mockReflector(
 	requirement: PermissionRequirement | undefined,
 ): Reflector {
-	return {
-		getAllAndOverride: vi.fn(() => requirement),
-	} as unknown as Reflector;
+	const reflector = new Reflector();
+	vi.spyOn(reflector, "getAllAndOverride").mockReturnValue(
+		requirement,
+	);
+
+	return reflector;
 }
 
+type AuthorizationServiceMock = Pick<
+	AuthorizationService,
+	"getEffectivePermissions" | "canAll" | "canAny"
+>;
+
 function mockAuthorization(
-	userPermissions: readonly string[],
+	userPermissions: readonly Permission[],
 ): AuthorizationService {
-	return {
+	const authorization: AuthorizationServiceMock = {
 		getEffectivePermissions: vi.fn(async () => userPermissions),
 		canAll: vi.fn(
 			(granted: readonly string[], required: readonly Permission[]) =>
@@ -89,15 +98,11 @@ function mockAuthorization(
 					granted.includes(permission),
 				),
 		),
-	} as unknown as AuthorizationService;
+	};
+
+	return authorization as AuthorizationService;
 }
 
 function mockContext(user?: { localUserId: string }): ExecutionContext {
-	return {
-		getHandler: vi.fn(),
-		getClass: vi.fn(),
-		switchToHttp: () => ({
-			getRequest: () => ({ user }),
-		}),
-	} as unknown as ExecutionContext;
+	return new ExecutionContextHost([{ user }], class {}, () => undefined);
 }

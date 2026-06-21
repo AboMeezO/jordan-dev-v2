@@ -1,4 +1,5 @@
 import { promises as dns } from "node:dns";
+import type { CaaRecord } from "node:dns";
 
 import { z } from "zod";
 
@@ -78,14 +79,41 @@ async function resolveDNS(
 		}
 		case "CAA": {
 			const r = await dns.resolveCaa(hostname);
-			return r.map(
-				(e) =>
-					`${(e as unknown as { flags: number }).flags} ${(e as unknown as { tag: string }).tag} "${(e as unknown as { value: string }).value}"`,
-			);
+			return r.map(formatCaaRecord);
 		}
 		default:
 			return [];
 	}
+}
+
+function formatCaaRecord(record: CaaRecord): string {
+	const [tag, value] = getCaaTagValue(record);
+
+	return `${record.critical} ${tag} "${value}"`;
+}
+
+function getCaaTagValue(record: CaaRecord): [string, string] {
+	if (record.issue !== undefined) {
+		return ["issue", record.issue];
+	}
+
+	if (record.issuewild !== undefined) {
+		return ["issuewild", record.issuewild];
+	}
+
+	if (record.iodef !== undefined) {
+		return ["iodef", record.iodef];
+	}
+
+	if (record.contactemail !== undefined) {
+		return ["contactemail", record.contactemail];
+	}
+
+	if (record.contactphone !== undefined) {
+		return ["contactphone", record.contactphone];
+	}
+
+	return ["unknown", ""];
 }
 
 export const dnsCommand = subcommand({

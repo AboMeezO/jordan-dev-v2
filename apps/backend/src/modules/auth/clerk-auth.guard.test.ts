@@ -1,7 +1,9 @@
 import { UnauthorizedException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
+import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { describe, expect, it, vi } from "vitest";
 
+import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
 import type { AuthService } from "./auth.service.js";
 import { ClerkAuthGuard } from "./clerk-auth.guard.js";
 
@@ -28,8 +30,13 @@ describe("ClerkAuthGuard", () => {
 	});
 });
 
+type AuthServiceMock = Pick<
+	AuthService,
+	"extractBearerToken" | "authenticateBearerToken"
+>;
+
 function mockAuthService(token: string | undefined): AuthService {
-	return {
+	const auth: AuthServiceMock = {
 		extractBearerToken: vi.fn(() => token),
 		authenticateBearerToken: vi.fn(async () => ({
 			clerkUserId: "clerk_123",
@@ -38,15 +45,19 @@ function mockAuthService(token: string | undefined): AuthService {
 			displayName: null,
 			avatarUrl: null,
 		})),
-	} as unknown as AuthService;
+	};
+
+	return auth as AuthService;
 }
 
-function mockContext(request?: unknown): ExecutionContext {
-	return {
-		switchToHttp: () => ({
-			getRequest: () =>
-				request ?? { headers: { authorization: undefined } },
-		}),
-	} as unknown as ExecutionContext;
+type MockRequest = {
+	headers: { authorization?: string };
+	user?: AuthenticatedUser;
+};
+
+function mockContext(request?: MockRequest): ExecutionContext {
+	const contextRequest = request ?? ({ headers: {} } satisfies MockRequest);
+
+	return new ExecutionContextHost([contextRequest]);
 }
 

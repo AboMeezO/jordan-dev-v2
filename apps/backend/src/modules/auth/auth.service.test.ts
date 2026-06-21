@@ -140,8 +140,10 @@ function createAuthService(
 	return new AuthService(config, users);
 }
 
+type UserServiceMock = Pick<UserService, "upsertFromClerkIdentity">;
+
 function createUserService(): UserService {
-	return {
+	const users: UserServiceMock = {
 		upsertFromClerkIdentity: vi.fn(async () => ({
 			id: "user_123",
 			clerkUserId: "clerk_123",
@@ -151,5 +153,7 @@ function createUserService(): UserService {
 			createdAt: new Date("2026-01-01T00:00:00.000Z"),
 			updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 		})),
-	} as unknown as UserService;
+	};
+
+	return users as UserService;
 }

@@ -30,7 +30,9 @@ describe("ZodValidationPipe", () => {
 			expect(response).toMatchObject({
 				code: "VALIDATION_ERROR",
 				fieldErrors: {
-					name: expect.any(Array) as unknown,
+					name: expect.arrayContaining([
+						expect.stringMatching(/too small/i),
+					]),
 				},
 			});
 		}

@@ -1,5 +1,7 @@
+import { createRequire } from "node:module";
+
 import { CommandKit } from "commandkit";
-import { Client, GatewayIntentBits } from "discord.js";
+import type * as DiscordJs from "discord.js" with { "resolution-mode": "require" };
 import path from "path";
 
 import { Logger } from "#Logger";
@@ -7,14 +9,20 @@ import { migrateAuditSchema } from "#AuditLog";
 import { validateConfig } from "#Config";
 
 const log = new Logger("bot");
+const require = createRequire(import.meta.url);
+const { Client, GatewayIntentBits } = require(
+	"discord.js",
+) as typeof DiscordJs;
+type GatewayIntentBit =
+	(typeof GatewayIntentBits)[keyof typeof GatewayIntentBits];
 
 export class Bot {
-	private client: Client;
+	private client: DiscordJs.Client;
 
 	constructor() {
 		this.client = new Client({
 			intents: Object.values(GatewayIntentBits).filter(
-				(intent): intent is GatewayIntentBits =>
+				(intent): intent is GatewayIntentBit =>
 					typeof intent === "number",
 			),
 		});
@@ -28,7 +36,6 @@ export class Bot {
 		});
 
 		new CommandKit({
-			// @ts-expect-error - discord.js ESM/CJS type mismatch in NodeNext
 			client: this.client,
 			commandsPath: path.resolve("src/Commands"),
 			eventsPath: path.resolve("src/Events"),
@@ -42,7 +49,7 @@ export class Bot {
 		await this.client.login(token);
 	}
 
-	public getClient(): Client {
+	public getClient(): DiscordJs.Client {
 		return this.client;
 	}
 }

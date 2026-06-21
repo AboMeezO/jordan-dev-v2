@@ -3,6 +3,7 @@ import {
 	ForbiddenException,
 	UnauthorizedException,
 } from "@nestjs/common";
+import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { describe, expect, it, vi } from "vitest";
 
 import { BackendConfigService } from "../../config/app.config.js";
@@ -46,11 +47,10 @@ function runFilter(exception: unknown): {
 			return response;
 		}),
 	};
-	const host = {
-		switchToHttp: () => ({
-			getResponse: () => response,
-		}),
-	} as unknown as ArgumentsHost;
+	const host: ArgumentsHost = new ExecutionContextHost([
+		undefined,
+		response,
+	]);
 	const config = {
 		nodeEnv: "test",
 	} as BackendConfigService;
