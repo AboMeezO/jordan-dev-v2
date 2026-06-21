@@ -66,6 +66,14 @@ Secrets stay server-side. Do not expose Clerk secret keys or database URLs throu
 
 The backend uses PostgreSQL with Prisma 6.
 
+For local development, run PostgreSQL and set:
+
+```txt
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/jordan_devs
+```
+
+The exact username, password, host, and database name can differ, but the URL must point to a PostgreSQL database reachable by the backend process.
+
 Schema:
 
 ```txt
@@ -92,6 +100,16 @@ Relationship tables have unique constraints so concurrent role and permission as
 
 Use `DatabaseService.transaction()` for multi-step writes. Future ticket, order, verification, role-assignment, and settings workflows should keep related reads and writes inside a Prisma transaction and prefer database constraints or atomic operations over read-modify-write logic.
 
+Migration workflow:
+
+```bash
+pnpm --dir apps/backend db:validate
+pnpm --dir apps/backend db:migrate
+pnpm --dir apps/backend db:generate
+```
+
+Run migrations before starting the backend against a fresh local database.
+
 ## Auth Model
 
 Clerk remains the identity provider. Backend protected routes should use `ClerkAuthGuard`, which:
@@ -114,9 +132,11 @@ Backend authorization is enforced by:
 ```txt
 @RequirePermissions(...)
 @RequireAnyPermission(...)
-PermissionGuard
-AuthorizationService
 ```
+
+Use these decorators on permission-protected routes. They compose `ClerkAuthGuard` and `PermissionGuard` in the correct order, so routes do not need a separate `@UseGuards(ClerkAuthGuard, PermissionGuard)` declaration.
+
+Use `@UseGuards(ClerkAuthGuard)` directly only for authenticated routes that do not require a permission check.
 
 Frontend permission gates are UX only. Backend guards and data checks are the security boundary.
 
@@ -139,6 +159,8 @@ type ApiSuccessResponse<T> = {
   meta?: Record<string, unknown>;
 };
 ```
+
+Use `@SkipResponseTransform()` only for endpoints that must return raw framework responses, streams, file downloads, CSV exports, PDF exports, or other non-standard payloads. Do not use it for normal JSON API responses.
 
 API errors are normalized to:
 
@@ -193,6 +215,14 @@ pnpm --dir apps/backend test
 Tests are fast Vitest unit tests. They do not call Clerk and do not require a live production database.
 
 Current coverage includes config validation, health/readiness behavior, Zod validation errors, auth guard behavior, permission guard behavior, user identity upsert delegation, and verification response behavior.
+
+Current tests are unit tests. Future integration tests should use a dedicated PostgreSQL test database, not the development or production database. Recommended pattern:
+
+```txt
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/jordan_devs_test
+```
+
+Integration tests should apply Prisma migrations before running and clean data between tests with transactions or explicit truncation.
 
 ## Non-Goals
 
