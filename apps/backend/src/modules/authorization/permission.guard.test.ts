@@ -7,7 +7,7 @@ import type { Reflector } from "@nestjs/core";
 import { permissions, type Permission } from "@jordan-devs/shared";
 import { describe, expect, it, vi } from "vitest";
 
-import type { PermissionRequirement } from "../../common/decorators/require-permissions.decorator.js";
+import type { PermissionRequirement } from "../../common/types/permission-requirement.js";
 import type { AuthorizationService } from "./authorization.service.js";
 import { PermissionGuard } from "./permission.guard.js";
 

@@ -10,7 +10,7 @@ import { Reflector } from "@nestjs/core";
 import {
 	PERMISSIONS_METADATA_KEY,
 	type PermissionRequirement,
-} from "../../common/decorators/require-permissions.decorator.js";
+} from "../../common/types/permission-requirement.js";
 import type { AuthenticatedRequest } from "../../common/types/authenticated-request.js";
 import { AuthorizationService } from "./authorization.service.js";
 
@@ -67,4 +67,3 @@ export class PermissionGuard implements CanActivate {
 		return true;
 	}
 }
-
