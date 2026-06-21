@@ -3,12 +3,12 @@ import {
   can,
   canAll,
   canAny,
-  parsePermissionClaims,
 } from '@jordan-devs/shared'
 import type { ComponentProps, ReactNode } from 'react'
 
 import { Button } from '#/components/ui/button'
 
+import { useBackendSession } from '#/features/session'
 import type { Permission } from '@jordan-devs/shared'
 
 type PermissionRequirement = {
@@ -23,8 +23,9 @@ type PermissionGateProps = PermissionRequirement & {
 }
 
 export function usePermission(requirement: PermissionRequirement = {}) {
-  const { isLoaded, isSignedIn, sessionClaims } = useAuth()
-  const permissions = parsePermissionClaims(sessionClaims)
+  const { isLoaded, isSignedIn } = useAuth()
+  const backendSession = useBackendSession()
+  const permissions = backendSession?.permissions ?? []
 
   const hasAccess =
     isLoaded &&

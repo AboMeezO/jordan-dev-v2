@@ -202,6 +202,14 @@ src/
     verification/
 ```
 
+### Session Bootstrap
+
+`GET /me` is an authenticated session bootstrap endpoint that returns the local user profile and effective permissions. It is protected by `ClerkAuthGuard` and does not require additional permissions. The response is wrapped by the global interceptor as `{ success: true, data: SessionBootstrap }`.
+
+Session flow: Clerk token → `ClerkAuthGuard` → `AuthService.authenticateBearerToken` → local user upsert → `UserService.findById` → `AuthorizationService.getEffectivePermissions` → validated `SessionBootstrap`.
+
+`permissions: []` is valid. It means the user is authenticated but has no assigned backend permissions. Permission seeding is a separate task.
+
 Feature modules should keep controllers thin, put business decisions in services, and isolate Prisma access in repositories.
 
 ## Testing

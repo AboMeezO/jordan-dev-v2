@@ -8,6 +8,16 @@ export {
 	verificationProfileSchema,
 	verificationResultSchema,
 } from "./verification.js";
+export type {
+	SessionBootstrap,
+	SessionBootstrapResponse,
+	SessionUser,
+} from "./session.js";
+export {
+	sessionBootstrapResponseSchema,
+	sessionBootstrapSchema,
+	sessionUserSchema,
+} from "./session.js";
 export type { Permission, PermissionClaims } from "./permissions.js";
 export {
 	can,
@@ -16,5 +26,6 @@ export {
 	isPermission,
 	normalizePermissions,
 	parsePermissionClaims,
+	permissionSchema,
 	permissions,
 } from "./permissions.js";

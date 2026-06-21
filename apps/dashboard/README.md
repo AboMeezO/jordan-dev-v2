@@ -46,6 +46,16 @@ Client route protection is not security enforcement. Route loaders, server
 handlers, and backend endpoints must still verify auth before returning protected
 data.
 
+## Session Bootstrap
+
+After Clerk auth, the dashboard calls `GET /me` through `fetchSessionBootstrap`
+with the Clerk bearer token. The response is validated with
+`sessionBootstrapResponseSchema` from `@jordan-devs/shared`.
+
+The `BackendSessionGate` component wraps the dashboard content and shows
+`LoadingState` while `/me` loads and `InlineError` if it fails. On success,
+it provides the session via `useBackendSession`.
+
 ## Permissions Model
 
 Permission constants and helpers live in `packages/shared/src/permissions.ts` so
@@ -59,6 +69,13 @@ Dashboard helpers:
 - `canAny`
 - `normalizePermissions`
 - `parsePermissionClaims`
+
+Backend `/me` is the preferred source for effective permissions. `usePermission`
+reads from the backend session context and fails closed when backend permissions
+are unavailable.
+
+`permissions: []` from `/me` is valid. It means the user is authenticated but
+has no assigned backend permissions.
 
 Frontend permission gates are UX only. Backend must enforce protected actions.
 

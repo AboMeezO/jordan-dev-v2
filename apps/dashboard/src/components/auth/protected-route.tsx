@@ -1,31 +1,17 @@
 import { SignInButton, useAuth } from '@clerk/clerk-react'
-import { can, canAll, canAny, parsePermissionClaims } from '@jordan-devs/shared'
 import type { ReactNode } from 'react'
 
 import { LoadingState } from '#/components/app'
 import { Button } from '#/components/ui/button'
-import type { Permission } from '@jordan-devs/shared'
 
 type ProtectedRouteProps = {
   children: ReactNode
-  fallback?: ReactNode
-  permission?: Permission
-  allOf?: Array<Permission>
-  anyOf?: Array<Permission>
-  requiredPermissions?: Array<Permission>
 }
 
 // Client-side route protection is only a UX guard. Loaders, server handlers,
 // and backend endpoints must still enforce auth and permissions.
-export function ProtectedRoute({
-  allOf,
-  anyOf,
-  children,
-  fallback,
-  permission,
-  requiredPermissions = [],
-}: ProtectedRouteProps) {
-  const { isLoaded, isSignedIn, sessionClaims } = useAuth()
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { isLoaded, isSignedIn } = useAuth()
 
   if (!isLoaded) {
     return (
@@ -49,46 +35,6 @@ export function ProtectedRoute({
         description="Use your Jordan Devs account to access the dashboard."
         label="Protected"
         title="Sign in to continue"
-      />
-    )
-  }
-
-  const requiresPermissions = hasPermissionRequirements({
-    allOf,
-    anyOf,
-    permission,
-    requiredPermissions,
-  })
-
-  if (requiresPermissions && !sessionClaims) {
-    return (
-      <ProtectedRouteState
-        description="The dashboard could not read the current session. Refresh the page or sign in again."
-        label="Auth unavailable"
-        title="Session unavailable"
-        tone="danger"
-      />
-    )
-  }
-
-  if (
-    !hasRequiredPermissions(sessionClaims, {
-      allOf,
-      anyOf,
-      permission,
-      requiredPermissions,
-    })
-  ) {
-    if (fallback) {
-      return <>{fallback}</>
-    }
-
-    return (
-      <ProtectedRouteState
-        description="Your account is signed in, but it is missing the required dashboard permission."
-        label="Forbidden"
-        title="You do not have access"
-        tone="danger"
       />
     )
   }
@@ -133,45 +79,4 @@ function ProtectedRouteState({
   )
 }
 
-function hasRequiredPermissions(
-  sessionClaims: unknown,
-  {
-    allOf,
-    anyOf,
-    permission,
-    requiredPermissions,
-  }: {
-    allOf?: Array<Permission>
-    anyOf?: Array<Permission>
-    permission?: Permission
-    requiredPermissions: Array<Permission>
-  },
-) {
-  const permissions = parsePermissionClaims(sessionClaims)
 
-  return (
-    can(permissions, permission) &&
-    canAll(permissions, requiredPermissions) &&
-    canAll(permissions, allOf) &&
-    canAny(permissions, anyOf)
-  )
-}
-
-function hasPermissionRequirements({
-  allOf,
-  anyOf,
-  permission,
-  requiredPermissions,
-}: {
-  allOf?: Array<Permission>
-  anyOf?: Array<Permission>
-  permission?: Permission
-  requiredPermissions: Array<Permission>
-}) {
-  return Boolean(
-    permission ||
-      allOf?.length ||
-      anyOf?.length ||
-      requiredPermissions.length > 0,
-  )
-}
