@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id          String     @id @default(cuid())
-  clerkUserId String     @unique @map("clerk_user_id")
-  email       String?
-  displayName String?    @map("display_name")
-  avatarUrl   String?    @map("avatar_url")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  roles       UserRole[]
+  id                 String                     @id @default(cuid())
+  clerkUserId        String                     @unique @map("clerk_user_id")
+  email              String?
+  displayName        String?                    @map("display_name")
+  avatarUrl          String?                    @map("avatar_url")
+  createdAt          DateTime                   @default(now()) @map("created_at")
+  updatedAt          DateTime                   @updatedAt @map("updated_at")
+  roles              UserRole[]
+  verifications      Verification[]
+  verificationEvents VerificationEvent[]
+  roleGrantJobs      VerificationRoleGrantJob[]
 
   @@map("users")
 }
@@ -65,4 +68,85 @@ model RolePermission {
   @@unique([roleId, permissionId])
   @@index([permissionId])
   @@map("role_permissions")
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  FAILED
+  ROLE_GRANT_PENDING
+  ROLE_GRANT_FAILED
+}
+
+enum VerificationEventType {
+  STARTED
+  COMPLETED
+  FAILED
+  ROLE_GRANT_PENDING
+  ROLE_GRANT_COMPLETED
+  ROLE_GRANT_FAILED
+}
+
+enum RoleGrantJobStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Verification {
+  id            String                     @id @default(cuid())
+  userId        String                     @map("user_id")
+  discordUserId String                     @map("discord_user_id")
+  guildId       String                     @map("guild_id")
+  status        VerificationStatus         @default(PENDING)
+  verifiedAt    DateTime?                  @map("verified_at")
+  failureReason String?                    @map("failure_reason")
+  createdAt     DateTime                   @default(now()) @map("created_at")
+  updatedAt     DateTime                   @updatedAt @map("updated_at")
+  user          User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events        VerificationEvent[]
+  roleGrantJobs VerificationRoleGrantJob[]
+
+  @@unique([userId, guildId])
+  @@index([discordUserId])
+  @@index([guildId])
+  @@index([status])
+  @@map("verifications")
+}
+
+model VerificationEvent {
+  id             String                @id @default(cuid())
+  verificationId String                @map("verification_id")
+  userId         String                @map("user_id")
+  type           VerificationEventType
+  status         VerificationStatus
+  message        String?
+  createdAt      DateTime              @default(now()) @map("created_at")
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verification   Verification          @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([verificationId])
+  @@map("verification_events")
+}
+
+model VerificationRoleGrantJob {
+  id            String             @id @default(cuid())
+  verificationId String             @map("verification_id")
+  userId        String             @map("user_id")
+  discordUserId String             @map("discord_user_id")
+  guildId       String             @map("guild_id")
+  status        RoleGrantJobStatus @default(PENDING)
+  attempts      Int                @default(0)
+  lastError     String?            @map("last_error")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verification  Verification       @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@unique([verificationId, status])
+  @@index([status])
+  @@index([userId])
+  @@map("verification_role_grant_jobs")
 }

@@ -32,7 +32,7 @@ export class VerificationController {
 			),
 		)
 		request: CompleteVerificationRequest,
-	): VerificationResult {
+	): Promise<VerificationResult> {
 		return this.verificationService.completeVerification(
 			user,
 			request,

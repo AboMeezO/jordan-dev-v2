@@ -3,15 +3,35 @@ import type {
 	VerificationResult,
 } from "@jordan-devs/shared";
 import { Injectable } from "@nestjs/common";
+import { VerificationStatus } from "@prisma/client";
 
 import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
+import { DatabaseService } from "../../database/database.service.js";
+import { VerificationRepository } from "./verification.repository.js";
 
 @Injectable()
 export class VerificationService {
-	public completeVerification(
+	public constructor(
+		private readonly database: DatabaseService,
+		private readonly verifications: VerificationRepository,
+	) {}
+
+	public async completeVerification(
 		user: AuthenticatedUser,
 		request: CompleteVerificationRequest,
-	): VerificationResult {
+	): Promise<VerificationResult> {
+		const verification = await this.database.transaction(
+			(transaction) =>
+				this.verifications.completeVerification(
+					{
+						discordUserId: request.discordUserId,
+						guildId: request.guildId,
+						userId: user.localUserId,
+					},
+					transaction,
+				),
+		);
+
 		return {
 			profile: {
 				clerkUserId: user.clerkUserId,
@@ -19,9 +39,12 @@ export class VerificationService {
 				email: user.email,
 				guildId: request.guildId,
 			},
-			// Discord role granting is not implemented yet; keep the
-			// response explicit instead of pretending the side effect ran.
+			status: verification.status,
 			roleGranted: false,
+			roleGrantPending:
+				verification.status ===
+				VerificationStatus.ROLE_GRANT_PENDING,
+			roleGrantJobId: verification.roleGrantJobId,
 		};
 	}
 }
