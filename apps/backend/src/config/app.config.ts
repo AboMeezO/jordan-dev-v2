@@ -37,4 +37,8 @@ export class BackendConfigService {
 	public get isProduction() {
 		return this.env.NODE_ENV === "production";
 	}
+
+	public assertLoaded(): void {
+		void this.env;
+	}
 }
