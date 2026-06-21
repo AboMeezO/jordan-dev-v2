@@ -404,20 +404,24 @@ function nodeFill(tone: GraphNode['tone']) {
 export type StatusCountPoint = { label: string; value: number }
 export type RoleCountPoint = { role: string; users: number }
 
+function statusFill(label: string): string {
+  const key = label.toUpperCase()
+  if (key === 'VERIFIED' || key === 'COMPLETED') return 'var(--nd-success)'
+  if (key === 'PENDING' || key === 'ROLE_GRANT_PENDING') return 'var(--nd-warning)'
+  if (key === 'FAILED' || key === 'ROLE_GRANT_FAILED') return 'var(--nd-accent)'
+  return 'var(--nd-text-display)'
+}
+
+function statusOpacity(index: number): number {
+  return index === 0 ? 1 : index === 1 ? 0.6 : 0.3
+}
+
 export function VerificationStatusChart({
   data,
 }: {
   data: Array<StatusCountPoint>
 }) {
   const chartData = data.length > 0 ? data : [{ label: 'No data', value: 1 }]
-
-  const accentFill = 'var(--nd-accent)'
-  const displayFill = 'var(--nd-text-display)'
-  const secondaryFill = 'var(--nd-text-secondary)'
-  const successFill = 'var(--nd-success)'
-  const warningFill = 'var(--nd-warning)'
-
-  const fills = [successFill, warningFill, accentFill, displayFill, secondaryFill]
 
   return (
     <div className="grid gap-5">
@@ -440,7 +444,8 @@ export function VerificationStatusChart({
             >
               {chartData.map((entry, index) => (
                 <Cell
-                  fill={fills[index % fills.length]}
+                  fill={statusFill(entry.label)}
+                  fillOpacity={statusOpacity(index)}
                   key={entry.label}
                 />
               ))}
@@ -449,13 +454,15 @@ export function VerificationStatusChart({
         )}
       </MeasuredChartFrame>
       <div className="grid gap-2">
-        {chartData.map((segment) => (
+        {chartData.map((segment, index) => (
           <div
             className="flex items-center justify-between border-b border-[var(--nd-border)] pb-2 last:border-0"
             key={segment.label}
           >
             <span className="nd-label">{segment.label}</span>
-            <span className="font-mono text-sm">{segment.value}</span>
+            <span className="font-mono text-sm" style={{ color: statusFill(segment.label), opacity: statusOpacity(index) }}>
+              {segment.value}
+            </span>
           </div>
         ))}
       </div>

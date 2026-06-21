@@ -1,6 +1,6 @@
 export function InlineError({
   error,
-  title = 'Something went wrong',
+  title = 'ERROR',
 }: {
   error: unknown
   title?: string
@@ -10,11 +10,11 @@ export function InlineError({
 
   return (
     <div
-      className="border border-[var(--nd-accent)]/40 bg-[var(--nd-accent)]/5 p-4"
+      className="border border-[var(--nd-accent)] p-4"
       role="alert"
     >
       <p className="font-mono text-xs uppercase tracking-[0.12em] text-[var(--nd-accent)]">
-        {title}
+        [{title}]
       </p>
       <p className="mt-2 text-sm leading-6 text-[var(--nd-text-secondary)]">
         {message}
