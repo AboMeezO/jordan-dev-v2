@@ -1,5 +1,7 @@
 import { Gauge, PanelLeftClose, PanelLeftOpen, Settings, X } from 'lucide-react'
+import { permissions } from '@jordan-devs/shared'
 
+import { PermissionButton } from '#/components/auth/permission-gate'
 import { Button } from '#/components/ui/button'
 
 import { sidebarItems } from '../data'
@@ -165,16 +167,19 @@ export function DashboardSidebar({
             </div>
             <Gauge className="size-5 shrink-0 text-(--nd-text-secondary)" />
           </div>
-          <button
+          <PermissionButton
             aria-label="Settings"
+            permission={permissions.settingsRead}
             disabled
             className={
               compactMode
                 ? 'flex h-12 w-full cursor-not-allowed items-center justify-center overflow-hidden text-(--nd-text-disabled) opacity-70 transition-colors duration-180'
                 : 'flex h-12 w-full cursor-not-allowed items-center gap-3 overflow-hidden border-l-2 border-transparent px-3 font-mono text-xs uppercase tracking-widest text-(--nd-text-disabled) opacity-70 transition-colors duration-180'
             }
+            disabledFallbackReason="Missing settings permission"
             title="Settings are not available yet"
             type="button"
+            variant="ghost"
           >
             <Settings className="size-5 shrink-0" strokeWidth={1.5} />
             <span
@@ -185,7 +190,7 @@ export function DashboardSidebar({
             >
               Settings
             </span>
-          </button>
+          </PermissionButton>
         </div>
       </div>
     </aside>

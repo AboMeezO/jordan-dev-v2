@@ -1,4 +1,5 @@
 import { Command, Radio } from 'lucide-react'
+import { permissions } from '@jordan-devs/shared'
 import type { useReactTable } from '@tanstack/react-table'
 
 import {
@@ -8,6 +9,7 @@ import {
   RequestLoadChart,
   ServiceGraphChart,
 } from '#/components/dashboard/charts'
+import { PermissionButton } from '#/components/auth/permission-gate'
 import { Button } from '#/components/ui/button'
 import { Label } from '#/components/ui/label'
 import { Slider } from '#/components/ui/slider'
@@ -163,15 +165,17 @@ export function DashboardOverview({
       <section className="grid min-w-0 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <ChartPanel
           action={
-            <Button
-              aria-disabled="true"
-              className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
-              disabled
-              title="Export is not available yet"
-              variant="outline"
-            >
-              Export
-            </Button>
+              <PermissionButton
+                aria-disabled="true"
+                className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+                disabled
+                permission={permissions.dashboardRead}
+                disabledFallbackReason="Missing dashboard permission"
+                title="Export is not available yet"
+                variant="outline"
+              >
+                Export
+              </PermissionButton>
           }
           label="Traffic"
           title="Request Load"
