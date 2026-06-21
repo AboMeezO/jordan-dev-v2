@@ -23,7 +23,7 @@ export function DashboardSidebar({
 }) {
   return (
     <aside
-      className={`dashboard-sidebar fixed inset-y-0 left-0 z-40 w-[280px] overflow-hidden border-r border-[var(--nd-border)] bg-[var(--nd-surface)] p-4 transition-transform duration-180 ease-out lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:translate-x-0 ${
+      className={`dashboard-sidebar fixed inset-y-0 left-0 z-40 w-70 overflow-hidden border-r border-(--nd-border) bg-(--nd-surface) p-4 transition-transform duration-180 ease-out lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:translate-x-0 ${
         compactMode ? 'lg:px-3' : 'lg:px-4'
       } ${open ? 'translate-x-0' : '-translate-x-full'}`}
     >
@@ -56,7 +56,7 @@ export function DashboardSidebar({
             </div>
             <div
               aria-hidden={!compactMode}
-              className={`size-10 place-items-center rounded-full border border-[var(--nd-border-visible)] font-mono text-xs text-[var(--nd-text-display)] transition-[opacity,transform] duration-180 ease-out ${
+              className={`size-10 place-items-center rounded-full border border-(--nd-border-visible) font-mono text-xs text-(--nd-text-display) transition-[opacity,transform] duration-180 ease-out ${
                 compactMode
                   ? 'grid translate-x-0 opacity-100'
                   : 'pointer-events-none hidden translate-x-2 opacity-0'
@@ -111,8 +111,8 @@ export function DashboardSidebar({
                   compactMode ? 'gap-0 px-3' : 'gap-3 px-3 text-left'
                 } ${
                   active
-                    ? 'border-[var(--nd-accent)] text-[var(--nd-text-display)]'
-                    : 'border-transparent text-[var(--nd-text-disabled)] hover:text-[var(--nd-text-primary)]'
+                    ? 'border-(--nd-accent) text-(--nd-text-display)'
+                    : 'border-transparent text-(--nd-text-disabled) hover:text-(--nd-text-primary)'
                 }`}
                 key={item.id}
                 onClick={() => onSelect(item.id)}
@@ -125,7 +125,7 @@ export function DashboardSidebar({
                   className={`overflow-hidden whitespace-nowrap transition-[width,opacity,transform] duration-180 ease-out ${
                     compactMode
                       ? 'w-0 translate-x-1 opacity-0'
-                      : 'w-[160px] translate-x-0 opacity-100'
+                      : 'w-40 translate-x-0 opacity-100'
                   }`}
                 >
                   {item.label}
@@ -135,20 +135,20 @@ export function DashboardSidebar({
           })}
         </nav>
 
-        <div className="mt-auto grid gap-4 border-t border-[var(--nd-border)] pt-5">
+        <div className="mt-auto grid gap-4 border-t border-(--nd-border) pt-5">
           <div className="flex items-center justify-between gap-4 overflow-hidden">
             <div className="min-w-0">
               <p
                 className={`nd-label transition-[width,opacity] duration-180 ease-out ${
-                  compactMode ? 'h-0 w-0 opacity-0' : 'w-[88px] opacity-100'
+                  compactMode ? 'h-0 w-0 opacity-0' : 'w-22 opacity-100'
                 }`}
               >
                 Runtime
               </p>
-              <p className="mt-1 overflow-hidden whitespace-nowrap font-mono text-sm text-[var(--nd-success)]">
+              <p className="mt-1 overflow-hidden whitespace-nowrap font-mono text-sm text-(--nd-success)">
                 <span
                   className={`inline-block transition-[width,opacity] duration-180 ease-out ${
-                    compactMode ? 'w-0 opacity-0' : 'w-[72px] opacity-100'
+                    compactMode ? 'w-0 opacity-0' : 'w-18 opacity-100'
                   }`}
                 >
                   [STABLE]
@@ -156,22 +156,22 @@ export function DashboardSidebar({
                 <span
                   aria-hidden={!compactMode}
                   className={`inline-block transition-[width,opacity] duration-180 ease-out ${
-                    compactMode ? 'w-[24px] opacity-100' : 'w-0 opacity-0'
+                    compactMode ? 'w-6 opacity-100' : 'w-0 opacity-0'
                   }`}
                 >
                   OK
                 </span>
               </p>
             </div>
-            <Gauge className="size-5 shrink-0 text-[var(--nd-text-secondary)]" />
+            <Gauge className="size-5 shrink-0 text-(--nd-text-secondary)" />
           </div>
           <button
             aria-label="Settings"
             disabled
             className={
               compactMode
-                ? 'flex h-12 w-full cursor-not-allowed items-center justify-center overflow-hidden text-[var(--nd-text-disabled)] opacity-70 transition-colors duration-180'
-                : 'flex h-12 w-full cursor-not-allowed items-center gap-3 overflow-hidden border-l-2 border-transparent px-3 font-mono text-xs uppercase tracking-[0.1em] text-[var(--nd-text-disabled)] opacity-70 transition-colors duration-180'
+                ? 'flex h-12 w-full cursor-not-allowed items-center justify-center overflow-hidden text-(--nd-text-disabled) opacity-70 transition-colors duration-180'
+                : 'flex h-12 w-full cursor-not-allowed items-center gap-3 overflow-hidden border-l-2 border-transparent px-3 font-mono text-xs uppercase tracking-widest text-(--nd-text-disabled) opacity-70 transition-colors duration-180'
             }
             title="Settings are not available yet"
             type="button"
@@ -180,7 +180,7 @@ export function DashboardSidebar({
             <span
               aria-hidden={compactMode}
               className={`overflow-hidden whitespace-nowrap transition-[width,opacity] duration-180 ${
-                compactMode ? 'w-0 opacity-0' : 'w-[64px] opacity-100'
+                compactMode ? 'w-0 opacity-0' : 'w-16 opacity-100'
               }`}
             >
               Settings
