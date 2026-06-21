@@ -11,7 +11,7 @@
     "build": "vite build",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --config vitest.config.ts",
     "lint": "eslint",
     "format": "prettier --write . && eslint --fix",
     "check": "prettier --check ."
