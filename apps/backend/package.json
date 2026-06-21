@@ -6,8 +6,8 @@
 	"main": "dist/main.js",
 	"scripts": {
 		"start": "node dist/main.js",
-		"dev": "tsx watch src/main.ts",
-		"build": "tsc -p tsconfig.json",
+		"dev": "pnpm db:generate && nest start --watch",
+		"build": "pnpm db:generate && nest build",
 		"test": "vitest run",
 		"db:generate": "prisma generate",
 		"db:migrate": "prisma migrate dev",
@@ -28,6 +28,7 @@
 		"zod": "^4.2.0"
 	},
 	"devDependencies": {
+		"@nestjs/cli": "11.0.23",
 		"prisma": "6.16.3",
 		"vitest": "4.1.9"
 	}
