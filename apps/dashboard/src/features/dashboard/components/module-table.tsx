@@ -1,4 +1,4 @@
-import type { useReactTable } from '@tanstack/react-table';
+import type { useReactTable } from '@tanstack/react-table'
 import { flexRender } from '@tanstack/react-table'
 
 import { moduleColumns, statusTone } from '../data'

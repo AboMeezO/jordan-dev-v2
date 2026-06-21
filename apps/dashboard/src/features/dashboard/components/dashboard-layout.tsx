@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode  } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 import { DashboardSidebar } from './dashboard-sidebar'
 import { DashboardTopbar } from './dashboard-topbar'
