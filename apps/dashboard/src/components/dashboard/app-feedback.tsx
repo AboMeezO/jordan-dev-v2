@@ -16,7 +16,8 @@ export function AppLoadingScreen() {
 
 export function AppPendingIndicator() {
   const isPending = useRouterState({
-    select: (state) => state.status === 'pending',
+    select: (state) =>
+      state.matches.some((match) => match.status === 'pending'),
   })
 
   if (!isPending) {
