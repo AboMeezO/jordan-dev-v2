@@ -1,323 +1,136 @@
-Welcome to your new TanStack Start app!
+# Jordan Devs Dashboard
 
-# Getting Started
+The dashboard is the TanStack Start application for authenticated Jordan Devs
+operations UI. It currently provides the app shell, protected dashboard surface,
+foundation primitives, and conventions needed before real system features are
+added.
 
-To run this application:
+## Local Development
 
-```bash
-pnpm install
-pnpm dev
-```
-
-# Building For Production
-
-To build this application for production:
+Run from the repository root:
 
 ```bash
-pnpm build
+pnpm --dir apps/dashboard dev
 ```
+
+The dev server uses port `3000`.
+
+## Scripts
+
+```bash
+pnpm --dir apps/dashboard lint
+pnpm --dir apps/dashboard test
+pnpm --dir apps/dashboard build
+pnpm --dir apps/dashboard check:bundle
+```
+
+## Environment Variables
+
+Dashboard environment parsing lives in `src/env.ts`.
+
+- `VITE_CLERK_PUBLISHABLE_KEY`: Clerk publishable key for the client app.
+- `VITE_API_URL`: optional backend API base URL. If omitted, API requests use
+  app-relative paths.
+- `VITE_APP_TITLE`: optional display/config title.
+- `SERVER_URL`: optional server-side URL value.
+
+Do not put server-only secrets behind a `VITE_` prefix.
+
+## Auth Model
+
+Clerk remains the identity/session provider. The app root wraps the dashboard in
+`ClerkProvider`, and `ProtectedRoute` handles client-side UX states for checking
+session, signed out, forbidden, and unavailable session data.
+
+Client route protection is not security enforcement. Route loaders, server
+handlers, and backend endpoints must still verify auth before returning protected
+data.
+
+## Permissions Model
+
+Permission constants and helpers live in `packages/shared/src/permissions.ts` so
+the backend can consume the same permission IDs later. Permission strings use a
+resource/action shape, for example `settings:update`.
+
+Dashboard helpers:
+
+- `can`
+- `canAll`
+- `canAny`
+- `normalizePermissions`
+- `parsePermissionClaims`
+
+Frontend permission gates are UX only. Backend must enforce protected actions.
+
+## API Client Pattern
+
+Use `src/lib/api` for dashboard API calls.
+
+- `apiRequest` handles JSON bodies, credentials, non-JSON responses, empty `204`
+  responses, failed HTTP statuses, and optional Zod response parsing.
+- `ApiClientError` carries normalized API error data.
+- `VITE_API_URL` is the only dashboard API base URL setting.
+
+Do not add fake endpoints. Add typed API functions only when a real backend
+contract exists.
+
+## TanStack Query Convention
+
+Query key factories live in `src/lib/query/query-keys.ts`. Keep server-state in
+TanStack Query and invalidate the relevant query keys after successful
+mutations.
+
+Mutation handling should follow this pattern:
+
+- success: invalidate related query keys
+- validation error: expose field errors
+- auth/access error: show auth or access-denied UI
+- unknown error: show `InlineError`
+
+## Forms Convention
+
+Dashboard forms use `@tanstack/react-form` with Zod schemas. This keeps the
+dashboard aligned with TanStack Start, Router, Query, and Table, and avoids
+adding a second form paradigm without a repo-specific reason.
+
+Use `src/lib/forms` for schema validation, field-error extraction, submit-error
+normalization, and dirty/reset conventions. Import `useForm` from
+`src/lib/forms/tanstack-form` when building real forms.
+
+## UI Primitives
+
+Reusable app primitives live in `src/components/app`:
+
+- `LoadingState`
+- `EmptyState`
+- `InlineError`
+- `ConfirmDialog`
+- `FormField`
+
+Use these before creating one-off loading, empty, error, confirm, or field
+layouts in feature code.
 
 ## Testing
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+Vitest uses `vitest.config.ts` so fast unit tests do not boot the full app Vite
+plugin stack. Current tests cover permission helpers, API error/response parsing,
+query conventions, and form validation helpers.
+
+## Bundle Guard
+
+Run:
 
 ```bash
-pnpm test
+pnpm --dir apps/dashboard check:bundle
 ```
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
-
-## Linting & Formatting
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-pnpm lint
-pnpm format
-pnpm check
-```
-
-## Setting up Clerk
-
-1. Sign up at [clerk.com](https://clerk.com) and create an application
-2. Copy the **Publishable Key** from the Clerk dashboard
-3. Set it in your `.env.local`:
-   ```bash
-   VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-   ```
-4. Visit the demo route at `/demo/clerk` once `npm run dev` is running
-
-### What's wired up
-
-- **`<ClerkProvider>`** at the app root (`src/integrations/clerk/provider.tsx`) handles auth context for the whole tree
-- **`<SignInButton>` / `<UserButton>`** in the header swap based on auth state
-- **`/demo/clerk`** shows Clerk's prebuilt sign-in UI and a signed-in greeting
-
-### Protecting a route
-
-Wrap any component in `<SignedIn>` / `<SignedOut>`:
-
-```tsx
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
-
-function ProtectedPage() {
-  return (
-    <>
-      <SignedIn>
-        <YourPageContent />
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-    </>
-  )
-}
-```
-
-For server-side checks (route loaders, server functions), see the Clerk docs on [`auth()`](https://clerk.com/docs/references/backend/auth).
-
-### Production checklist
-
-- Replace the test keys with **production keys** from a dedicated production Clerk instance
-- Configure your production domain under **Domains** in the Clerk dashboard
-- Set up social providers (Google, GitHub, etc.) under **User & Authentication → Social Connections**
-
-# TanStack Chat Application
-
-Am example chat application built with TanStack Start, TanStack Store, and Claude AI.
-
-## .env Updates
-
-```env
-ANTHROPIC_API_KEY=your_anthropic_api_key
-```
-
-## ✨ Features
-
-### AI Capabilities
-
-- 🤖 Powered by Claude 3.5 Sonnet
-- 📝 Rich markdown formatting with syntax highlighting
-- 🎯 Customizable system prompts for tailored AI behavior
-- 🔄 Real-time message updates and streaming responses (coming soon)
-
-### User Experience
-
-- 🎨 Modern UI with Tailwind CSS and Lucide icons
-- 🔍 Conversation management and history
-- 🔐 Secure API key management
-- 📋 Markdown rendering with code highlighting
-
-### Technical Features
-
-- 📦 Centralized state management with TanStack Store
-- 🔌 Extensible architecture for multiple AI providers
-- 🛠️ TypeScript for type safety
-
-## Architecture
-
-### Tech Stack
-
-- **Frontend Framework**: TanStack Start
-- **Routing**: TanStack Router
-- **State Management**: TanStack Store
-- **Styling**: Tailwind CSS
-- **AI Integration**: Anthropic's Claude API
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpm dlx shadcn@latest add button
-```
-
-## T3Env
-
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
-
-### Usage
-
-```ts
-import { env } from '#/env'
-
-console.log(env.VITE_APP_TITLE)
-```
-
-## Deploy with Nitro
-
-This project uses Nitro as a generic server adapter, so it can run on any Node-compatible host.
-
-```bash
-npm run build
-node dist/server/index.mjs
-```
-
-The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
-
-For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see https://v3.nitro.build/deploy.
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from '@tanstack/react-router'
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+The guard checks total dashboard JavaScript raw and gzip size under
+`.output/public/assets`.
+
+## Non-Goals
+
+- Charts/Recharts are intentionally untouched.
+- Frontend permission gates are UX only.
+- Backend must enforce protected actions.
+- Do not add fake endpoints.
+- Do not redesign the shell during feature work.
