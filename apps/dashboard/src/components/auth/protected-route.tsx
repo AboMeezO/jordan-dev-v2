@@ -1,18 +1,14 @@
 import { SignInButton, useAuth } from '@clerk/clerk-react'
+import { canAll, parsePermissionClaims } from '@jordan-devs/shared'
 import type { ReactNode } from 'react'
 
 import { AppLoadingScreen } from '#/components/dashboard/app-feedback'
 import { Button } from '#/components/ui/button'
-
-export type DashboardPermission =
-  | 'dashboard:read'
-  | 'guilds:read'
-  | 'moderation:read'
-  | 'assistant:read'
+import type { Permission } from '@jordan-devs/shared'
 
 type ProtectedRouteProps = {
   children: ReactNode
-  requiredPermissions?: Array<DashboardPermission>
+  requiredPermissions?: Array<Permission>
 }
 
 export function ProtectedRoute({
@@ -95,29 +91,7 @@ function ProtectedRouteState({
 
 function hasRequiredPermissions(
   sessionClaims: unknown,
-  requiredPermissions: Array<DashboardPermission>,
+  requiredPermissions: Array<Permission>,
 ) {
-  if (requiredPermissions.length === 0) {
-    return true
-  }
-
-  const grantedPermissions = readPermissions(sessionClaims)
-
-  return requiredPermissions.every((permission) =>
-    grantedPermissions.has(permission),
-  )
-}
-
-function readPermissions(sessionClaims: unknown) {
-  const claims = sessionClaims as
-    | {
-        metadata?: { permissions?: Array<string> }
-        publicMetadata?: { permissions?: Array<string> }
-      }
-    | undefined
-
-  return new Set([
-    ...(claims?.metadata?.permissions ?? []),
-    ...(claims?.publicMetadata?.permissions ?? []),
-  ])
+  return canAll(parsePermissionClaims(sessionClaims), requiredPermissions)
 }
