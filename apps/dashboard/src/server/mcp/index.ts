@@ -1,0 +1,50 @@
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import z from 'zod'
+
+import { handleMcpRequest } from '#/utils/mcp-handler'
+
+const server = new McpServer({
+  name: 'start-server',
+  version: '1.0.0',
+})
+
+server.registerTool(
+  'addTodo',
+  {
+    title: 'Tool to add a todo to a list of todos',
+    description: 'Add a todo to a list of todos',
+    inputSchema: {
+      title: z.string().describe('The title of the todo'),
+    },
+  },
+  async ({ title }) => {
+    const { addTodo } = await import('./todos')
+
+    return {
+      content: [{ type: 'text', text: String(addTodo(title)) }],
+    }
+  },
+)
+
+// server.registerResource(
+//   "counter-value",
+//   "count://",
+//   {
+//     title: "Counter Resource",
+//     description: "Returns the current value of the counter",
+//   },
+//   async (uri) => {
+//     return {
+//       contents: [
+//         {
+//           uri: uri.href,
+//           text: `The counter is at 20!`,
+//         },
+//       ],
+//     };
+//   }
+// );
+
+export async function handlePost(request: Request) {
+  return handleMcpRequest(request, server)
+}
