@@ -2,6 +2,7 @@ import { SignInButton, useAuth } from '@clerk/clerk-react'
 import { can, canAll, canAny, parsePermissionClaims } from '@jordan-devs/shared'
 import type { ReactNode } from 'react'
 
+import { LoadingState } from '#/components/app'
 import { Button } from '#/components/ui/button'
 import type { Permission } from '@jordan-devs/shared'
 
@@ -28,9 +29,8 @@ export function ProtectedRoute({
 
   if (!isLoaded) {
     return (
-      <ProtectedRouteState
+      <LoadingState
         description="The dashboard is checking your current session."
-        label="Checking"
         title="Checking session"
       />
     )

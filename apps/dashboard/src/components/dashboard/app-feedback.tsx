@@ -1,17 +1,10 @@
 import { useRouterState } from '@tanstack/react-router'
 
+import { InlineError, LoadingState } from '#/components/app'
 import { Button } from '#/components/ui/button'
 
 export function AppLoadingScreen() {
-  return (
-    <main
-      aria-label="Loading"
-      className="grid min-h-screen place-items-center bg-background text-foreground"
-      role="status"
-    >
-      <LoadingSpinner size="lg" />
-    </main>
-  )
+  return <LoadingState title="Loading" />
 }
 
 export function AppPendingIndicator() {
@@ -53,9 +46,9 @@ export function AppErrorFallback({
         <h1 className="mt-4 text-2xl font-medium tracking-[-0.04em] text-[var(--nd-accent)]">
           Something went wrong
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[var(--nd-text-secondary)]">
-          {message}
-        </p>
+        <div className="mt-5">
+          <InlineError error={error} title="Render failed" />
+        </div>
         <div className="mt-6 flex flex-wrap gap-3">
           {reset ? (
             <Button

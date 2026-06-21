@@ -1,6 +1,8 @@
 import type { useReactTable } from '@tanstack/react-table'
 import { flexRender } from '@tanstack/react-table'
 
+import { EmptyState } from '#/components/app'
+
 import { moduleColumns, statusTone } from '../data'
 import { compactNumber } from '../utils'
 
@@ -51,10 +53,13 @@ export function ModuleTable({
           ) : (
             <tr>
               <td
-                className="px-4 py-16 text-center font-mono text-xs uppercase tracking-[0.12em] text-[var(--nd-text-disabled)]"
+                className="px-4"
                 colSpan={moduleColumns.length}
               >
-                [NO MATCHING MODULES]
+                <EmptyState
+                  description="Try clearing the search filter or turning off alerts-only mode."
+                  title="[NO MATCHING MODULES]"
+                />
               </td>
             </tr>
           )}
