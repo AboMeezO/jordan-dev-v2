@@ -6,7 +6,7 @@ import {
 	type NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 
-import { AppModule } from "./modules/app.module.js";
+import { AppModule } from "./app.module.js";
 
 async function bootstrap(): Promise<void> {
 	const app =
