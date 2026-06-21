@@ -9,8 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
+import { useThemePreference } from '#/features/theme/theme-store'
 
-import type { DashboardTheme, DashboardWindowKey } from '../types'
+import type { DashboardWindowKey } from '../types'
 
 export function DashboardTopbar({
   onOpenSidebar,
@@ -25,6 +26,8 @@ export function DashboardTopbar({
   query: string
   timeWindow: DashboardWindowKey
 }) {
+  const { themePreference, toggleTheme } = useThemePreference()
+
   return (
     <header className="nd-panel sticky top-4 z-20 flex flex-wrap items-center gap-3 p-3 sm:flex-nowrap">
       <Button
@@ -65,7 +68,7 @@ export function DashboardTopbar({
       </Select>
 
       <Button
-        aria-label="Toggle theme"
+        aria-label={`Toggle theme (${themePreference})`}
         className="rounded-full"
         onClick={toggleTheme}
         size="icon"
@@ -86,17 +89,4 @@ export function DashboardTopbar({
       </Button>
     </header>
   )
-}
-
-function toggleTheme() {
-  const nextTheme: DashboardTheme = document.documentElement.classList.contains(
-    'dark',
-  )
-    ? 'light'
-    : 'dark'
-
-  const darkMode = nextTheme === 'dark'
-  document.documentElement.classList.toggle('dark', darkMode)
-  document.body.classList.toggle('dark', darkMode)
-  window.localStorage.setItem('dashboard-theme', nextTheme)
 }
