@@ -7,6 +7,7 @@ import {
 } from "@nestjs/platform-fastify";
 
 import { AppModule } from "./app.module.js";
+import { BackendConfigService } from "./config/app.config.js";
 
 async function bootstrap(): Promise<void> {
 	const app =
@@ -15,17 +16,14 @@ async function bootstrap(): Promise<void> {
 			new FastifyAdapter({ logger: true }),
 		);
 
+	const config = app.get(BackendConfigService);
+
 	app.enableCors({
 		credentials: true,
-		origin: process.env.FRONTEND_ORIGIN?.split(",") ?? true,
+		origin: config.frontendOrigins ?? true,
 	});
 
-	await app.listen(
-		process.env.PORT === undefined
-			? 3001
-			: Number(process.env.PORT),
-		"0.0.0.0",
-	);
+	await app.listen(config.port, "0.0.0.0");
 }
 
 await bootstrap();

@@ -8,8 +8,14 @@ import {
 	UnauthorizedException,
 } from "@nestjs/common";
 
+import { BackendConfigService } from "../../config/app.config.js";
+
 @Injectable()
 export class VerificationService {
+	public constructor(
+		private readonly config: BackendConfigService,
+	) {}
+
 	public async completeVerification(
 		token: string,
 		request: CompleteVerificationRequest,
@@ -33,9 +39,9 @@ export class VerificationService {
 		try {
 			const verifiedToken = await verifyToken(token, {
 				authorizedParties:
-					process.env.CLERK_AUTHORIZED_PARTIES?.split(","),
-				jwtKey: process.env.CLERK_JWT_KEY,
-				secretKey: process.env.CLERK_SECRET_KEY,
+					this.config.clerkAuthorizedParties,
+				jwtKey: this.config.clerkJwtKey,
+				secretKey: this.config.clerkSecretKey,
 			});
 
 			return verifiedToken.sub;
