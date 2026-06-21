@@ -7,17 +7,25 @@ export async function handleMcpRequest(
   request: Request,
   server: McpServer,
 ): Promise<Response> {
+  let transports: ReturnType<typeof InMemoryTransport.createLinkedPair> | null =
+    null
+
   try {
     const jsonRpcRequest = (await request.json()) as JSONRPCMessage
 
-    const [clientTransport, serverTransport] =
-      InMemoryTransport.createLinkedPair()
+    transports = InMemoryTransport.createLinkedPair()
+    const [clientTransport, serverTransport] = transports
 
-    let responseData: JSONRPCMessage | null = null
+    const responsePromise = new Promise<JSONRPCMessage>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('MCP request timed out'))
+      }, 5000)
 
-    clientTransport.onmessage = (message: JSONRPCMessage) => {
-      responseData = message
-    }
+      clientTransport.onmessage = (message: JSONRPCMessage) => {
+        clearTimeout(timeout)
+        resolve(message)
+      }
+    })
 
     await server.connect(serverTransport)
 
@@ -26,10 +34,7 @@ export async function handleMcpRequest(
 
     await clientTransport.send(jsonRpcRequest)
 
-    await new Promise((resolve) => setTimeout(resolve, 10))
-
-    await clientTransport.close()
-    await serverTransport.close()
+    const responseData = await responsePromise
 
     return Response.json(responseData, {
       headers: {
@@ -57,5 +62,11 @@ export async function handleMcpRequest(
         },
       },
     )
+  } finally {
+    if (transports) {
+      await Promise.allSettled(
+        transports.map((transport) => transport.close()),
+      )
+    }
   }
 }
