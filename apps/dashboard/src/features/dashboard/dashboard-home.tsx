@@ -2,6 +2,7 @@ import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import { ProtectedRoute } from '#/components/auth/protected-route'
+import { BackendSessionGate } from '#/features/session'
 
 import { moduleColumns, modules, trafficByWindow } from './data'
 import { DashboardLayout } from './components/dashboard-layout'
@@ -47,7 +48,8 @@ export function DashboardHome() {
 
   return (
     <ProtectedRoute>
-      <DashboardLayout
+      <BackendSessionGate>
+        <DashboardLayout
         activeSection={activeSection}
         compactMode={compactMode}
         onQueryChange={setQuery}
@@ -74,6 +76,7 @@ export function DashboardHome() {
           traffic={traffic}
         />
       </DashboardLayout>
+      </BackendSessionGate>
     </ProtectedRoute>
   )
 }
