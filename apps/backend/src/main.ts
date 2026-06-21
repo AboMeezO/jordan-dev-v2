@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import { NestFactory } from "@nestjs/core";
+import { Reflector } from "@nestjs/core";
 import {
 	FastifyAdapter,
 	type NestFastifyApplication,
@@ -20,7 +21,9 @@ async function bootstrap(): Promise<void> {
 
 	const config = app.get(BackendConfigService);
 	app.useGlobalFilters(new ApiExceptionFilter(config));
-	app.useGlobalInterceptors(new ApiResponseInterceptor());
+	app.useGlobalInterceptors(
+		new ApiResponseInterceptor(app.get(Reflector)),
+	);
 
 	app.enableCors({
 		credentials: true,
