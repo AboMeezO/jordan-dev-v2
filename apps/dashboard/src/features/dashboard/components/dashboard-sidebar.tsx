@@ -1,7 +1,6 @@
-import { Gauge, PanelLeftClose, PanelLeftOpen, Settings, X } from 'lucide-react'
-import { permissions } from '@jordan-devs/shared'
+import { Gauge, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 
-import { PermissionButton } from '#/components/auth/permission-gate'
+import { SidebarUserMenu } from '#/components/dashboard/sidebar-user-menu'
 import { Button } from '#/components/ui/button'
 
 import { sidebarItems } from '../data'
@@ -58,10 +57,10 @@ export function DashboardSidebar({
             </div>
             <div
               aria-hidden={!compactMode}
-              className={`size-10 place-items-center rounded-full border border-(--nd-border-visible) font-mono text-xs text-(--nd-text-display) transition-[opacity,transform] duration-180 ease-out ${
+              className={`grid size-10 place-items-center rounded-full border border-(--nd-border-visible) font-mono text-xs text-(--nd-text-display) transition-[opacity,transform] duration-180 ease-out ${
                 compactMode
-                  ? 'grid translate-x-0 opacity-100'
-                  : 'pointer-events-none hidden translate-x-2 opacity-0'
+                  ? 'translate-x-0 opacity-100'
+                  : 'pointer-events-none translate-x-2 opacity-0'
               }`}
             >
               JD
@@ -109,9 +108,7 @@ export function DashboardSidebar({
             return (
               <button
                 aria-label={item.label}
-                className={`flex h-12 w-full items-center overflow-hidden border-l-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-[border-color,color,padding,gap] duration-180 ease-out ${
-                  compactMode ? 'gap-0 px-3' : 'gap-3 px-3 text-left'
-                } ${
+                className={`flex h-12 w-full items-center gap-3 overflow-hidden border-l-2 px-3 font-mono text-[11px] uppercase tracking-[0.14em] text-left transition-[border-color,color] duration-180 ease-out ${
                   active
                     ? 'border-(--nd-accent) text-(--nd-text-display)'
                     : 'border-transparent text-(--nd-text-disabled) hover:text-(--nd-text-primary)'
@@ -137,12 +134,12 @@ export function DashboardSidebar({
           })}
         </nav>
 
-        <div className="mt-auto grid gap-4 border-t border-(--nd-border) pt-5">
-          <div className="flex items-center justify-between gap-4 overflow-hidden">
+        <div className="mt-auto grid border-t border-(--nd-border) pt-4">
+          <div className="flex items-center justify-between gap-4 overflow-hidden px-1 pb-4">
             <div className="min-w-0">
               <p
-                className={`nd-label transition-[width,opacity] duration-180 ease-out ${
-                  compactMode ? 'h-0 w-0 opacity-0' : 'w-22 opacity-100'
+                className={`nd-label overflow-hidden transition-[width,opacity] duration-180 ease-out ${
+                  compactMode ? 'w-0 opacity-0' : 'w-22 opacity-100'
                 }`}
               >
                 Runtime
@@ -167,30 +164,7 @@ export function DashboardSidebar({
             </div>
             <Gauge className="size-5 shrink-0 text-(--nd-text-secondary)" />
           </div>
-          <PermissionButton
-            aria-label="Settings"
-            permission={permissions.settingsRead}
-            disabled
-            className={
-              compactMode
-                ? 'flex h-12 w-full cursor-not-allowed items-center justify-center overflow-hidden text-(--nd-text-disabled) opacity-70 transition-colors duration-180'
-                : 'flex h-12 w-full cursor-not-allowed items-center gap-3 overflow-hidden border-l-2 border-transparent px-3 font-mono text-xs uppercase tracking-widest text-(--nd-text-disabled) opacity-70 transition-colors duration-180'
-            }
-            disabledFallbackReason="Missing settings permission"
-            title="Settings are not available yet"
-            type="button"
-            variant="ghost"
-          >
-            <Settings className="size-5 shrink-0" strokeWidth={1.5} />
-            <span
-              aria-hidden={compactMode}
-              className={`overflow-hidden whitespace-nowrap transition-[width,opacity] duration-180 ${
-                compactMode ? 'w-0 opacity-0' : 'w-16 opacity-100'
-              }`}
-            >
-              Settings
-            </span>
-          </PermissionButton>
+          <SidebarUserMenu compactMode={compactMode} />
         </div>
       </div>
     </aside>
