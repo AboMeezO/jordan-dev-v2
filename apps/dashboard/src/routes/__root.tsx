@@ -58,11 +58,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body suppressHydrationWarning>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: themeBootScript,
-          }}
-        />
         <ClerkProvider>
           {children}
           {Devtools ? (
