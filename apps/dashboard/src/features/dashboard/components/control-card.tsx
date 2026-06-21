@@ -15,7 +15,7 @@ export function ControlCard({
     <div className="nd-panel flex items-center justify-between gap-4 p-5">
       <div>
         <p className="nd-label">{label}</p>
-        <p className="mt-2 font-mono text-sm text-[var(--nd-text-primary)]">
+        <p className="mt-2 font-mono text-sm text-(--nd-text-primary)">
           {value}
         </p>
       </div>
