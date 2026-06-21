@@ -182,6 +182,30 @@ body::before {
   }
 }
 
+.dashboard-spinner {
+  animation: dashboard-spin 800ms linear infinite;
+}
+
+.dashboard-loading-bar {
+  animation: dashboard-loading-bar 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dashboard-loading-bar {
+  from {
+    transform: translateX(-90%);
+  }
+
+  to {
+    transform: translateX(190%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

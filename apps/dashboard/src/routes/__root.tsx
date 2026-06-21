@@ -5,6 +5,11 @@ import {
 } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
+import {
+  AppErrorFallback,
+  AppPendingIndicator,
+  AppLoadingScreen,
+} from '../components/dashboard/app-feedback'
 import ClerkProvider from '../integrations/clerk/provider'
 
 import { ThemeSync } from '../features/theme/theme-store'
@@ -24,6 +29,9 @@ const Devtools = import.meta.env.DEV
   : null
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  errorComponent: ({ error, reset }) => (
+    <AppErrorFallback error={error} reset={reset} />
+  ),
   head: () => ({
     meta: [
       {
@@ -44,6 +52,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
+  pendingComponent: () => <AppLoadingScreen />,
   shellComponent: RootDocument,
 })
 
@@ -61,6 +70,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body suppressHydrationWarning>
         <ClerkProvider>
           <ThemeSync />
+          <AppPendingIndicator />
           {children}
           {Devtools ? (
             <Suspense fallback={null}>

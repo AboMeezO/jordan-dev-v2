@@ -1,6 +1,7 @@
 import { SignInButton, useAuth } from '@clerk/clerk-react'
 import type { ReactNode } from 'react'
 
+import { AppLoadingScreen } from '#/components/dashboard/app-feedback'
 import { Button } from '#/components/ui/button'
 
 export type DashboardPermission =
@@ -22,10 +23,9 @@ export function ProtectedRoute({
 
   if (!isLoaded) {
     return (
-      <ProtectedRouteState
-        description="We are verifying your dashboard access."
-        label="Auth"
-        title="Checking your session..."
+      <AppLoadingScreen
+        label="Securing session"
+        message="Connecting to Clerk and verifying your dashboard access."
       />
     )
   }
