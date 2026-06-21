@@ -1,3 +1,19 @@
+import { z } from "zod";
+
+const permissionValues = [
+	"dashboard:read",
+	"guild:read",
+	"guild:update",
+	"user:read",
+	"user:update",
+	"settings:read",
+	"settings:update",
+	"moderation:read",
+	"moderation:manage",
+] as const;
+
+export const permissionSchema = z.enum(permissionValues);
+
 export const permissions = {
 	dashboardRead: "dashboard:read",
 	guildRead: "guild:read",
