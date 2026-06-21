@@ -7,8 +7,11 @@
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"@clerk/shared",
+			"@prisma/client",
+			"@prisma/engines",
 			"esbuild",
 			"lightningcss",
+			"prisma",
 			"unrs-resolver"
 		]
 	},
