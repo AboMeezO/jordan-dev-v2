@@ -1,0 +1,91 @@
+﻿# Jordan Devs Agent Guide
+
+## Project Overview
+
+This repository is a pnpm monorepo for the Jordan Devs platform.
+
+- `apps/dashboard`: TanStack Start dashboard written in TypeScript.
+- `apps/backend`: NestJS backend running on Fastify.
+- `packages/shared`: shared schemas, permissions, and contracts used by both apps.
+- Backend persistence uses Prisma with PostgreSQL.
+- Authentication uses Clerk.
+- Authorization contracts and permission IDs are shared through `packages/shared`.
+
+## Golden Rules
+
+- Start by checking `git status --short`.
+- Do not modify unrelated files.
+- Do not commit pre-existing user changes.
+- Keep commits small and reviewable.
+- Use conventional commits.
+- Run relevant verification before committing.
+- Do not mention tools, agents, or generated-code context in commit messages.
+- Do not add broad abstractions without actual usage.
+- Do not build fake features or placeholder business flows.
+- Do not replace chosen libraries without explicit instruction.
+- Preserve the current frontend/backend architecture unless the task explicitly asks for an architecture change.
+
+## TypeScript Rules
+
+- Do not use `any`.
+- Do not use `as any`.
+- Use `unknown` at boundaries, then narrow with schemas or type guards.
+- Use Zod for runtime validation of untrusted input.
+- Prefer typed DTOs and schemas from `packages/shared`.
+- Do not suppress TypeScript or ESLint errors unless there is a documented unavoidable reason.
+- Do not use `ts-ignore` without an explanation and a narrow follow-up path.
+- Avoid non-null assertions unless the value is proven safe at that point.
+- Prefer exact types over `Record<string, unknown>` when the shape is known.
+- Keep generated files generated; fix their source generator or configuration instead of hand-editing them.
+
+## Frontend Rules
+
+- Do not touch charts or Recharts code unless explicitly requested.
+- Preserve visual design unless the task says otherwise.
+- Use existing dashboard primitives before adding new UI primitives.
+- Follow existing TanStack Query conventions for server state.
+- Use TanStack Form for forms.
+- Frontend permission gates are UX only.
+- Backend remains the source of truth for authorization.
+- Do not expose private tokens or backend secrets in frontend code.
+
+## Backend Rules
+
+- Use the validated config service, not scattered `process.env` reads.
+- Use Prisma through the database, repository, and service pattern already present in `apps/backend`.
+- Use database constraints and transactions for concurrency-sensitive workflows.
+- Use `ClerkAuthGuard` for protected identity.
+- Use `RequirePermissions` or `RequireAnyPermission` for permission-protected endpoints.
+- Feature modules must import the modules they depend on.
+- Use Zod validation and normalized API errors.
+- Use `SkipResponseTransform` only for streams, downloads, or raw responses.
+- Do not fake Discord role granting or business side effects.
+
+## Shared Package Rules
+
+- Shared schemas and permission IDs belong in `packages/shared`.
+- Do not duplicate contracts between frontend and backend.
+- Keep `packages/shared` runtime-safe and dependency-light.
+- Avoid backend-only or frontend-only dependencies in `packages/shared`.
+
+## Verification Rules
+
+Use the smallest relevant verification set first, then broaden before committing.
+
+- Shared package: `pnpm run build:shared`
+- Backend build: `pnpm run build:backend`
+- Backend tests: `pnpm --dir apps/backend test`
+- Dashboard lint: `pnpm --dir apps/dashboard lint`
+- Dashboard tests: `pnpm --dir apps/dashboard test`
+- Dashboard build: `pnpm --dir apps/dashboard build`
+- Dashboard bundle budget: `pnpm --dir apps/dashboard check:bundle`
+
+Do not document or require commands that are not present in `package.json` files.
+
+## Commit Rules
+
+- Use conventional commits.
+- One logical change per commit.
+- Do not bundle cleanup with features.
+- Commit only after relevant checks pass.
+- Commit messages must be project-focused and should not include unrelated implementation context.
