@@ -62,7 +62,13 @@ describe('apiRequest', () => {
       ),
     ).resolves.toEqual({ id: 1, name: 'Jordan Devs' })
 
-    expect(fetchMock).toHaveBeenCalledWith('/guilds/1', expect.any(Object))
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:3001/guilds/1',
+      expect.objectContaining({
+        credentials: 'include',
+        method: 'GET',
+      }),
+    )
     fetchMock.mockRestore()
   })
 

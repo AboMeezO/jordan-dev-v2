@@ -32,9 +32,6 @@ export default tseslint.config(
 		},
 
 		rules: {
-			// =========================
-			// IMPORT SAFETY
-			// =========================
 			"simple-import-sort/imports": "error",
 			"simple-import-sort/exports": "error",
 			"unused-imports/no-unused-imports": "error",
@@ -47,32 +44,19 @@ export default tseslint.config(
 				},
 			],
 
-			// =========================
-			// TYPESCRIPT SAFETY
-			// =========================
-			"@typescript-eslint/no-explicit-any": "warn",
+			"@typescript-eslint/no-explicit-any": "error",
 			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-misused-promises": "error",
 			"@typescript-eslint/consistent-type-imports": "error",
 
-			// =========================
-			// DISCORD BOT SAFETY RULES
-			// =========================
-
-			// يمنع crash صامت من async handlers
 			"@typescript-eslint/no-unsafe-argument": "error",
 
-			// يمنع تجاهل نتائج async (مهم جدًا في interactions)
 			"@typescript-eslint/no-unsafe-call": "warn",
 
-			// يمنع console spam إلا عند الحاجة
 			"no-console": "off",
 		},
 	},
 
-	// =========================
-	// OVERRIDES (Discord patterns)
-	// =========================
 	{
 		files: ["apps/bot/src/Events/**/*.ts"],
 		rules: {

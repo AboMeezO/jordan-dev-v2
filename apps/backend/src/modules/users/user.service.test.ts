@@ -5,7 +5,10 @@ import { UserService } from "./user.service.js";
 
 describe("UserService", () => {
 	it("upserts a user from Clerk identity through the repository", async () => {
-		const repository = {
+		const repository: Pick<
+			UserRepository,
+			"upsertFromClerkIdentity"
+		> = {
 			upsertFromClerkIdentity: vi.fn(async () => ({
 				id: "user_123",
 				clerkUserId: "clerk_123",
@@ -15,8 +18,8 @@ describe("UserService", () => {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			})),
-		} as unknown as UserRepository;
-		const service = new UserService(repository);
+		};
+		const service = new UserService(repository as UserRepository);
 
 		await expect(
 			service.upsertFromClerkIdentity({

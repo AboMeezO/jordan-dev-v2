@@ -1,5 +1,6 @@
 import type { CallHandler, ExecutionContext } from "@nestjs/common";
-import type { Reflector } from "@nestjs/core";
+import { Reflector } from "@nestjs/core";
+import { ExecutionContextHost } from "@nestjs/core/helpers/execution-context-host.js";
 import { firstValueFrom, of } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
@@ -44,14 +45,14 @@ describe("ApiResponseInterceptor", () => {
 });
 
 function mockReflector(skipTransform: boolean): Reflector {
-	return {
-		getAllAndOverride: vi.fn(() => skipTransform),
-	} as unknown as Reflector;
+	const reflector = new Reflector();
+	vi.spyOn(reflector, "getAllAndOverride").mockReturnValue(
+		skipTransform,
+	);
+
+	return reflector;
 }
 
 function mockContext(): ExecutionContext {
-	return {
-		getHandler: vi.fn(),
-		getClass: vi.fn(),
-	} as unknown as ExecutionContext;
+	return new ExecutionContextHost([], class {}, () => undefined);
 }
