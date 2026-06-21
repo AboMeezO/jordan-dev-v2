@@ -19,6 +19,8 @@ export class VerificationService {
 				email: user.email,
 				guildId: request.guildId,
 			},
+			// Discord role granting is not implemented yet; keep the
+			// response explicit instead of pretending the side effect ran.
 			roleGranted: false,
 		};
 	}
