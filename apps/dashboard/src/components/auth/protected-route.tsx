@@ -22,12 +22,7 @@ export function ProtectedRoute({
   const { isLoaded, isSignedIn, sessionClaims } = useAuth()
 
   if (!isLoaded) {
-    return (
-      <AppLoadingScreen
-        label="Securing session"
-        message="Connecting to Clerk and verifying your dashboard access."
-      />
-    )
+    return <AppLoadingScreen />
   }
 
   if (!isSignedIn) {

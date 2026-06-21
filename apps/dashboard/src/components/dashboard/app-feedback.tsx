@@ -2,32 +2,14 @@ import { useRouterState } from '@tanstack/react-router'
 
 import { Button } from '#/components/ui/button'
 
-export function AppLoadingScreen({
-  label = 'Loading dashboard',
-  message = 'Preparing the workspace and session state.',
-}: {
-  label?: string
-  message?: string
-}) {
+export function AppLoadingScreen() {
   return (
-    <main className="grid min-h-screen place-items-center bg-background px-6 text-foreground">
-      <section className="nd-panel w-full max-w-md overflow-hidden p-6">
-        <div className="flex items-center gap-4">
-          <LoadingSpinner size="lg" />
-          <div>
-            <p className="nd-label">{label}</p>
-            <h1 className="mt-2 text-2xl font-medium tracking-[-0.04em] text-[var(--nd-text-display)]">
-              Jordan Devs Dashboard
-            </h1>
-          </div>
-        </div>
-        <p className="mt-5 text-sm leading-6 text-[var(--nd-text-secondary)]">
-          {message}
-        </p>
-        <div className="mt-6 h-1 overflow-hidden rounded-full bg-[var(--nd-surface-raised)]">
-          <div className="dashboard-loading-bar h-full w-1/2 rounded-full bg-[var(--nd-accent)]" />
-        </div>
-      </section>
+    <main
+      aria-label="Loading"
+      className="grid min-h-screen place-items-center bg-background text-foreground"
+      role="status"
+    >
+      <LoadingSpinner size="lg" />
     </main>
   )
 }
@@ -45,15 +27,10 @@ export function AppPendingIndicator() {
     <div
       aria-live="polite"
       aria-label="Loading"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[100] flex justify-center pt-3"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[100] flex justify-center pt-4"
       role="status"
     >
-      <div className="flex items-center gap-2 rounded-full border border-[var(--nd-border-visible)] bg-[var(--nd-surface)] px-3 py-2 shadow-lg">
-        <LoadingSpinner />
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--nd-text-secondary)]">
-          Loading
-        </span>
-      </div>
+      <LoadingSpinner />
     </div>
   )
 }
