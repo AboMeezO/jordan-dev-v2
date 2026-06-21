@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
+import type { Permission } from "@jordan-devs/shared";
 import { sessionBootstrapSchema } from "@jordan-devs/shared";
-import type { SessionBootstrap } from "@jordan-devs/shared";
+import type { User } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
 	ApiErrorException,
@@ -24,6 +24,16 @@ describe("SessionService", () => {
 		displayName: "User",
 		avatarUrl: "https://example.com/avatar.png",
 	};
+
+	const mockUser = {
+		id: "user_123",
+		clerkUserId: "clerk_123",
+		email: "persisted@example.com",
+		displayName: "Persisted User",
+		avatarUrl: "https://example.com/persisted.png",
+		createdAt: new Date("2026-01-01T00:00:00.000Z"),
+		updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+	} as User;
 
 	it("returns local user and effective permissions", async () => {
 		const service = createSessionService();
@@ -104,12 +114,12 @@ function createSessionService(
 ): SessionService {
 	return new SessionService(
 		authorization ?? createAuthorizationService(),
-		users ?? createUserService(),
+		users ?? createUserService(mockUserData()),
 	);
 }
 
 function createAuthorizationService(
-	permissions?: string[],
+	permissions?: readonly Permission[],
 ): AuthorizationService {
 	const authorization: Pick<
 		AuthorizationService,
@@ -118,17 +128,15 @@ function createAuthorizationService(
 		getEffectivePermissions: vi.fn(async () =>
 			permissions !== undefined
 				? permissions
-				: (["dashboard:read", "guild:read"] as string[]),
+				: (["dashboard:read", "guild:read"] as unknown as readonly Permission[]),
 		),
 	};
 
 	return authorization as AuthorizationService;
 }
 
-type UserServiceMock = Pick<UserService, "findById">;
-
-function createUserService(returnValue: object | null = undefined): UserService {
-	const user = returnValue !== undefined ? returnValue : {
+function mockUserData(): User {
+	return {
 		id: "user_123",
 		clerkUserId: "clerk_123",
 		email: "persisted@example.com",
@@ -136,10 +144,14 @@ function createUserService(returnValue: object | null = undefined): UserService 
 		avatarUrl: "https://example.com/persisted.png",
 		createdAt: new Date("2026-01-01T00:00:00.000Z"),
 		updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-	};
+	} as User;
+}
 
+type UserServiceMock = Pick<UserService, "findById">;
+
+function createUserService(returnValue: User | null): UserService {
 	const users: UserServiceMock = {
-		findById: vi.fn(async () => user),
+		findById: vi.fn(async () => returnValue),
 	};
 
 	return users as UserService;
