@@ -8,6 +8,7 @@
 		"start": "node dist/main.js",
 		"dev": "tsx watch src/main.ts",
 		"build": "tsc -p tsconfig.json",
+		"test": "vitest run",
 		"db:generate": "prisma generate",
 		"db:migrate": "prisma migrate dev",
 		"db:validate": "prisma validate"
@@ -27,6 +28,7 @@
 		"zod": "^4.2.0"
 	},
 	"devDependencies": {
-		"prisma": "6.16.3"
+		"prisma": "6.16.3",
+		"vitest": "^4.1.9"
 	}
 }
