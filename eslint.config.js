@@ -50,7 +50,7 @@ export default tseslint.config(
 			// =========================
 			// TYPESCRIPT SAFETY
 			// =========================
-			"@typescript-eslint/no-explicit-any": "warn",
+			"@typescript-eslint/no-explicit-any": "error",
 			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/no-misused-promises": "error",
 			"@typescript-eslint/consistent-type-imports": "error",
