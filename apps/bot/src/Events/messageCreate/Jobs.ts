@@ -78,7 +78,6 @@ async function isWorkingLink(
 
 export default async function (
 	message: Message,
-	_client: Client,
 ): Promise<void> {
 	if (message.author.bot) return;
 	if (message.channel.id !== process.env.JOBS_CHANNEL)

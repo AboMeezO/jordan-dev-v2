@@ -1,6 +1,6 @@
-import type { ChatCommandRegistry, CommandTreeNode } from "#ChatCommands";
 import { distance } from "fastest-levenshtein";
 
+import type { ChatCommandRegistry, CommandTreeNode } from "#ChatCommands";
 import {
 	commandTree,
 	renderCommandTree,

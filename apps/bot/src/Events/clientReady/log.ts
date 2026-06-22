@@ -1,8 +1,8 @@
 import type { Client } from "discord.js";
-import type { CommandTreeNode } from "../../ChatCommands/index.js";
 
 import { Logger } from "#Logger";
 
+import type { CommandTreeNode } from "../../ChatCommands/index.js";
 import {
 	createDefaultChatCommandRegistry,
 	renderCommandTree,

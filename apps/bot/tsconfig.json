@@ -10,6 +10,7 @@
 		"skipLibCheck": true,
 		"outDir": "./dist",
 		"rootDir": ".",
+		"ignoreDeprecations": "5.0",
 		"baseUrl": ".",
 		"paths": {
 			"#Utilities": ["src/Utilities/index.ts"],
