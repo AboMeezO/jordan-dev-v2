@@ -132,7 +132,7 @@ function AdminRolesPage() {
     <PermissionGate permission="roles:read" fallback={<p className="nd-label">You do not have permission to view roles.</p>}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="font-mono text-xl tracking-[-0.05em] text-(--nd-text-display)">Roles</h1>
+          <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">Roles</h1>
           <PermissionButton permission="roles:update" onClick={() => setCreateOpen(true)} size="sm">
             Create Role
           </PermissionButton>
@@ -237,7 +237,7 @@ function AdminRolesPage() {
                             />
                             <div className="grid gap-0.5">
                               <Label
-                                className="font-mono text-xs uppercase leading-none tracking-[0.1em]"
+                                className="font-mono text-xs uppercase leading-none tracking-widest"
                                 htmlFor={`perm-${perm.id}`}
                               >
                                 {perm.id}
