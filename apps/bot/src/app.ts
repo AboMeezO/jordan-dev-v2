@@ -13,18 +13,18 @@ const require = createRequire(import.meta.url);
 const { Client, GatewayIntentBits } = require(
 	"discord.js",
 ) as typeof DiscordJs;
-type GatewayIntentBit =
-	(typeof GatewayIntentBits)[keyof typeof GatewayIntentBits];
 
 export class Bot {
 	private client: DiscordJs.Client;
 
 	constructor() {
 		this.client = new Client({
-			intents: Object.values(GatewayIntentBits).filter(
-				(intent): intent is GatewayIntentBit =>
-					typeof intent === "number",
-			),
+			intents: [
+				GatewayIntentBits.Guilds,
+				GatewayIntentBits.GuildMessages,
+				GatewayIntentBits.MessageContent,
+				GatewayIntentBits.DirectMessages,
+			],
 		});
 	}
 
@@ -40,7 +40,9 @@ export class Bot {
 			commandsPath: path.resolve("src/Commands"),
 			eventsPath: path.resolve("src/Events"),
 			validationsPath: path.resolve("src/Validations"),
-			devGuildIds: [process.env.DEV_GUILD_ID!],
+			devGuildIds: process.env.DEV_GUILD_ID
+				? [process.env.DEV_GUILD_ID]
+				: [],
 			bulkRegister: true,
 		});
 	}

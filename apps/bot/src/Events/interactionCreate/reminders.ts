@@ -71,6 +71,8 @@ async function handleSelect(
 	interaction: StringSelectMenuInteraction,
 	client: Client,
 ): Promise<void> {
+	await interaction.deferUpdate();
+
 	const selectedId = interaction.values[0];
 	const reminders = await listUserReminders(
 		client,
@@ -80,11 +82,10 @@ async function handleSelect(
 		(reminder) => reminder.id === selectedId,
 	);
 
-	await interaction.update({
+	await interaction.editReply({
 		components: [
 			buildReminderPanel({ reminders, selectedReminder }),
 		],
-		flags: reminderMessageFlags(),
 	});
 }
 
@@ -94,6 +95,13 @@ async function handleButton(
 	action: string,
 	reminderId: string | undefined,
 ): Promise<void> {
+	if (
+		action === "toggle-delivery" ||
+		action === "cancel"
+	) {
+		await interaction.deferUpdate();
+	}
+
 	const reminder = await findOwnedReminder(
 		client,
 		interaction.user.id,
@@ -101,10 +109,18 @@ async function handleButton(
 	);
 
 	if (!reminder) {
-		await interaction.reply({
-			content: "That reminder is no longer active.",
-			flags: MessageFlags.Ephemeral,
-		});
+		const content =
+			"That reminder is no longer active.";
+
+		if (interaction.deferred) {
+			await interaction.editReply({ content });
+		} else {
+			await interaction.reply({
+				content,
+				flags: MessageFlags.Ephemeral,
+			});
+		}
+
 		return;
 	}
 
@@ -127,13 +143,17 @@ async function handleButton(
 			client,
 			reminder.id,
 		);
-		await updatePanel(interaction, client, updated?.id);
+		await updatePanelDeferred(
+			interaction,
+			client,
+			updated?.id,
+		);
 		return;
 	}
 
 	if (action === "cancel") {
 		await cancelReminder(client, reminder.id);
-		await updatePanel(interaction, client);
+		await updatePanelDeferred(interaction, client);
 	}
 }
 
@@ -143,6 +163,10 @@ async function handleModal(
 	action: string,
 	reminderId: string | undefined,
 ): Promise<void> {
+	await interaction.deferReply({
+		flags: MessageFlags.Ephemeral,
+	});
+
 	const reminder = await findOwnedReminder(
 		client,
 		interaction.user.id,
@@ -150,9 +174,9 @@ async function handleModal(
 	);
 
 	if (!reminder) {
-		await interaction.reply({
-			content: "That reminder is no longer active.",
-			flags: MessageFlags.Ephemeral,
+		await interaction.editReply({
+			content:
+				"That reminder is no longer active.",
 		});
 		return;
 	}
@@ -184,24 +208,22 @@ async function handleModal(
 			(item) => item.id === reminder.id,
 		);
 
-		await interaction.reply({
+		await interaction.editReply({
 			components: [
 				buildReminderPanel({ reminders, selectedReminder }),
 			],
-			flags: reminderInteractionFlags(),
 		});
 	} catch (error) {
-		await interaction.reply({
+		await interaction.editReply({
 			content:
 				error instanceof Error
 					? error.message
 					: "Failed to update reminder.",
-			flags: MessageFlags.Ephemeral,
 		});
 	}
 }
 
-async function updatePanel(
+async function updatePanelDeferred(
 	interaction: ButtonInteraction,
 	client: Client,
 	selectedId?: string,
@@ -214,11 +236,10 @@ async function updatePanel(
 		(reminder) => reminder.id === selectedId,
 	);
 
-	await interaction.update({
+	await interaction.editReply({
 		components: [
 			buildReminderPanel({ reminders, selectedReminder }),
 		],
-		flags: reminderMessageFlags(),
 	});
 }
 

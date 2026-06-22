@@ -1,5 +1,7 @@
 import type { Client, Message } from "discord.js";
 
+import { safeFetch } from "#ChatCommands";
+
 const URL_AT_START_REGEX = /^\s*(https?:\/\/[^\s<>()]+)/i;
 
 const NO_LINK_ROASTS = [
@@ -56,21 +58,21 @@ async function isWorkingLink(
 	url: string,
 ): Promise<boolean> {
 	try {
-		const headResponse = await fetch(url, {
+		const headResult = await safeFetch(url, {
 			method: "HEAD",
-			redirect: "follow",
-			signal: AbortSignal.timeout(7000),
+			timeout: 7000,
 		});
 
-		if (headResponse.ok) return true;
+		if (headResult.status >= 200 && headResult.status < 400) {
+			return true;
+		}
 
-		const getResponse = await fetch(url, {
+		const getResult = await safeFetch(url, {
 			method: "GET",
-			redirect: "follow",
-			signal: AbortSignal.timeout(7000),
+			timeout: 7000,
 		});
 
-		return getResponse.ok;
+		return getResult.status >= 200 && getResult.status < 400;
 	} catch {
 		return false;
 	}
