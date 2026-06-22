@@ -50,6 +50,16 @@ export {
 	updateRoleSchema,
 } from "./roles.js";
 export type {
+	SessionBootstrap,
+	SessionBootstrapResponse,
+	SessionUser,
+} from "./session.js";
+export {
+	sessionBootstrapResponseSchema,
+	sessionBootstrapSchema,
+	sessionUserSchema,
+} from "./session.js";
+export type {
 	UpdateUser,
 	UserDetail,
 	UserListItem,
@@ -68,16 +78,6 @@ export {
 	userRoleAssignmentResponseSchema,
 	userRoleAssignmentSchema,
 } from "./users.js";
-export type {
-	SessionBootstrap,
-	SessionBootstrapResponse,
-	SessionUser,
-} from "./session.js";
-export {
-	sessionBootstrapResponseSchema,
-	sessionBootstrapSchema,
-	sessionUserSchema,
-} from "./session.js";
 export type {
 	CompleteVerificationRequest,
 	RoleGrantStatus,
