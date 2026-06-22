@@ -1,4 +1,4 @@
-import { Gauge, X } from 'lucide-react'
+import { X } from 'lucide-react'
 
 import { SidebarBrandHeader } from '#/components/dashboard/sidebar-brand-header'
 import { SidebarUserMenu } from '#/components/dashboard/sidebar-user-menu'
@@ -76,36 +76,7 @@ export function DashboardSidebar({
           })}
         </nav>
 
-        <div className="mt-auto grid border-t border-(--nd-border) pt-4">
-          <div className="flex items-center justify-between gap-4 overflow-hidden px-1 pb-4">
-            <div className="min-w-0">
-              <p
-                className={`nd-label overflow-hidden transition-[width,opacity] duration-180 ease-out ${
-                  compactMode ? 'w-0 opacity-0' : 'w-22 opacity-100'
-                }`}
-              >
-                Runtime
-              </p>
-              <p className="mt-1 overflow-hidden whitespace-nowrap font-mono text-sm text-(--nd-success)">
-                <span
-                  className={`inline-block transition-[width,opacity] duration-180 ease-out ${
-                    compactMode ? 'w-0 opacity-0' : 'w-18 opacity-100'
-                  }`}
-                >
-                  [STABLE]
-                </span>
-                <span
-                  aria-hidden={!compactMode}
-                  className={`inline-block transition-[width,opacity] duration-180 ease-out ${
-                    compactMode ? 'w-6 opacity-100' : 'w-0 opacity-0'
-                  }`}
-                >
-                  OK
-                </span>
-              </p>
-            </div>
-            <Gauge className="size-5 shrink-0 text-(--nd-text-secondary)" />
-          </div>
+        <div className="mt-auto border-t border-(--nd-border)">
           <SidebarUserMenu compactMode={compactMode} />
         </div>
       </div>
