@@ -1,11 +1,11 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { PermissionGate } from '#/components/auth/permission-gate'
-import { InlineError, LoadingState } from '#/components/app'
+import { PermissionButton, PermissionGate } from '#/components/auth/permission-gate'
+import { FormDialog, FormField, InlineError, LoadingState } from '#/components/app'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
-import { useUsersQuery } from '#/features/admin'
+import { useAssignUserRolesMutation, useRolesQuery, useUpdateUserMutation, useUsersQuery } from '#/features/admin'
 
 export const Route = createFileRoute('/admin/users')({
   component: AdminUsersPage,
@@ -16,6 +16,56 @@ function AdminUsersPage() {
   const [search, setSearch] = useState('')
 
   const usersQuery = useUsersQuery({ page, limit: 20, search: search || undefined })
+  const rolesQuery = useRolesQuery()
+  const updateUserMutation = useUpdateUserMutation()
+  const assignRolesMutation = useAssignUserRolesMutation()
+
+  const [editUser, setEditUser] = useState<{ id: string; displayName: string; email: string } | null>(null)
+  const [editDisplayName, setEditDisplayName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editError, setEditError] = useState<string | null>(null)
+
+  const [assignRolesUser, setAssignRolesUser] = useState<{ id: string } | null>(null)
+  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(new Set())
+  const [rolesError, setRolesError] = useState<string | null>(null)
+
+  const openEdit = (user: { id: string; displayName: string | null; email: string | null }) => {
+    setEditUser({ id: user.id, displayName: user.displayName ?? '', email: user.email ?? '' })
+    setEditDisplayName(user.displayName ?? '')
+    setEditEmail(user.email ?? '')
+    setEditError(null)
+  }
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editUser) return
+    setEditError(null)
+    try {
+      await updateUserMutation.mutateAsync({ id: editUser.id, data: { displayName: editDisplayName || undefined, email: editEmail || undefined } })
+      setEditUser(null)
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : 'Failed to update user')
+    }
+  }
+
+  const openAssignRoles = (user: { id: string }) => {
+    const fullUser = usersQuery.data?.users.find((u) => u.id === user.id)
+    setAssignRolesUser({ id: user.id })
+    setSelectedRoleIds(new Set(fullUser?.roles.map((r) => r.id) ?? []))
+    setRolesError(null)
+  }
+
+  const handleAssignRoles = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!assignRolesUser) return
+    setRolesError(null)
+    try {
+      await assignRolesMutation.mutateAsync({ id: assignRolesUser.id, roleIds: [...selectedRoleIds] })
+      setAssignRolesUser(null)
+    } catch (err) {
+      setRolesError(err instanceof Error ? err.message : 'Failed to assign roles')
+    }
+  }
 
   return (
     <PermissionGate permission="user:read" fallback={<p className="nd-label">You do not have permission to view users.</p>}>
@@ -33,6 +83,69 @@ function AdminUsersPage() {
           placeholder="Search by name or email..."
           value={search}
         />
+
+        <FormDialog
+          error={editError}
+          isPending={updateUserMutation.isPending}
+          onOpenChange={(open) => {
+            if (!open) { setEditUser(null); setEditError(null) }
+          }}
+          open={editUser !== null}
+          onSubmit={handleEdit}
+          submitLabel="Save"
+          title="Edit User"
+        >
+          <FormField label="Display Name">
+            <Input onChange={(e) => setEditDisplayName(e.target.value)} value={editDisplayName} />
+          </FormField>
+          <FormField label="Email">
+            <Input onChange={(e) => setEditEmail(e.target.value)} value={editEmail} />
+          </FormField>
+        </FormDialog>
+
+        <FormDialog
+          error={rolesError}
+          isPending={assignRolesMutation.isPending}
+          onOpenChange={(open) => {
+            if (!open) { setAssignRolesUser(null); setRolesError(null) }
+          }}
+          open={assignRolesUser !== null}
+          onSubmit={handleAssignRoles}
+          submitLabel="Save Roles"
+          title="Assign Roles"
+        >
+          {rolesQuery.isPending ? (
+            <p className="text-sm text-(--nd-text-muted)">Loading roles...</p>
+          ) : rolesQuery.data ? (
+            <div className="flex max-h-60 flex-wrap gap-2 overflow-y-auto">
+              {rolesQuery.data.map((role) => {
+                const checked = selectedRoleIds.has(role.id)
+                return (
+                  <label
+                    key={role.id}
+                    className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 ${
+                      checked
+                        ? 'border-(--nd-accent) bg-(--nd-accent)/10 text-(--nd-accent)'
+                        : 'border-(--nd-border) text-(--nd-text-muted) hover:border-(--nd-text-muted)'
+                    }`}
+                  >
+                    <input
+                      checked={checked}
+                      className="sr-only"
+                      onChange={() => {
+                        const next = new Set(selectedRoleIds)
+                        if (checked) { next.delete(role.id) } else { next.add(role.id) }
+                        setSelectedRoleIds(next)
+                      }}
+                      type="checkbox"
+                    />
+                    {role.name}
+                  </label>
+                )
+              })}
+            </div>
+          ) : null}
+        </FormDialog>
 
         {usersQuery.isPending ? (
           <LoadingState description="Fetching users..." title="Loading" />
@@ -77,13 +190,24 @@ function AdminUsersPage() {
                         {new Date(user.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          to="/admin/users/$id"
-                          params={{ id: user.id }}
-                          className="font-mono text-[11px] uppercase tracking-[0.14em] text-(--nd-accent) hover:underline"
-                        >
-                          Edit
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <PermissionButton
+                            permission="user:update"
+                            disabledFallbackReason=""
+                            onClick={() => openAssignRoles(user)}
+                            size="sm"
+                            variant="outline"
+                          >
+                            Roles
+                          </PermissionButton>
+                          <Link
+                            to="/admin/users/$id"
+                            params={{ id: user.id }}
+                            className="font-mono text-[11px] uppercase tracking-[0.14em] text-(--nd-accent) hover:underline"
+                          >
+                            Edit
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))}

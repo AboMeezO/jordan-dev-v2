@@ -21,10 +21,10 @@ export function DashboardTopbar({
   timeWindow,
 }: {
   onOpenSidebar: () => void
-  onQueryChange: (query: string) => void
-  onTimeWindowChange: (window: DashboardWindowKey) => void
-  query: string
-  timeWindow: DashboardWindowKey
+  onQueryChange?: (query: string) => void
+  onTimeWindowChange?: (window: DashboardWindowKey) => void
+  query?: string
+  timeWindow?: DashboardWindowKey
 }) {
   const { themePreference, toggleTheme } = useThemePreference()
 
@@ -40,32 +40,36 @@ export function DashboardTopbar({
         <Menu className="size-4" />
       </Button>
 
-      <div className="relative order-2 min-w-full flex-1 sm:order-none sm:min-w-0">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--nd-text-disabled)]" />
-        <Input
-          aria-label="Search modules"
-          className="h-11 rounded-full border-[var(--nd-border-visible)] bg-transparent pr-4 pl-10 font-mono text-sm"
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Search module / owner"
-          value={query}
-        />
-      </div>
+      {onQueryChange !== undefined ? (
+        <div className="relative order-2 min-w-full flex-1 sm:order-none sm:min-w-0">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--nd-text-disabled)]" />
+          <Input
+            aria-label="Search modules"
+            className="h-11 rounded-full border-[var(--nd-border-visible)] bg-transparent pr-4 pl-10 font-mono text-sm"
+            onChange={(event) => onQueryChange(event.target.value)}
+            placeholder="Search module / owner"
+            value={query ?? ''}
+          />
+        </div>
+      ) : null}
 
-      <Select
-        onValueChange={(value) =>
-          onTimeWindowChange(value as DashboardWindowKey)
-        }
-        value={timeWindow}
-      >
-        <SelectTrigger className="h-11 w-[104px] rounded-full border-[var(--nd-border-visible)] font-mono text-xs uppercase">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="24h">24h</SelectItem>
-          <SelectItem value="7d">7d</SelectItem>
-          <SelectItem value="30d">30d</SelectItem>
-        </SelectContent>
-      </Select>
+      {onTimeWindowChange !== undefined ? (
+        <Select
+          onValueChange={(value) =>
+            onTimeWindowChange(value as DashboardWindowKey)
+          }
+          value={timeWindow ?? '7d'}
+        >
+          <SelectTrigger className="h-11 w-[104px] rounded-full border-[var(--nd-border-visible)] font-mono text-xs uppercase">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="24h">24h</SelectItem>
+            <SelectItem value="7d">7d</SelectItem>
+            <SelectItem value="30d">30d</SelectItem>
+          </SelectContent>
+        </Select>
+      ) : null}
 
       <Button
         aria-label={`Toggle theme (${themePreference})`}

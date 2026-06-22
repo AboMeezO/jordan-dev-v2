@@ -2,25 +2,34 @@ import type { ReactNode } from 'react'
 
 import { DashboardShell } from './dashboard-shell'
 import { DashboardSidebar } from './dashboard-sidebar'
+import { DashboardTopbar } from './dashboard-topbar'
 
-import type { DashboardSection } from '../types'
+import type { DashboardSection, DashboardWindowKey } from '../types'
 
 export function AppShell({
   activeSection,
   children,
   compactMode,
+  onQueryChange,
   onSidebarCompactChange,
   onSidebarOpenChange,
   onSectionChange,
+  onTimeWindowChange,
+  query,
   sidebarOpen,
+  timeWindow,
 }: {
   activeSection: DashboardSection | undefined
   children: ReactNode
   compactMode: boolean
+  onQueryChange?: (query: string) => void
   onSidebarCompactChange: (compact: boolean) => void
   onSidebarOpenChange: (open: boolean) => void
   onSectionChange: (section: DashboardSection) => void
+  onTimeWindowChange?: (window: DashboardWindowKey) => void
+  query?: string
   sidebarOpen: boolean
+  timeWindow?: DashboardWindowKey
 }) {
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -47,6 +56,14 @@ export function AppShell({
         />
 
         <section className="min-w-0 px-4 py-4 sm:px-6 lg:px-8">
+          <DashboardTopbar
+            onOpenSidebar={() => onSidebarOpenChange(true)}
+            onQueryChange={onQueryChange}
+            onTimeWindowChange={onTimeWindowChange}
+            query={query}
+            timeWindow={timeWindow}
+          />
+
           {children}
         </section>
       </DashboardShell>

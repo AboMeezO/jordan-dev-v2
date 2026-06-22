@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 
 import { AppShell } from './app-shell'
-import { DashboardTopbar } from './dashboard-topbar'
 
 import type { DashboardSection, DashboardWindowKey } from '../types'
 
@@ -34,19 +33,15 @@ export function DashboardLayout({
     <AppShell
       activeSection={activeSection}
       compactMode={compactMode}
+      onQueryChange={onQueryChange}
       onSidebarCompactChange={onSidebarCompactChange}
       onSidebarOpenChange={onSidebarOpenChange}
       onSectionChange={onSectionChange}
+      onTimeWindowChange={onTimeWindowChange}
+      query={query}
       sidebarOpen={sidebarOpen}
+      timeWindow={timeWindow}
     >
-      <DashboardTopbar
-        onOpenSidebar={() => onSidebarOpenChange(true)}
-        onQueryChange={onQueryChange}
-        onTimeWindowChange={onTimeWindowChange}
-        query={query}
-        timeWindow={timeWindow}
-      />
-
       <div className="grid min-w-0 gap-6 py-6">{children}</div>
     </AppShell>
   )
