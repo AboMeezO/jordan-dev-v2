@@ -2,9 +2,17 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
 import { PermissionButton, PermissionGate } from '#/components/auth/permission-gate'
-import { FormDialog, FormField, InlineError, LoadingState } from '#/components/app'
+import { FormField, InlineError, LoadingState } from '#/components/app'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '#/components/ui/dialog'
 import { useAssignUserRolesMutation, useRolesQuery, useUpdateUserMutation, useUsersQuery } from '#/features/admin'
 
 export const Route = createFileRoute('/admin/users')({
@@ -84,68 +92,84 @@ function AdminUsersPage() {
           value={search}
         />
 
-        <FormDialog
-          error={editError}
-          isPending={updateUserMutation.isPending}
-          onOpenChange={(open) => {
-            if (!open) { setEditUser(null); setEditError(null) }
-          }}
-          open={editUser !== null}
-          onSubmit={handleEdit}
-          submitLabel="Save"
-          title="Edit User"
-        >
-          <FormField label="Display Name">
-            <Input onChange={(e) => setEditDisplayName(e.target.value)} value={editDisplayName} />
-          </FormField>
-          <FormField label="Email">
-            <Input onChange={(e) => setEditEmail(e.target.value)} value={editEmail} />
-          </FormField>
-        </FormDialog>
+        <Dialog open={editUser !== null} onOpenChange={(open) => { if (!open) { setEditUser(null); setEditError(null) } }}>
+          <DialogContent>
+            <form onSubmit={handleEdit}>
+              <DialogHeader>
+                <DialogTitle>Edit User</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <FormField label="Display Name">
+                  <Input onChange={(e) => setEditDisplayName(e.target.value)} value={editDisplayName} />
+                </FormField>
+                <FormField label="Email">
+                  <Input onChange={(e) => setEditEmail(e.target.value)} value={editEmail} />
+                </FormField>
+                {editError && <p className="text-sm text-destructive">{editError}</p>}
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button disabled={updateUserMutation.isPending} type="submit">
+                  {updateUserMutation.isPending ? 'Saving...' : 'Save'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
-        <FormDialog
-          error={rolesError}
-          isPending={assignRolesMutation.isPending}
-          onOpenChange={(open) => {
-            if (!open) { setAssignRolesUser(null); setRolesError(null) }
-          }}
-          open={assignRolesUser !== null}
-          onSubmit={handleAssignRoles}
-          submitLabel="Save Roles"
-          title="Assign Roles"
-        >
-          {rolesQuery.isPending ? (
-            <p className="text-sm text-(--nd-text-muted)">Loading roles...</p>
-          ) : rolesQuery.data ? (
-            <div className="flex max-h-60 flex-wrap gap-2 overflow-y-auto">
-              {rolesQuery.data.map((role) => {
-                const checked = selectedRoleIds.has(role.id)
-                return (
-                  <label
-                    key={role.id}
-                    className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 ${
-                      checked
-                        ? 'border-(--nd-accent) bg-(--nd-accent)/10 text-(--nd-accent)'
-                        : 'border-(--nd-border) text-(--nd-text-muted) hover:border-(--nd-text-muted)'
-                    }`}
-                  >
-                    <input
-                      checked={checked}
-                      className="sr-only"
-                      onChange={() => {
-                        const next = new Set(selectedRoleIds)
-                        if (checked) { next.delete(role.id) } else { next.add(role.id) }
-                        setSelectedRoleIds(next)
-                      }}
-                      type="checkbox"
-                    />
-                    {role.name}
-                  </label>
-                )
-              })}
-            </div>
-          ) : null}
-        </FormDialog>
+        <Dialog open={assignRolesUser !== null} onOpenChange={(open) => { if (!open) { setAssignRolesUser(null); setRolesError(null) } }}>
+          <DialogContent>
+            <form onSubmit={handleAssignRoles}>
+              <DialogHeader>
+                <DialogTitle>Assign Roles</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {rolesQuery.isPending ? (
+                  <p className="text-sm text-(--nd-text-muted)">Loading roles...</p>
+                ) : rolesQuery.data ? (
+                  <div className="flex max-h-60 flex-wrap gap-2 overflow-y-auto">
+                    {rolesQuery.data.map((role) => {
+                      const checked = selectedRoleIds.has(role.id)
+                      return (
+                        <label
+                          key={role.id}
+                          className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 ${
+                            checked
+                              ? 'border-(--nd-accent) bg-(--nd-accent)/10 text-(--nd-accent)'
+                              : 'border-(--nd-border) text-(--nd-text-muted) hover:border-(--nd-text-muted)'
+                          }`}
+                        >
+                          <input
+                            checked={checked}
+                            className="sr-only"
+                            onChange={() => {
+                              const next = new Set(selectedRoleIds)
+                              if (checked) { next.delete(role.id) } else { next.add(role.id) }
+                              setSelectedRoleIds(next)
+                            }}
+                            type="checkbox"
+                          />
+                          {role.name}
+                        </label>
+                      )
+                    })}
+                  </div>
+                ) : null}
+                {rolesError && <p className="text-sm text-destructive">{rolesError}</p>}
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button disabled={assignRolesMutation.isPending} type="submit">
+                  {assignRolesMutation.isPending ? 'Saving...' : 'Save Roles'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {usersQuery.isPending ? (
           <LoadingState description="Fetching users..." title="Loading" />

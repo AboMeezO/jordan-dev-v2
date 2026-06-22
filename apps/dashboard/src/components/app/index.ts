@@ -1,6 +1,5 @@
 export { ConfirmDialog } from './confirm-dialog'
 export { EmptyState } from './empty-state'
-export { FormDialog } from './form-dialog'
 export { FormField } from './form-field'
 export { InlineError } from './inline-error'
 export { LoadingState } from './loading-state'

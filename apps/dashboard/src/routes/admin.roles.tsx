@@ -2,9 +2,27 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { PermissionButton, PermissionGate } from '#/components/auth/permission-gate'
-import { ConfirmDialog, FormDialog, FormField, InlineError, LoadingState } from '#/components/app'
+import { FormField, InlineError, LoadingState } from '#/components/app'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '#/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '#/components/ui/dialog'
 import { useCreateRoleMutation, useDeleteRoleMutation, useRolesQuery, useUpdateRoleMutation } from '#/features/admin'
 
 export const Route = createFileRoute('/admin/roles')({
@@ -79,58 +97,76 @@ function AdminRolesPage() {
           </PermissionButton>
         </div>
 
-        <FormDialog
-          error={createError}
-          isPending={createRoleMutation.isPending}
-          onOpenChange={(open) => {
-            setCreateOpen(open)
-            if (!open) setCreateError(null)
-          }}
-          open={createOpen}
-          onSubmit={handleCreate}
-          submitDisabled={!createName.trim()}
-          submitLabel="Create"
-          title="Create Role"
-        >
-          <FormField label="Name">
-            <Input onChange={(e) => setCreateName(e.target.value)} placeholder="Role name" value={createName} />
-          </FormField>
-          <FormField label="Description">
-            <Input onChange={(e) => setCreateDescription(e.target.value)} placeholder="Optional description" value={createDescription} />
-          </FormField>
-        </FormDialog>
+        <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) setCreateError(null) }}>
+          <DialogContent>
+            <form onSubmit={handleCreate}>
+              <DialogHeader>
+                <DialogTitle>Create Role</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <FormField label="Name">
+                  <Input onChange={(e) => setCreateName(e.target.value)} placeholder="Role name" value={createName} />
+                </FormField>
+                <FormField label="Description">
+                  <Input onChange={(e) => setCreateDescription(e.target.value)} placeholder="Optional description" value={createDescription} />
+                </FormField>
+                {createError && <p className="text-sm text-destructive">{createError}</p>}
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button disabled={!createName.trim() || createRoleMutation.isPending} type="submit">
+                  {createRoleMutation.isPending ? 'Creating...' : 'Create'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
-        <FormDialog
-          error={editError}
-          isPending={updateRoleMutation.isPending}
-          onOpenChange={(open) => {
-            if (!open) { setEditRole(null); setEditError(null) }
-          }}
-          open={editRole !== null}
-          onSubmit={handleEdit}
-          submitDisabled={!editName.trim()}
-          submitLabel="Save"
-          title="Edit Role"
-        >
-          <FormField label="Name">
-            <Input onChange={(e) => setEditName(e.target.value)} placeholder="Role name" value={editName} />
-          </FormField>
-          <FormField label="Description">
-            <Input onChange={(e) => setEditDescription(e.target.value)} placeholder="Optional description" value={editDescription} />
-          </FormField>
-        </FormDialog>
+        <Dialog open={editRole !== null} onOpenChange={(open) => { if (!open) { setEditRole(null); setEditError(null) } }}>
+          <DialogContent>
+            <form onSubmit={handleEdit}>
+              <DialogHeader>
+                <DialogTitle>Edit Role</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <FormField label="Name">
+                  <Input onChange={(e) => setEditName(e.target.value)} placeholder="Role name" value={editName} />
+                </FormField>
+                <FormField label="Description">
+                  <Input onChange={(e) => setEditDescription(e.target.value)} placeholder="Optional description" value={editDescription} />
+                </FormField>
+                {editError && <p className="text-sm text-destructive">{editError}</p>}
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button disabled={!editName.trim() || updateRoleMutation.isPending} type="submit">
+                  {updateRoleMutation.isPending ? 'Saving...' : 'Save'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
-        {deleteRoleId ? (
-          <ConfirmDialog
-            confirmLabel="Delete"
-            description={`Are you sure you want to delete "${deleteTarget?.name ?? 'this role'}"? This action cannot be undone.`}
-            onConfirm={handleDelete}
-            title="Delete Role"
-            variant="danger"
-          >
-            <Button className="hidden" />
-          </ConfirmDialog>
-        ) : null}
+        <AlertDialog open={deleteRoleId !== null} onOpenChange={(open) => { if (!open) setDeleteRoleId(null) }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Role</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{deleteTarget?.name ?? 'this role'}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction disabled={deleteRoleMutation.isPending} onClick={handleDelete} variant="destructive">
+                {deleteRoleMutation.isPending ? 'Deleting...' : 'Delete'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {rolesQuery.isPending ? (
           <LoadingState description="Fetching roles..." title="Loading" />

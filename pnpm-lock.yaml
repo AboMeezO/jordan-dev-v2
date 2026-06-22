@@ -325,7 +325,7 @@ importers:
         version: 0.545.0(react@19.2.7)
       nitro:
         specifier: npm:nitro-nightly@latest
-        version: nitro-nightly@3.0.1-20260621-112201-f9f328e1(@electric-sql/pglite@0.4.1)(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(lru-cache@11.5.1)(mysql2@3.15.3)(rollup@4.62.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4))
+        version: nitro-nightly@3.0.1-20260622-083727-6de81eef(@electric-sql/pglite@0.4.1)(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(lru-cache@11.5.1)(mysql2@3.15.3)(rollup@4.62.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4))
       react:
         specifier: ^19.2.0
         version: 19.2.7
@@ -5297,8 +5297,8 @@ packages:
       zephyr-agent:
         optional: true
 
-  nitro-nightly@3.0.1-20260621-112201-f9f328e1:
-    resolution: {integrity: sha512-663HEHPqRYtDxokk8usX+SLS2+WZyv0FhIq07enAcxD+0lXzsLeHMxokMaB327XbWmDzSt8BK8G9Pj0D6JwxJA==}
+  nitro-nightly@3.0.1-20260622-083727-6de81eef:
+    resolution: {integrity: sha512-R3MM2zQQTWxH57yD8i0IJ1ZAAhAML9SmG9JVG4BjkkpFJa7nZUwPi+ePGZHiwmK9il++V/OOVMQK5+KWVAXwcw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -11804,7 +11804,7 @@ snapshots:
       - uploadthing
       - wrangler
 
-  nitro-nightly@3.0.1-20260621-112201-f9f328e1(@electric-sql/pglite@0.4.1)(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(lru-cache@11.5.1)(mysql2@3.15.3)(rollup@4.62.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4)):
+  nitro-nightly@3.0.1-20260622-083727-6de81eef(@electric-sql/pglite@0.4.1)(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(jiti@2.7.0)(lru-cache@11.5.1)(mysql2@3.15.3)(rollup@4.62.0)(vite@8.0.16(@types/node@22.19.21)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.22.4)):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.6(srvx@0.11.16)
