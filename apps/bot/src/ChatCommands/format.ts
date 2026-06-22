@@ -300,7 +300,19 @@ export function formatMs(totalMs: number): string {
 export function formatDuration(
 	totalSeconds: number,
 ): string {
-	return formatMs(totalSeconds * 1000);
+	const days = Math.floor(totalSeconds / 86_400);
+	const hours = Math.floor((totalSeconds % 86_400) / 3_600);
+	const minutes = Math.floor((totalSeconds % 3_600) / 60);
+	const seconds = Math.floor(totalSeconds % 60);
+
+	return [
+		days > 0 ? `${days}d` : undefined,
+		hours > 0 ? `${hours}h` : undefined,
+		minutes > 0 ? `${minutes}m` : undefined,
+		`${seconds}s`,
+	]
+		.filter(Boolean)
+		.join(" ");
 }
 
 export function guildMember(
