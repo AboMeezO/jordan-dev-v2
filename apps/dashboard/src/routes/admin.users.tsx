@@ -81,7 +81,7 @@ function AdminUsersPage() {
     <PermissionGate permission="user:read" fallback={<p className="nd-label">You do not have permission to view users.</p>}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="font-mono text-xl tracking-[-0.05em] text-(--nd-text-display)">Users</h1>
+          <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">Users</h1>
         </div>
 
         <Input

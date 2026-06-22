@@ -14,7 +14,7 @@ function AdminPermissionsPage() {
   return (
     <PermissionGate permission="permissions:read" fallback={<p className="nd-label">You do not have permission to view permissions.</p>}>
       <div className="space-y-6">
-        <h1 className="font-mono text-xl tracking-[-0.05em] text-(--nd-text-display)">Permissions</h1>
+        <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">Permissions</h1>
 
         {permissionsQuery.isPending ? (
           <LoadingState description="Fetching permissions..." title="Loading" />
