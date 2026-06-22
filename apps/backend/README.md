@@ -109,10 +109,9 @@ Migration workflow:
 pnpm --dir apps/backend db:validate
 pnpm --dir apps/backend db:migrate
 pnpm --dir apps/backend db:generate
-pnpm --dir apps/backend permissions:bootstrap
 ```
 
-Run migrations before starting the backend against a fresh local database.
+Startup bootstrap runs automatically on next backend start.
 
 ## Auth Model
 
@@ -146,50 +145,34 @@ Frontend permission gates are UX only. Backend guards and data checks are the se
 
 ### Permission Synchronization
 
-`AuthorizationService.syncKnownPermissions()` can upsert the shared permission IDs into the database, but it is intentionally not run automatically at application startup.
+`AuthorizationService.syncKnownPermissions()` is called automatically at application startup via `AuthorizationBootstrapService.onApplicationBootstrap()`.
 
-Reason: startup-time database writes are hidden production side effects. Permission synchronization should run as an explicit operational step when permissions are added or changed, or as part of a future seed/admin migration workflow.
+The startup bootstrap always syncs known permissions from `@jordan-devs/shared`.
 
-Run the explicit bootstrap command after migrations:
+If `INITIAL_ADMIN_CLERK_USER_ID` is set, the bootstrap also creates or updates an `admin` role with all known permissions, upserts a local user for that Clerk user ID, and assigns the role. Use a Clerk user ID such as `user_...`, not an email address.
 
-```bash
-pnpm --dir apps/backend permissions:bootstrap
-```
-
-The command always syncs known permissions from `@jordan-devs/shared`.
-
-If `INITIAL_ADMIN_CLERK_USER_ID` is set, the command also creates or updates an `admin` role with all known permissions, upserts a local user for that Clerk user ID, and assigns the role. Use a Clerk user ID such as `user_...`, not an email address.
-
-If `INITIAL_ADMIN_CLERK_USER_ID` is unset, the command only syncs known permissions and does not assign any administrator role.
+If `INITIAL_ADMIN_CLERK_USER_ID` is unset, the bootstrap only syncs known permissions and does not assign any administrator role.
 
 ### Quick start bootstrap
 
-After running database migrations (`pnpm --dir apps/backend db:migrate`), bootstrap permissions:
+Startup bootstrap runs automatically. After running database migrations, simply start the backend:
 
 ```bash
-pnpm --dir apps/backend permissions:bootstrap
+pnpm run dev:backend
 ```
 
-To bootstrap with an initial admin user:
+To bootstrap with an initial admin user, find your Clerk user ID (from the Clerk Dashboard → Users → your user → `User ID`) and set it in `apps/backend/.env`:
 
-1. Find your Clerk user ID (from the Clerk Dashboard → Users → your user → `User ID`).
-2. Set it in `apps/backend/.env`:
-   ```txt
-   INITIAL_ADMIN_CLERK_USER_ID=user_2abc123...
-   ```
-3. Run:
-   ```bash
-   pnpm --dir apps/backend permissions:bootstrap
-   ```
-4. Expected output:
-   ```
-   Permission bootstrap complete.
-     known_permissions_synced=9
-     admin_role=admin
-     INITIAL_ADMIN_CLERK_USER_ID present=true
-     target_clerk_user_id=user_2abc123...
-     admin_users_assigned=1
-   ```
+```txt
+INITIAL_ADMIN_CLERK_USER_ID=user_2abc123...
+```
+
+Then start the backend. On startup you will see:
+
+```
+[Nest] INFO [AuthorizationBootstrapService] INITIAL_ADMIN_CLERK_USER_ID configured: user_2abc123...
+[Nest] INFO [AuthorizationBootstrapService] Authorization bootstrap completed. 9 permission(s) synced, admin role: "admin", users assigned: 1.
+```
 
 ## API Error Format
 
