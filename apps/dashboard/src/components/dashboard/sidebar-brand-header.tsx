@@ -9,37 +9,51 @@ export function SidebarBrandHeader({
   compactMode: boolean
   onToggleCompact: () => void
 }) {
-  if (compactMode) {
-    return (
-      <div className="flex h-14 items-center justify-center overflow-hidden">
-        <button
-          className="group relative size-10 shrink-0"
-          onClick={onToggleCompact}
-          type="button"
-          aria-label="Expand sidebar"
-        >
-          <img src="/logo.png" alt="Jordan Devs" className="absolute inset-0 size-full object-contain transition-opacity duration-180 ease-out group-hover:opacity-0 group-focus-visible:opacity-0" />
-          <PanelLeftOpen
-            className="absolute inset-0 p-3 text-(--nd-text-secondary) opacity-0 transition-opacity duration-180 ease-out group-hover:opacity-100 group-focus-visible:opacity-100"
-            strokeWidth={1.5}
-          />
-        </button>
-      </div>
-    )
-  }
-
   return (
     <div className="flex h-14 items-center gap-3 overflow-hidden">
-      <img src="/logo.png" alt="Jordan Devs" className="size-10 shrink-0" />
-      <div className="min-w-0 flex-1">
+      <div className="relative size-10 shrink-0">
+        {compactMode ? (
+          <button
+            className="group absolute inset-0"
+            onClick={onToggleCompact}
+            type="button"
+            aria-label="Expand sidebar"
+          >
+            <img
+              src="/logo.png"
+              alt="Jordan Devs"
+              className="absolute inset-0 size-full object-contain transition-opacity duration-180 ease-out group-hover:opacity-0 group-focus-visible:opacity-0"
+            />
+            <PanelLeftOpen
+              className="absolute inset-0 p-3 text-(--nd-text-secondary) opacity-0 transition-opacity duration-180 ease-out group-hover:opacity-100 group-focus-visible:opacity-100"
+              strokeWidth={1.5}
+            />
+          </button>
+        ) : (
+          <img
+            src="/logo.png"
+            alt="Jordan Devs"
+            className="size-full object-contain"
+          />
+        )}
+      </div>
+
+      <div
+        className={`min-w-0 flex-1 overflow-hidden whitespace-nowrap transition-opacity duration-180 ease-out ${
+          compactMode ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+      >
         <p className="nd-label">Jordan Devs</p>
         <p className="mt-0.5 font-mono text-[11px] text-(--nd-text-disabled)">
           System Dashboard
         </p>
       </div>
+
       <Button
         aria-label="Collapse sidebar"
-        className="hidden shrink-0 rounded-full lg:inline-flex"
+        className={`shrink-0 rounded-full transition-opacity duration-180 ease-out ${
+          compactMode ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
         onClick={onToggleCompact}
         size="icon"
         variant="ghost"
