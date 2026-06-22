@@ -40,10 +40,10 @@ function decodeJWT(token: string): Record<string, unknown> {
 	const [headerRaw, payloadRaw] = parts;
 
 	try {
-		const header = JSON.parse(base64UrlDecode(headerRaw!));
+		const header = JSON.parse(base64UrlDecode(headerRaw!)) as Record<string, unknown>;
 		const payload = JSON.parse(
 			base64UrlDecode(payloadRaw!),
-		);
+		) as Record<string, unknown>;
 		return { header, payload };
 	} catch {
 		throw new Error(

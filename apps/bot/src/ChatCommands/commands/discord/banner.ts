@@ -106,11 +106,7 @@ export const bannerCommand = commandTree({
 				size,
 				extension: "png",
 			});
-			const gifBannerUrl = user.banner?.startsWith("a_")
-				? user.bannerURL({ size, extension: "gif" })
-				: undefined;
-
-			if (bannerUrl) {
+				if (bannerUrl) {
 				const infoLines: string[] = [
 					`**${user.username}**'s Banner`,
 				];

@@ -1,4 +1,5 @@
 import type { Client } from "discord.js";
+import type { CommandTreeNode } from "../../ChatCommands/index.js";
 
 import { Logger } from "#Logger";
 
@@ -11,7 +12,7 @@ import { getReminderService } from "../../Reminders/index.js";
 const log = new Logger("client-ready");
 
 function countTreeNodes(
-	nodes: readonly import("../../ChatCommands/index.js").CommandTreeNode[],
+	nodes: readonly CommandTreeNode[],
 ): number {
 	let count = 0;
 	for (const node of nodes) {

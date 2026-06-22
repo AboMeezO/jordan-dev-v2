@@ -123,7 +123,10 @@ export function extractOptionString(
 	name: string,
 ): string | undefined {
 	const value = options[name];
-	return Array.isArray(value) ? value[0] : undefined;
+	if (Array.isArray(value)) {
+		return value[0];
+	}
+	return undefined;
 }
 
 export function extractOptionFlag(

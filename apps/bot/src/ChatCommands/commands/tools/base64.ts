@@ -78,7 +78,7 @@ export const base64Command = subcommand({
 					result.data.input,
 					"base64",
 				).toString("utf-8");
-				const hasBinary = /[\x00-\x08\x0E-\x1F]/.test(
+				const hasBinary = /[\u0000-\u0008\u000E-\u001F]/.test(
 					decoded,
 				);
 

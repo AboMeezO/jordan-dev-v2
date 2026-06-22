@@ -44,7 +44,7 @@ async function sendTemporaryRoast(
 	if (!message.channel.isSendable()) return;
 
 	const warning = await message.channel.send({
-		content: pickRoast(roasts, `${message.author}`),
+		content: pickRoast(roasts, message.author.toString()),
 	});
 
 	setTimeout(() => {
@@ -78,7 +78,7 @@ async function isWorkingLink(
 
 export default async function (
 	message: Message,
-	client: Client,
+	_client: Client,
 ): Promise<void> {
 	if (message.author.bot) return;
 	if (message.channel.id !== process.env.JOBS_CHANNEL)

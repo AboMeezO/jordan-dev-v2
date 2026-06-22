@@ -21,7 +21,6 @@ const RECORD_TYPES = [
 	"SRV",
 	"CAA",
 ] as const;
-type RecordType = (typeof RECORD_TYPES)[number];
 
 const dnsSchema = z.object({
 	domain: textInputSchema(253),

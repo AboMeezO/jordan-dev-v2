@@ -94,11 +94,6 @@ async function scanWithVirusTotal(
 	url: string,
 	apiKey: string,
 ): Promise<ScanResult | undefined> {
-	const encodeUrl = (u: string) =>
-		Buffer.from(u).toString("base64url");
-
-	const encodedUrl = encodeUrl(url);
-
 	const submitResponse = await fetch(
 		`https://www.virustotal.com/api/v3/urls`,
 		{
@@ -188,7 +183,7 @@ async function scanWithLocalHeuristics(
 ): Promise<ScanResult> {
 	const details: string[] = [];
 	let httpResult: SafeFetchResult | undefined;
-	let safeDetermination: boolean | "unknown" = "unknown";
+	let safeDetermination: boolean | "unknown";
 
 	try {
 		const parsed = new URL(url);

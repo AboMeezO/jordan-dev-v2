@@ -71,10 +71,10 @@ async function scanDirectory(
 		}
 
 		try {
-			const mod = await import(pathToFileURL(fullPath).href);
+			const mod = await import(pathToFileURL(fullPath).href) as Record<string, unknown>;
 
 			for (const key of Object.keys(mod)) {
-				const exported = (mod as Record<string, unknown>)[key];
+				const exported = mod[key];
 				if (!exported) continue;
 
 				const commands = extractCommandDefinitions(exported);

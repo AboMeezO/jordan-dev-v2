@@ -1,3 +1,4 @@
+import type { ChatCommandRegistry, CommandTreeNode } from "#ChatCommands";
 import { distance } from "fastest-levenshtein";
 
 import {
@@ -15,12 +16,12 @@ interface FlatEntry {
 }
 
 function collectFlatNames(
-	registry: import("#ChatCommands").ChatCommandRegistry,
+	registry: ChatCommandRegistry,
 ): FlatEntry[] {
 	const entries: FlatEntry[] = [];
 
 	function walk(
-		nodes: import("#ChatCommands").CommandTreeNode[],
+		nodes: CommandTreeNode[],
 	): void {
 		for (const node of nodes) {
 			entries.push({

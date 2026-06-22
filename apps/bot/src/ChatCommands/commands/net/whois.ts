@@ -94,7 +94,9 @@ export const whoisCommand = subcommand({
 						if (value === null || value === undefined) {
 							continue;
 						}
-						const str = String(value).slice(0, 200);
+						const str = typeof value === "object" && value !== null
+						? JSON.stringify(value).slice(0, 200)
+						: String(value).slice(0, 200);
 						const lower = str.toLowerCase();
 						if (
 							!hasPrivacy &&

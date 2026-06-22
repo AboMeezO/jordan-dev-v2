@@ -106,7 +106,7 @@ export const jsonCommand = subcommand({
 		}
 
 		try {
-			const parsed = JSON.parse(result.data.input);
+			const parsed = JSON.parse(result.data.input) as unknown;
 
 			if (result.data.mode === "validate") {
 				await message.reply("Valid JSON.");
