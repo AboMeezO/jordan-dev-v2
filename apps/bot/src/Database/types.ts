@@ -16,6 +16,14 @@ export interface DatabaseAdapter {
 	transaction<T>(
 		work: (tx: DatabaseTransaction) => Promise<T>,
 	): Promise<T>;
+	query<T extends DatabaseRow>(
+		sql: string,
+		params?: readonly DatabaseValue[],
+	): Promise<readonly T[]>;
+	get<T extends DatabaseRow>(
+		sql: string,
+		params?: readonly DatabaseValue[],
+	): Promise<T | undefined>;
 	close(): Promise<void>;
 }
 

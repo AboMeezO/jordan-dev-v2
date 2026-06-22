@@ -7,7 +7,7 @@ const MAX_FUTURE_MS = 365 * 24 * 60 * 60 * 1000;
 const CLOCK_PATTERN =
 	/^(?<hour>\d{1,2}):(?<minute>\d{2})(?:\s*(?<period>am|pm))?$/i;
 
-const UNIT_MS: Readonly<Record<string, number>> = {
+export const UNIT_MS: Readonly<Record<string, number>> = {
 	d: 86_400_000,
 	day: 86_400_000,
 	days: 86_400_000,

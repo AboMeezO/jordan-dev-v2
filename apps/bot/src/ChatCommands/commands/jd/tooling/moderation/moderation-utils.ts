@@ -8,7 +8,7 @@ import {
 
 import type { ChatCommandContext } from "#ChatCommands";
 
-import { shellOutput } from "../../../../format.js";
+import { formatMs, shellOutput } from "../../../../format.js";
 
 const DISCORD_ID_PATTERN = /^\d{17,20}$/;
 const MENTION_PATTERN = /^<@!?(\d{17,20})>$/;
@@ -122,24 +122,7 @@ export function parseDurationMs(
 	return amount * unitMs;
 }
 
-export function formatMs(totalMs: number): string {
-	const totalSeconds = Math.floor(totalMs / 1000);
-	const days = Math.floor(totalSeconds / 86_400);
-	const hours = Math.floor((totalSeconds % 86_400) / 3_600);
-	const minutes = Math.floor((totalSeconds % 3_600) / 60);
-	const seconds = totalSeconds % 60;
-
-	return (
-		[
-			days > 0 ? `${days}d` : undefined,
-			hours > 0 ? `${hours}h` : undefined,
-			minutes > 0 ? `${minutes}m` : undefined,
-			seconds > 0 ? `${seconds}s` : undefined,
-		]
-			.filter(Boolean)
-			.join(" ") || "0s"
-	);
-}
+export { formatMs } from "../../../../format.js";
 
 export async function requireGuild(
 	context: ChatCommandContext,

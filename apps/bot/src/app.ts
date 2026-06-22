@@ -39,7 +39,6 @@ export class Bot {
 			client: this.client,
 			commandsPath: path.resolve("src/Commands"),
 			eventsPath: path.resolve("src/Events"),
-			validationsPath: path.resolve("src/Validations"),
 			devGuildIds: process.env.DEV_GUILD_ID
 				? [process.env.DEV_GUILD_ID]
 				: [],

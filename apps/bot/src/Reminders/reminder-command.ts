@@ -5,7 +5,7 @@ import {
 	type ReminderRecord,
 } from "./reminder-service.js";
 import { getReminderService } from "./reminder-store.js";
-import { parseReminderTime } from "./reminder-time.js";
+import { parseReminderTime, UNIT_MS } from "./reminder-time.js";
 
 export interface ReminderCommandInput {
 	readonly client: Client;
@@ -223,14 +223,14 @@ function consumeRelativeDurationParts(
 
 function isRelativeDurationPart(value: string): boolean {
 	return new RegExp(
-		`^\\d+\\s*(?:${RELATIVE_DURATION_UNIT_PATTERN})$`,
+		`^\\d+\\s*(?:${UNIT_PATTERN})$`,
 		"i",
 	).test(value);
 }
 
 function isRelativeDurationUnit(value: string): boolean {
 	return new RegExp(
-		`^(?:${RELATIVE_DURATION_UNIT_PATTERN})$`,
+		`^(?:${UNIT_PATTERN})$`,
 		"i",
 	).test(value);
 }
@@ -239,5 +239,4 @@ function isPositiveInteger(value: string): boolean {
 	return /^\d+$/.test(value) && Number(value) > 0;
 }
 
-const RELATIVE_DURATION_UNIT_PATTERN =
-	"s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks";
+const UNIT_PATTERN = Object.keys(UNIT_MS).join("|");

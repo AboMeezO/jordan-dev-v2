@@ -1151,13 +1151,13 @@ They should be implemented after the shared validation, registry, and output saf
 
 A tool is considered complete only when:
 
-- [ ] Its input schema is implemented.
-- [ ] Its core logic is implemented.
-- [ ] Its output is safely formatted.
-- [ ] Its errors are handled cleanly.
-- [ ] Its edge cases are tested.
-- [ ] Its acceptance criteria pass.
-- [ ] Its metadata is registered.
-- [ ] It appears correctly in `which`.
-- [ ] It respects cooldowns and permissions.
-- [ ] It has no unsafe shell execution.
+- [x] Its input schema is implemented.
+- [x] Its core logic is implemented.
+- [x] Its output is safely formatted.
+- [x] Its errors are handled cleanly.
+- [x] Its edge cases are tested.
+- [x] Its acceptance criteria pass.
+- [x] Its metadata is registered.
+- [x] It appears correctly in `which`.
+- [x] It respects cooldowns and permissions.
+- [x] It has no unsafe shell execution.

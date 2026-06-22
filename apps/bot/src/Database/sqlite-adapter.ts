@@ -40,6 +40,28 @@ export class SqliteDatabaseAdapter implements DatabaseAdapter {
 		return Promise.resolve();
 	}
 
+	public async query<T extends DatabaseRow>(
+		sql: string,
+		params: readonly DatabaseValue[] = [],
+	): Promise<readonly T[]> {
+		return Promise.resolve(
+			this.database
+				.prepare(sql)
+				.all(...normalizeParams(params)) as T[],
+		);
+	}
+
+	public async get<T extends DatabaseRow>(
+		sql: string,
+		params: readonly DatabaseValue[] = [],
+	): Promise<T | undefined> {
+		return Promise.resolve(
+			this.database
+				.prepare(sql)
+				.get(...normalizeParams(params)) as T | undefined,
+		);
+	}
+
 	public async transaction<T>(
 		work: (tx: DatabaseTransaction) => Promise<T>,
 	): Promise<T> {

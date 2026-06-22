@@ -7,7 +7,6 @@ const srcDir = resolve(__dirname, "src");
 export default defineConfig({
 	resolve: {
 		alias: {
-			"#Utilities": resolve(srcDir, "Utilities/index.ts"),
 			"#Database": resolve(srcDir, "Database/index.ts"),
 			"#ChatCommands": resolve(srcDir, "ChatCommands/index.ts"),
 			"#Config": resolve(srcDir, "config.ts"),

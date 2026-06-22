@@ -161,44 +161,47 @@ export class ReminderRepository {
 	public async listForUser(
 		userId: Snowflake,
 	): Promise<readonly StoredReminderRecord[]> {
-		return this.database.transaction(async (tx) => {
-			const rows = await tx.query<ReminderRow>(
-				`
+		const rows = await this.database.query<ReminderRow>(
+			`
           SELECT *
           FROM reminders
           WHERE user_id = ? AND status = 'pending'
           ORDER BY remind_at ASC
         `,
-				[userId],
-			);
+			[userId],
+		);
 
-			return rows.map(mapReminderRow);
-		});
+		return rows.map(mapReminderRow);
 	}
 
 	public async get(
 		id: string,
 	): Promise<StoredReminderRecord | undefined> {
-		return this.database.transaction(async (tx) =>
-			getReminder(tx, id),
+		const row = await this.database.get<ReminderRow>(
+			`
+          SELECT *
+          FROM reminders
+          WHERE id = ?
+        `,
+			[id],
 		);
+
+		return row ? mapReminderRow(row) : undefined;
 	}
 
 	public async listPending(): Promise<
 		readonly StoredReminderRecord[]
 	> {
-		return this.database.transaction(async (tx) => {
-			const rows = await tx.query<ReminderRow>(
-				`
+		const rows = await this.database.query<ReminderRow>(
+			`
           SELECT *
           FROM reminders
           WHERE status = 'pending'
           ORDER BY remind_at ASC
         `,
-			);
+		);
 
-			return rows.map(mapReminderRow);
-		});
+		return rows.map(mapReminderRow);
 	}
 
 	public async resetInterruptedDeliveries(): Promise<void> {
