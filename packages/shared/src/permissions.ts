@@ -6,6 +6,9 @@ const permissionValues = [
 	"guild:update",
 	"user:read",
 	"user:update",
+	"roles:read",
+	"roles:update",
+	"permissions:read",
 	"settings:read",
 	"settings:update",
 	"moderation:read",
@@ -20,6 +23,9 @@ export const permissions = {
 	guildUpdate: "guild:update",
 	userRead: "user:read",
 	userUpdate: "user:update",
+	rolesRead: "roles:read",
+	rolesUpdate: "roles:update",
+	permissionsRead: "permissions:read",
 	settingsRead: "settings:read",
 	settingsUpdate: "settings:update",
 	moderationRead: "moderation:read",
@@ -27,6 +33,34 @@ export const permissions = {
 } as const;
 
 export type Permission = (typeof permissions)[keyof typeof permissions];
+
+export const permissionDescriptions: Record<Permission, string> = {
+	"dashboard:read": "View the dashboard overview",
+	"guild:read": "View guild information",
+	"guild:update": "Update guild settings",
+	"user:read": "View users and roles",
+	"user:update": "Update users and assign roles to users",
+	"roles:read": "View roles and permission assignments",
+	"roles:update": "Create, update, and delete roles",
+	"permissions:read": "View the permissions list",
+	"settings:read": "View system settings",
+	"settings:update": "Update system settings",
+	"moderation:read": "View moderation data",
+	"moderation:manage": "Perform moderation actions",
+};
+
+export const permissionItemSchema = z.object({
+	id: permissionSchema,
+	description: z.string().nullable(),
+});
+
+export const permissionsListResponseSchema = z.object({
+	success: z.literal(true),
+	data: z.array(permissionItemSchema),
+});
+
+export type PermissionItem = z.infer<typeof permissionItemSchema>;
+export type PermissionsListResponse = z.infer<typeof permissionsListResponseSchema>;
 
 export type PermissionClaims = {
 	metadata?: {

@@ -14,6 +14,8 @@ export {
 export type {
 	Permission,
 	PermissionClaims,
+	PermissionItem,
+	PermissionsListResponse,
 } from "./permissions.js";
 export {
 	can,
@@ -22,9 +24,50 @@ export {
 	isPermission,
 	normalizePermissions,
 	parsePermissionClaims,
+	permissionDescriptions,
+	permissionItemSchema,
 	permissions,
 	permissionSchema,
+	permissionsListResponseSchema,
 } from "./permissions.js";
+export type {
+	RoleDetail,
+	RoleListItem,
+	RoleListResponse,
+	RolePermissionAssignment,
+} from "./roles.js";
+export {
+	createRoleResponseSchema,
+	createRoleSchema,
+	deleteRoleResponseSchema,
+	roleDetailResponseSchema,
+	roleDetailSchema,
+	roleListItemSchema,
+	roleListResponseSchema,
+	rolePermissionAssignmentResponseSchema,
+	rolePermissionAssignmentSchema,
+	updateRoleResponseSchema,
+	updateRoleSchema,
+} from "./roles.js";
+export type {
+	UpdateUser,
+	UserDetail,
+	UserListItem,
+	UserListRequest,
+	UserListResponse,
+	UserRoleAssignment,
+} from "./users.js";
+export {
+	updateUserResponseSchema,
+	updateUserSchema,
+	userDetailResponseSchema,
+	userDetailSchema,
+	userListItemSchema,
+	userListRequestSchema,
+	userListResponseSchema,
+	userRoleAssignmentResponseSchema,
+	userRoleAssignmentSchema,
+} from "./users.js";
 export type {
 	SessionBootstrap,
 	SessionBootstrapResponse,
