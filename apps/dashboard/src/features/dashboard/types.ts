@@ -11,7 +11,7 @@ export type DashboardWindowKey = '24h' | '7d' | '30d'
 export type ModuleStatus = 'online' | 'draft' | 'blocked'
 
 export type DashboardSidebarItem = {
-  id: DashboardSection
+  id: string
   label: string
   icon: LucideIcon
   to?: string

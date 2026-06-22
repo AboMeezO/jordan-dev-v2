@@ -79,7 +79,7 @@ export function DashboardSidebar({
   onToggleCompact,
   open,
 }: {
-  activeSection: DashboardSection
+  activeSection: DashboardSection | undefined
   compactMode: boolean
   onClose: () => void
   onSelect: (section: DashboardSection) => void
