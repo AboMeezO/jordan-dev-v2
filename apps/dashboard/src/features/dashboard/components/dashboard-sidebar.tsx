@@ -1,5 +1,6 @@
-import { Gauge, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
+import { Gauge, X } from 'lucide-react'
 
+import { SidebarBrandHeader } from '#/components/dashboard/sidebar-brand-header'
 import { SidebarUserMenu } from '#/components/dashboard/sidebar-user-menu'
 import { Button } from '#/components/ui/button'
 
@@ -29,78 +30,19 @@ export function DashboardSidebar({
       } ${open ? 'translate-x-0' : '-translate-x-full'}`}
     >
       <div className="flex h-full flex-col">
-        <div
-          className={
-            compactMode
-              ? 'grid justify-items-center gap-3'
-              : 'flex items-start justify-between gap-4'
-          }
-        >
-          <div
-            className={
-              compactMode
-                ? 'grid size-10 place-items-center'
-                : 'relative min-w-0 flex-1 overflow-hidden'
-            }
-          >
-            <div
-              className={`transition-[opacity,transform] duration-180 ease-out ${
-                compactMode
-                  ? 'pointer-events-none -translate-x-2 opacity-0'
-                  : 'translate-x-0 opacity-100'
-              }`}
-            >
-              <p className="nd-label">Jordan Devs</p>
-              <h1 className="mt-2 text-2xl font-medium tracking-[-0.04em]">
-                Control
-              </h1>
-            </div>
-            <div
-              aria-hidden={!compactMode}
-              className={`grid size-10 place-items-center rounded-full border border-(--nd-border-visible) font-mono text-xs text-(--nd-text-display) transition-[opacity,transform] duration-180 ease-out ${
-                compactMode
-                  ? 'translate-x-0 opacity-100'
-                  : 'pointer-events-none translate-x-2 opacity-0'
-              }`}
-            >
-              JD
-            </div>
-          </div>
-          <Button
-            aria-label={compactMode ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={
-              compactMode
-                ? 'order-first hidden shrink-0 rounded-full lg:inline-flex'
-                : 'hidden shrink-0 rounded-full lg:inline-flex'
-            }
-            onClick={onToggleCompact}
-            size="icon"
-            variant="ghost"
-          >
-            {compactMode ? (
-              <PanelLeftOpen className="size-4" />
-            ) : (
-              <PanelLeftClose className="size-4" />
-            )}
-          </Button>
-          <Button
-            aria-label="Close sidebar"
-            className="rounded-full lg:hidden"
-            onClick={onClose}
-            size="icon"
-            variant="ghost"
-          >
-            <X className="size-4" />
-          </Button>
-        </div>
+        <SidebarBrandHeader compactMode={compactMode} onToggleCompact={onToggleCompact} />
 
-        <nav
-          className={
-            compactMode
-              ? 'mt-10 grid gap-1 transition-[margin] duration-180 ease-out'
-              : 'mt-12 grid gap-1'
-          }
+        <Button
+          aria-label="Close sidebar"
+          className="absolute right-1 top-4 rounded-full lg:hidden"
+          onClick={onClose}
+          size="icon"
+          variant="ghost"
         >
+          <X className="size-4" />
+        </Button>
+
+        <nav className="mt-8 grid gap-1">
           {sidebarItems.map((item) => {
             const Icon = item.icon
             const active = item.id === activeSection
