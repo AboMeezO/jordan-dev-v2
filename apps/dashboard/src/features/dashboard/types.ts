@@ -14,6 +14,7 @@ export type DashboardSidebarItem = {
   id: DashboardSection
   label: string
   icon: LucideIcon
+  to?: string
 }
 
 export type ModuleRow = {
