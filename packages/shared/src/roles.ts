@@ -53,6 +53,9 @@ export const updateRoleResponseSchema = z.object({
 
 export const deleteRoleResponseSchema = z.object({
 	success: z.literal(true),
+	data: z.object({
+		deleted: z.literal(true),
+	}),
 });
 
 export const rolePermissionAssignmentSchema = z.object({
