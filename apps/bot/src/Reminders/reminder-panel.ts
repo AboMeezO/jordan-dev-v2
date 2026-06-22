@@ -188,13 +188,33 @@ export function parseReminderCustomId(customId: string):
 			readonly reminderId: string | undefined;
 	  }
 	| undefined {
-	const [prefix, action, reminderId] = customId.split(":");
-
-	if (prefix !== REMINDER_CUSTOM_ID_PREFIX || !action) {
+	const separatorIndex = customId.indexOf(":");
+	if (separatorIndex === -1) {
 		return undefined;
 	}
 
-	return { action, reminderId };
+	const prefix = customId.slice(0, separatorIndex);
+	if (prefix !== REMINDER_CUSTOM_ID_PREFIX) {
+		return undefined;
+	}
+
+	const afterPrefix = customId.slice(separatorIndex + 1);
+	const actionSeparatorIndex = afterPrefix.indexOf(":");
+	const action =
+		actionSeparatorIndex === -1
+			? afterPrefix
+			: afterPrefix.slice(0, actionSeparatorIndex);
+
+	if (!action) {
+		return undefined;
+	}
+
+	const reminderId =
+		actionSeparatorIndex === -1
+			? undefined
+			: afterPrefix.slice(actionSeparatorIndex + 1);
+
+	return { action, reminderId: reminderId || undefined };
 }
 
 function buildReminderSelect(

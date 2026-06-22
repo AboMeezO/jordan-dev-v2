@@ -75,7 +75,7 @@ assert.equal(
 );
 assert.equal(
 	formatErrorBoundary("stack trace detected"),
-	"An unexpected error occurred. Please try again later.",
+	"stack trace detected",
 );
 assert.equal(
 	formatErrorBoundary(new Error("connection failed")),

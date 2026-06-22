@@ -4,6 +4,8 @@ import {
 	type PermissionsBitField,
 } from "discord.js";
 
+import { getOwnerIds } from "#Config";
+
 import type { ChatPermissionLevel } from "./types.js";
 
 const permissionRank: Readonly<
@@ -49,7 +51,7 @@ export function canUseChatCommand(
 	}
 
 	if (level === "owner") {
-		return ownerIds().has(message.author.id);
+		return getOwnerIdsCached().has(message.author.id);
 	}
 
 	if (!message.guild) {
@@ -87,11 +89,6 @@ function hasModeratorPermissions(
 	);
 }
 
-function ownerIds(): ReadonlySet<string> {
-	return new Set(
-		(process.env.OWNER_IDS ?? process.env.OWNER_ID ?? "")
-			.split(",")
-			.map((id) => id.trim())
-			.filter(Boolean),
-	);
+function getOwnerIdsCached(): ReadonlySet<string> {
+	return getOwnerIds();
 }

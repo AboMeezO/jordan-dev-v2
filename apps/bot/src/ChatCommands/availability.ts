@@ -1,5 +1,10 @@
 import type { Message } from "discord.js";
 
+import {
+	getDevIds,
+	getOwnerIds,
+} from "#Config";
+
 import type {
 	ChatCommandDefinition,
 } from "./types.js";
@@ -290,20 +295,4 @@ function checkUserAllowDeny(
 	return { allowed: true };
 }
 
-function getOwnerIds(): ReadonlySet<string> {
-	return new Set(
-		(process.env.OWNER_IDS ?? process.env.OWNER_ID ?? "")
-			.split(",")
-			.map((id) => id.trim())
-			.filter(Boolean),
-	);
-}
 
-function getDevIds(): ReadonlySet<string> {
-	return new Set(
-		(process.env.DEV_IDS ?? "")
-			.split(",")
-			.map((id) => id.trim())
-			.filter(Boolean),
-	);
-}

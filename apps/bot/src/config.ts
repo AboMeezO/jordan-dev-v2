@@ -53,6 +53,22 @@ export const botConfig = {
 	] as readonly string[],
 };
 
+export function getOwnerIds(): ReadonlySet<string> {
+	return new Set(botConfig.owners.ids);
+}
+
+export function getDevIds(): ReadonlySet<string> {
+	return new Set(botConfig.owners.devIds);
+}
+
+export function getPrivilegedIds(): ReadonlySet<string> {
+	const ids = new Set(botConfig.owners.ids);
+	for (const devId of botConfig.owners.devIds) {
+		ids.add(devId);
+	}
+	return ids;
+}
+
 export function validateConfig(): void {
 	if (!botConfig.scanning.virustotalApiKey) {
 		log.warn("VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only");

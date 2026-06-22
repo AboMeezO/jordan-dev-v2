@@ -111,15 +111,24 @@ export function unknownErrorOutput(): string {
 export function formatErrorBoundary(
 	error: unknown,
 ): string {
+	if (
+		error instanceof SyntaxError ||
+		error instanceof ReferenceError ||
+		error instanceof TypeError ||
+		error instanceof RangeError ||
+		error instanceof URIError
+	) {
+		return "An unexpected error occurred. Please try again later.";
+	}
+
+	if (error instanceof Error && error.name === "AssertionError") {
+		return "An unexpected error occurred. Please try again later.";
+	}
+
 	const message =
 		error instanceof Error ? error.message : String(error);
 
-	if (
-		message.includes("stack") ||
-		message.includes("SyntaxError") ||
-		message.includes("ReferenceError") ||
-		message.includes("TypeError")
-	) {
+	if (!message || message === "[object Object]") {
 		return "An unexpected error occurred. Please try again later.";
 	}
 

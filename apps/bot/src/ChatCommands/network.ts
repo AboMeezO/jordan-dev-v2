@@ -199,8 +199,7 @@ export async function safeFetch(
 			let body: string | undefined;
 
 			if (options.method === "GET") {
-				const text = await response.text();
-				body = text.slice(0, 10_000);
+				body = await readBodyWithLimit(response, 10_000);
 			}
 
 			return {
@@ -221,6 +220,54 @@ export async function safeFetch(
 	throw new Error(
 		`Too many redirects (max: ${maxRedirects}).`,
 	);
+}
+
+async function readBodyWithLimit(
+	response: Response,
+	limit: number,
+): Promise<string> {
+	const contentLength = response.headers.get("content-length");
+	if (contentLength && Number(contentLength) > limit) {
+		return "";
+	}
+
+	if (!response.body) {
+		return "";
+	}
+
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	const chunks: string[] = [];
+	let totalBytes = 0;
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			totalBytes += value.length;
+			if (totalBytes > limit) {
+				chunks.push(
+					decoder.decode(
+						value.slice(
+							0,
+							limit - (totalBytes - value.length),
+						),
+						{ stream: true },
+					),
+				);
+				break;
+			}
+
+			chunks.push(
+				decoder.decode(value, { stream: true }),
+			);
+		}
+	} finally {
+		reader.releaseLock();
+	}
+
+	return chunks.join("");
 }
 
 export function formatNetworkErrorMessage(

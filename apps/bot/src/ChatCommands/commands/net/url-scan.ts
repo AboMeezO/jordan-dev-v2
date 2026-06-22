@@ -3,6 +3,7 @@ import { z } from "zod";
 import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
+import { botConfig } from "#Config";
 
 import { scanUrl } from "./url-scan-scanner.js";
 
@@ -62,14 +63,17 @@ export const urlScanCommand = subcommand({
 			return;
 		}
 
+		const isVtConfigured = !!botConfig.scanning.virustotalApiKey;
+
 		const result = await scanUrl(url);
 
 		const lines: string[] = [
+			isVtConfigured && "privacy=URL was sent to VirusTotal for analysis",
 			`url=${url}`,
 			`scanner=${result.scanner}`,
 			`safe=${result.safe}`,
 			`cached=${result.cached}`,
-		];
+		].filter(Boolean) as string[];
 
 		if (result.positives !== undefined && result.total !== undefined) {
 			lines.push(`virustotal_positives=${result.positives}/${result.total}`);

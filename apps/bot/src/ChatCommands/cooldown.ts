@@ -1,5 +1,7 @@
 import type { Message } from "discord.js";
 
+import { getPrivilegedIds } from "#Config";
+
 import type { ChatCommandDefinition } from "./types.js";
 
 interface CooldownEntry {
@@ -21,7 +23,7 @@ export function checkCooldown(
 		return { allowed: true };
 	}
 
-	const ownerDevIds = getPrivilegedIds();
+	const ownerDevIds = getPrivilegedIdsCached();
 
 	if (ownerDevIds.has(message.author.id)) {
 		return { allowed: true };
@@ -65,23 +67,6 @@ export function formatRemainingTime(ms: number): string {
 		: `${minutes}m`;
 }
 
-function getPrivilegedIds(): ReadonlySet<string> {
-	const ids: string[] = [];
-
-	for (const source of [
-		process.env.OWNER_IDS,
-		process.env.OWNER_ID,
-		process.env.DEV_IDS,
-	]) {
-		if (source) {
-			ids.push(
-				...source
-					.split(",")
-					.map((id) => id.trim())
-					.filter(Boolean),
-			);
-		}
-	}
-
-	return new Set(ids);
+function getPrivilegedIdsCached(): ReadonlySet<string> {
+	return getPrivilegedIds();
 }

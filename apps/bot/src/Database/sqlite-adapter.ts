@@ -14,6 +14,7 @@ import type {
 export class SqliteDatabaseAdapter implements DatabaseAdapter {
 	public readonly driver = "sqlite" as const;
 	private readonly database: DatabaseSync;
+	private transactionDepth = 0;
 
 	public constructor(url: string) {
 		const filename = sqliteFilenameFromUrl(url);
@@ -42,6 +43,35 @@ export class SqliteDatabaseAdapter implements DatabaseAdapter {
 	public async transaction<T>(
 		work: (tx: DatabaseTransaction) => Promise<T>,
 	): Promise<T> {
+		const depth = this.transactionDepth;
+		this.transactionDepth++;
+
+		if (depth > 0) {
+			const savepointName = `sp_${depth}`;
+			this.database.exec(
+				`SAVEPOINT ${savepointName}`,
+			);
+
+			try {
+				const result = await work(
+					new SqliteDatabaseTransaction(
+						this.database,
+					),
+				);
+				this.database.exec(
+					`RELEASE SAVEPOINT ${savepointName}`,
+				);
+				return result;
+			} catch (error) {
+				this.database.exec(
+					`ROLLBACK TO SAVEPOINT ${savepointName}`,
+				);
+				throw error;
+			} finally {
+				this.transactionDepth--;
+			}
+		}
+
 		this.database.exec("BEGIN IMMEDIATE");
 
 		try {
@@ -53,6 +83,8 @@ export class SqliteDatabaseAdapter implements DatabaseAdapter {
 		} catch (error) {
 			this.database.exec("ROLLBACK");
 			throw error;
+		} finally {
+			this.transactionDepth--;
 		}
 	}
 

@@ -2,6 +2,8 @@ const RELATIVE_PATTERN =
 	/^(?:in\s+|after\s+)?(?<amount>\d+)\s*(?<unit>s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks)$/i;
 const RELATIVE_PART_PATTERN =
 	/(?<amount>\d+)\s*(?<unit>s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days|w|week|weeks)/gi;
+const MAX_FUTURE_MS = 365 * 24 * 60 * 60 * 1000;
+
 const CLOCK_PATTERN =
 	/^(?<hour>\d{1,2}):(?<minute>\d{2})(?:\s*(?<period>am|pm))?$/i;
 
@@ -49,18 +51,12 @@ export function parseReminderTime(
 		now,
 	);
 	if (relativeTimestamp !== null) {
-		return {
-			date: new Date(relativeTimestamp),
-			timestamp: relativeTimestamp,
-		};
+		return enforceMaxDuration(relativeTimestamp, now);
 	}
 
 	const clockTimestamp = parseClockTimestamp(value, now);
 	if (clockTimestamp !== null) {
-		return {
-			date: new Date(clockTimestamp),
-			timestamp: clockTimestamp,
-		};
+		return enforceMaxDuration(clockTimestamp, now);
 	}
 
 	const absolute = new Date(value);
@@ -71,7 +67,20 @@ export function parseReminderTime(
 		return null;
 	}
 
-	return { date: absolute, timestamp: absolute.getTime() };
+	return enforceMaxDuration(absolute.getTime(), now);
+}
+
+function enforceMaxDuration(
+	timestamp: number,
+	now: Date,
+): ReminderTimeResult | null {
+	if (timestamp - now.getTime() > MAX_FUTURE_MS) {
+		return null;
+	}
+	return {
+		date: new Date(timestamp),
+		timestamp,
+	};
 }
 
 function parseRelativeTimestamp(
