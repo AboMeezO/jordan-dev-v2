@@ -58,6 +58,10 @@ export class AuthorizationService {
 		);
 	}
 
+	listPermissions() {
+		return this.authorization.listPermissions();
+	}
+
 	bootstrapPermissions(
 		adminClerkUserIds: readonly string[],
 	): Promise<PermissionBootstrapResult> {

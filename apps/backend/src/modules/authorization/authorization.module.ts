@@ -6,8 +6,10 @@ import { AuthorizationRepository } from "./authorization.repository.js";
 import { AuthorizationService } from "./authorization.service.js";
 import { AuthorizationBootstrapService } from "./authorization-bootstrap.service.js";
 import { PermissionGuard } from "./permission.guard.js";
+import { PermissionsController } from "./permissions.controller.js";
 
 @Module({
+	controllers: [PermissionsController],
 	imports: [BackendConfigModule, DatabaseModule],
 	providers: [
 		AuthorizationBootstrapService,

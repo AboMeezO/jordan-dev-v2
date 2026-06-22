@@ -3,15 +3,13 @@ import { Module } from "@nestjs/common";
 import { AuthModule } from "../auth/auth.module.js";
 import { AuthorizationModule } from "../authorization/authorization.module.js";
 import { DatabaseModule } from "../../database/database.module.js";
-import { UserRepository } from "./user.repository.js";
-import { UserService } from "./user.service.js";
-import { UsersController } from "./users.controller.js";
+import { RolesController } from "./roles.controller.js";
+import { RolesRepository } from "./roles.repository.js";
+import { RolesService } from "./roles.service.js";
 
 @Module({
-	controllers: [UsersController],
+	controllers: [RolesController],
 	imports: [AuthModule, AuthorizationModule, DatabaseModule],
-	providers: [UserRepository, UserService],
-	exports: [UserService, UserRepository],
+	providers: [RolesRepository, RolesService],
 })
-export class UserModule {}
-
+export class RolesModule {}
