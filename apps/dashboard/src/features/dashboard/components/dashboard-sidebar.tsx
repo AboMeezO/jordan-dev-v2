@@ -91,11 +91,11 @@ export function DashboardSidebar({
 
   return (
     <aside
-      className={`dashboard-sidebar fixed inset-y-0 left-0 z-40 w-70 overflow-hidden border-r border-(--nd-border) bg-(--nd-surface) p-4 transition-transform duration-180 ease-out lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:translate-x-0 ${
+      className={`dashboard-sidebar fixed inset-y-0 left-0 z-40 w-70 overflow-x-hidden border-r border-(--nd-border) bg-(--nd-surface) p-4 transition-transform duration-180 ease-out lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:translate-x-0 ${
         compactMode ? 'lg:px-3' : 'lg:px-4'
       } ${open ? 'translate-x-0' : '-translate-x-full'}`}
     >
-      <div className="flex h-full flex-col">
+      <div className="flex h-full min-h-0 flex-col">
         <SidebarBrandHeader compactMode={compactMode} onToggleCompact={onToggleCompact} />
 
         <Button
@@ -108,7 +108,7 @@ export function DashboardSidebar({
           <X className="size-4" />
         </Button>
 
-        <nav className="mt-8 grid gap-1">
+        <nav className="mt-8 grid min-h-0 flex-1 gap-1 overflow-y-auto">
           {sidebarItems.map((item) => {
             const active = item.id === activeSection
 
@@ -128,7 +128,7 @@ export function DashboardSidebar({
           })}
         </nav>
 
-        <div className="mt-4 border-t border-(--nd-border) pt-4">
+        <div className="mt-4 shrink-0 border-t border-(--nd-border) pt-4">
           <p className="mb-2 px-3 font-mono text-[10px] uppercase tracking-[0.14em] text-(--nd-text-disabled)">
             Administration
           </p>
@@ -151,7 +151,7 @@ export function DashboardSidebar({
           </nav>
         </div>
 
-        <div className="mt-auto border-t border-(--nd-border)">
+        <div className="mt-auto shrink-0 border-t border-(--nd-border)">
           <SidebarUserMenu compactMode={compactMode} />
         </div>
       </div>

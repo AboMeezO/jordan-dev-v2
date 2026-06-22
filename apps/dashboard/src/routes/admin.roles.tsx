@@ -18,6 +18,7 @@ import {
 import { Checkbox } from '#/components/ui/checkbox'
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -26,7 +27,6 @@ import {
   DialogTitle,
 } from '#/components/ui/dialog'
 import { Label } from '#/components/ui/label'
-import { ScrollArea } from '#/components/ui/scroll-area'
 import {
   useAssignRolePermissionsMutation,
   useCreateRoleMutation,
@@ -140,20 +140,22 @@ function AdminRolesPage() {
 
         <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) setCreateError(null) }}>
           <DialogContent>
-            <form onSubmit={handleCreate}>
-              <DialogHeader>
+            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleCreate}>
+              <DialogHeader className="shrink-0">
                 <DialogTitle>Create Role</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <FormField label="Name">
-                  <Input onChange={(e) => setCreateName(e.target.value)} placeholder="Role name" value={createName} />
-                </FormField>
-                <FormField label="Description">
-                  <Input onChange={(e) => setCreateDescription(e.target.value)} placeholder="Optional description" value={createDescription} />
-                </FormField>
-                {createError && <p className="text-sm text-destructive">{createError}</p>}
-              </div>
-              <DialogFooter>
+              <DialogBody>
+                <div className="space-y-4">
+                  <FormField label="Name">
+                    <Input onChange={(e) => setCreateName(e.target.value)} placeholder="Role name" value={createName} />
+                  </FormField>
+                  <FormField label="Description">
+                    <Input onChange={(e) => setCreateDescription(e.target.value)} placeholder="Optional description" value={createDescription} />
+                  </FormField>
+                  {createError && <p className="text-sm text-destructive">{createError}</p>}
+                </div>
+              </DialogBody>
+              <DialogFooter className="shrink-0">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">Cancel</Button>
                 </DialogClose>
@@ -167,20 +169,22 @@ function AdminRolesPage() {
 
         <Dialog open={editRole !== null} onOpenChange={(open) => { if (!open) { setEditRole(null); setEditError(null) } }}>
           <DialogContent>
-            <form onSubmit={handleEdit}>
-              <DialogHeader>
+            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleEdit}>
+              <DialogHeader className="shrink-0">
                 <DialogTitle>Edit Role</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <FormField label="Name">
-                  <Input onChange={(e) => setEditName(e.target.value)} placeholder="Role name" value={editName} />
-                </FormField>
-                <FormField label="Description">
-                  <Input onChange={(e) => setEditDescription(e.target.value)} placeholder="Optional description" value={editDescription} />
-                </FormField>
-                {editError && <p className="text-sm text-destructive">{editError}</p>}
-              </div>
-              <DialogFooter>
+              <DialogBody>
+                <div className="space-y-4">
+                  <FormField label="Name">
+                    <Input onChange={(e) => setEditName(e.target.value)} placeholder="Role name" value={editName} />
+                  </FormField>
+                  <FormField label="Description">
+                    <Input onChange={(e) => setEditDescription(e.target.value)} placeholder="Optional description" value={editDescription} />
+                  </FormField>
+                  {editError && <p className="text-sm text-destructive">{editError}</p>}
+                </div>
+              </DialogBody>
+              <DialogFooter className="shrink-0">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">Cancel</Button>
                 </DialogClose>
@@ -211,20 +215,20 @@ function AdminRolesPage() {
 
         <Dialog open={managePermsRoleId !== null} onOpenChange={(open) => { if (!open) { setManagePermsRoleId(null); setPermsError(null) } }}>
           <DialogContent>
-            <form onSubmit={handleAssignPerms}>
-              <DialogHeader>
+            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleAssignPerms}>
+              <DialogHeader className="shrink-0">
                 <DialogTitle>Manage Permissions</DialogTitle>
                 <DialogDescription>
                   Select the permissions for this role.
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                {permissionsQuery.isPending ? (
-                  <p className="text-sm text-(--nd-text-muted)">Loading permissions...</p>
-                ) : permissionsQuery.isError ? (
-                  <p className="text-sm text-destructive">Failed to load permissions.</p>
-                ) : permissionsQuery.data ? (
-                  <ScrollArea className="max-h-72">
+              <DialogBody>
+                <div className="space-y-4">
+                  {permissionsQuery.isPending ? (
+                    <p className="text-sm text-(--nd-text-muted)">Loading permissions...</p>
+                  ) : permissionsQuery.isError ? (
+                    <p className="text-sm text-destructive">Failed to load permissions.</p>
+                  ) : permissionsQuery.data ? (
                     <div className="space-y-3">
                       {permissionsQuery.data.map((perm) => {
                         const checked = selectedPermIds.has(perm.id)
@@ -235,9 +239,9 @@ function AdminRolesPage() {
                               id={`perm-${perm.id}`}
                               onCheckedChange={() => togglePerm(perm.id)}
                             />
-                            <div className="grid gap-0.5">
+                            <div className="grid min-w-0 gap-0.5">
                               <Label
-                                className="font-mono text-xs uppercase leading-none tracking-widest"
+                                className="font-mono text-xs uppercase leading-none tracking-widest break-all"
                                 htmlFor={`perm-${perm.id}`}
                               >
                                 {perm.id}
@@ -252,11 +256,11 @@ function AdminRolesPage() {
                         )
                       })}
                     </div>
-                  </ScrollArea>
-                ) : null}
-                {permsError && <p className="text-sm text-destructive">{permsError}</p>}
-              </div>
-              <DialogFooter>
+                  ) : null}
+                  {permsError && <p className="text-sm text-destructive">{permsError}</p>}
+                </div>
+              </DialogBody>
+              <DialogFooter className="shrink-0">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">Cancel</Button>
                 </DialogClose>
@@ -287,11 +291,13 @@ function AdminRolesPage() {
               <tbody>
                 {rolesQuery.data.map((role) => (
                   <tr key={role.id} className="border-b border-(--nd-border) last:border-0">
-                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-[0.14em] text-(--nd-text-primary)">
-                      {role.name}
+                    <td className="max-w-0 px-4 py-3">
+                      <span className="block truncate font-mono text-xs uppercase tracking-[0.14em] text-(--nd-text-primary)">
+                        {role.name}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 text-(--nd-text-muted)">
-                      {role.description ?? '—'}
+                    <td className="max-w-0 px-4 py-3 text-(--nd-text-muted)">
+                      <span className="block truncate">{role.description ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3 text-(--nd-text-muted)">
                       {role.userCount}
@@ -300,11 +306,11 @@ function AdminRolesPage() {
                       {new Date(role.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Link
                           to="/admin/roles/$id"
                           params={{ id: role.id }}
-                          className="font-mono text-[11px] uppercase tracking-[0.14em] text-(--nd-accent) hover:underline"
+                          className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-(--nd-accent) hover:underline"
                         >
                           Permissions
                         </Link>

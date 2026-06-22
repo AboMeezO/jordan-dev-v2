@@ -132,12 +132,12 @@ function AdminRoleDetailPage() {
                         >
                           <input
                             checked={checked}
-                            className="mt-1"
+                            className="mt-1 shrink-0"
                             onChange={() => togglePermission(perm.id)}
                             type="checkbox"
                           />
-                          <div>
-                            <p className="font-mono text-xs uppercase tracking-[0.1em] text-(--nd-text-primary)">
+                          <div className="min-w-0">
+                            <p className="break-all font-mono text-xs uppercase tracking-[0.1em] text-(--nd-text-primary)">
                               {perm.id}
                             </p>
                             <p className="mt-0.5 text-xs text-(--nd-text-muted)">

@@ -293,7 +293,7 @@ export function ServiceGraphChart({
   const nodeById = new Map(nodes.map((node) => [node.id, node]))
 
   return (
-    <div className="h-[280px] min-w-0">
+    <div className="h-[280px] min-w-0 overflow-hidden">
       <svg
         aria-label="Service dependency graph"
         className="h-full w-full"
@@ -377,8 +377,8 @@ function ChartTooltip({
   if (!active || !payload?.length) return null
 
   return (
-    <div className="border border-[var(--nd-border-visible)] bg-[var(--nd-surface)] px-3 py-2">
-      <p className="nd-label">{label}</p>
+    <div className="max-w-[90vw] border border-[var(--nd-border-visible)] bg-[var(--nd-surface)] px-3 py-2">
+      <p className="nd-label break-words">{label}</p>
       <div className="mt-2 grid gap-1">
         {payload.map((item) => (
           <div

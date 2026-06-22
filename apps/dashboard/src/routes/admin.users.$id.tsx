@@ -76,11 +76,11 @@ function AdminUserDetailPage() {
                     {(user.displayName ?? user.email ?? user.clerkUserId).slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <h2 className="font-mono text-lg tracking-[-0.05em] text-(--nd-text-display)">
+                <div className="min-w-0">
+                  <h2 className="truncate font-mono text-lg tracking-[-0.05em] text-(--nd-text-display)">
                     {user.displayName ?? 'Unnamed user'}
                   </h2>
-                  <p className="font-mono text-xs text-(--nd-text-muted)">
+                  <p className="truncate font-mono text-xs text-(--nd-text-muted)">
                     {user.email ?? '—'} &middot; ID: {user.clerkUserId}
                   </p>
                 </div>

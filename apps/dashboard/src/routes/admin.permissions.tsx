@@ -32,8 +32,10 @@ function AdminPermissionsPage() {
               <tbody>
                 {permissionsQuery.data.map((perm) => (
                   <tr key={perm.id} className="border-b border-(--nd-border) last:border-0">
-                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-[0.14em] text-(--nd-text-primary)">
-                      {perm.id}
+                    <td className="max-w-0 px-4 py-3">
+                      <span className="block break-all font-mono text-xs uppercase tracking-[0.14em] text-(--nd-text-primary)">
+                        {perm.id}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-(--nd-text-muted)">
                       {perm.description ?? '—'}

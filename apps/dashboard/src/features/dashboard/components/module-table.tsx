@@ -41,7 +41,7 @@ export function ModuleTable({
                 key={row.id}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td className="px-4 py-4" key={cell.id}>
+                  <td className="max-w-0 px-4 py-4" key={cell.id}>
                     <TableCell
                       cellId={cell.column.id}
                       value={cell.getValue()}
@@ -95,11 +95,11 @@ function TableCell({ cellId, value }: { cellId: string; value: unknown }) {
 
   if (cellId === 'owner') {
     return (
-      <span className="font-mono text-xs uppercase tracking-[0.12em] text-[var(--nd-text-secondary)]">
+      <span className="block truncate font-mono text-xs uppercase tracking-[0.12em] text-[var(--nd-text-secondary)]">
         {String(value)}
       </span>
     )
   }
 
-  return <span>{String(value)}</span>
+  return <span className="block truncate">{String(value)}</span>
 }

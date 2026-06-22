@@ -8,6 +8,7 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogFooter,
@@ -95,20 +96,22 @@ function AdminUsersPage() {
 
         <Dialog open={editUser !== null} onOpenChange={(open) => { if (!open) { setEditUser(null); setEditError(null) } }}>
           <DialogContent>
-            <form onSubmit={handleEdit}>
-              <DialogHeader>
+            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleEdit}>
+              <DialogHeader className="shrink-0">
                 <DialogTitle>Edit User</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <FormField label="Display Name">
-                  <Input onChange={(e) => setEditDisplayName(e.target.value)} value={editDisplayName} />
-                </FormField>
-                <FormField label="Email">
-                  <Input onChange={(e) => setEditEmail(e.target.value)} value={editEmail} />
-                </FormField>
-                {editError && <p className="text-sm text-destructive">{editError}</p>}
-              </div>
-              <DialogFooter>
+              <DialogBody>
+                <div className="space-y-4">
+                  <FormField label="Display Name">
+                    <Input onChange={(e) => setEditDisplayName(e.target.value)} value={editDisplayName} />
+                  </FormField>
+                  <FormField label="Email">
+                    <Input onChange={(e) => setEditEmail(e.target.value)} value={editEmail} />
+                  </FormField>
+                  {editError && <p className="text-sm text-destructive">{editError}</p>}
+                </div>
+              </DialogBody>
+              <DialogFooter className="shrink-0">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">Cancel</Button>
                 </DialogClose>
@@ -122,45 +125,47 @@ function AdminUsersPage() {
 
         <Dialog open={assignRolesUser !== null} onOpenChange={(open) => { if (!open) { setAssignRolesUser(null); setRolesError(null) } }}>
           <DialogContent>
-            <form onSubmit={handleAssignRoles}>
-              <DialogHeader>
+            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleAssignRoles}>
+              <DialogHeader className="shrink-0">
                 <DialogTitle>Assign Roles</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                {rolesQuery.isPending ? (
-                  <p className="text-sm text-(--nd-text-muted)">Loading roles...</p>
-                ) : rolesQuery.data ? (
-                  <div className="flex max-h-60 flex-wrap gap-2 overflow-y-auto">
-                    {rolesQuery.data.map((role) => {
-                      const checked = selectedRoleIds.has(role.id)
-                      return (
-                        <label
-                          key={role.id}
-                          className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 ${
-                            checked
-                              ? 'border-(--nd-accent) bg-(--nd-accent)/10 text-(--nd-accent)'
-                              : 'border-(--nd-border) text-(--nd-text-muted) hover:border-(--nd-text-muted)'
-                          }`}
-                        >
-                          <input
-                            checked={checked}
-                            className="sr-only"
-                            onChange={() => {
-                              const next = new Set(selectedRoleIds)
-                              if (checked) { next.delete(role.id) } else { next.add(role.id) }
-                              setSelectedRoleIds(next)
-                            }}
-                            type="checkbox"
-                          />
-                          {role.name}
-                        </label>
-                      )
-                    })}
-                  </div>
-                ) : null}
-                {rolesError && <p className="text-sm text-destructive">{rolesError}</p>}
-              </div>
-              <DialogFooter>
+              <DialogBody>
+                <div className="space-y-4">
+                  {rolesQuery.isPending ? (
+                    <p className="text-sm text-(--nd-text-muted)">Loading roles...</p>
+                  ) : rolesQuery.data ? (
+                    <div className="flex flex-wrap gap-2">
+                      {rolesQuery.data.map((role) => {
+                        const checked = selectedRoleIds.has(role.id)
+                        return (
+                          <label
+                            key={role.id}
+                            className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors duration-150 ${
+                              checked
+                                ? 'border-(--nd-accent) bg-(--nd-accent)/10 text-(--nd-accent)'
+                                : 'border-(--nd-border) text-(--nd-text-muted) hover:border-(--nd-text-muted)'
+                            }`}
+                          >
+                            <input
+                              checked={checked}
+                              className="sr-only"
+                              onChange={() => {
+                                const next = new Set(selectedRoleIds)
+                                if (checked) { next.delete(role.id) } else { next.add(role.id) }
+                                setSelectedRoleIds(next)
+                              }}
+                              type="checkbox"
+                            />
+                            {role.name}
+                          </label>
+                        )
+                      })}
+                    </div>
+                  ) : null}
+                  {rolesError && <p className="text-sm text-destructive">{rolesError}</p>}
+                </div>
+              </DialogBody>
+              <DialogFooter className="shrink-0">
                 <DialogClose asChild>
                   <Button type="button" variant="outline">Cancel</Button>
                 </DialogClose>
@@ -192,9 +197,9 @@ function AdminUsersPage() {
                 <tbody>
                   {usersQuery.data.users.map((user) => (
                     <tr key={user.id} className="border-b border-(--nd-border) last:border-0">
-                      <td className="px-4 py-3">
+                      <td className="max-w-0 px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Avatar className="size-8">
+                          <Avatar className="size-8 shrink-0">
                             {user.avatarUrl ? (
                               <AvatarImage alt={user.displayName ?? ''} src={user.avatarUrl} />
                             ) : null}
@@ -202,13 +207,13 @@ function AdminUsersPage() {
                               {(user.displayName ?? user.email ?? user.clerkUserId).slice(0, 2)}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-(--nd-text-primary)">
+                          <span className="min-w-0 truncate text-(--nd-text-primary)">
                             {user.displayName ?? '—'}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-(--nd-text-muted)">
-                        {user.email ?? '—'}
+                      <td className="max-w-0 px-4 py-3 text-(--nd-text-muted)">
+                        <span className="truncate block">{user.email ?? '—'}</span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
