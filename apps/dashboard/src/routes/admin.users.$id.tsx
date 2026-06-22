@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { PermissionGate, PermissionButton } from '#/components/auth/permission-gate'
 import { InlineError, LoadingState } from '#/components/app'
+import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { FormField } from '#/components/app/form-field'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
@@ -66,10 +67,24 @@ function AdminUserDetailPage() {
         ) : user ? (
           <>
             <div className="nd-panel space-y-4 p-6">
-              <h2 className="font-mono text-lg tracking-[-0.05em] text-(--nd-text-display)">
-                {user.displayName ?? 'Unnamed user'}
-              </h2>
-              <p className="font-mono text-xs text-(--nd-text-muted)">ID: {user.clerkUserId}</p>
+              <div className="flex items-center gap-4">
+                <Avatar className="size-12">
+                  {user.avatarUrl ? (
+                    <AvatarImage alt={user.displayName ?? ''} src={user.avatarUrl} />
+                  ) : null}
+                  <AvatarFallback className="font-mono text-sm uppercase">
+                    {(user.displayName ?? user.email ?? user.clerkUserId).slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="font-mono text-lg tracking-[-0.05em] text-(--nd-text-display)">
+                    {user.displayName ?? 'Unnamed user'}
+                  </h2>
+                  <p className="font-mono text-xs text-(--nd-text-muted)">
+                    {user.email ?? '—'} &middot; ID: {user.clerkUserId}
+                  </p>
+                </div>
+              </div>
 
               <PermissionGate permission="user:update">
                 <div className="grid max-w-md gap-4">

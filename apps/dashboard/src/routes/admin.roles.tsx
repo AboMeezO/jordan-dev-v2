@@ -15,15 +15,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '#/components/ui/alert-dialog'
+import { Checkbox } from '#/components/ui/checkbox'
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
-import { useCreateRoleMutation, useDeleteRoleMutation, useRolesQuery, useUpdateRoleMutation } from '#/features/admin'
+import { Label } from '#/components/ui/label'
+import { ScrollArea } from '#/components/ui/scroll-area'
+import {
+  useAssignRolePermissionsMutation,
+  useCreateRoleMutation,
+  useDeleteRoleMutation,
+  usePermissionsQuery,
+  useRolesQuery,
+  useUpdateRoleMutation,
+} from '#/features/admin'
 
 export const Route = createFileRoute('/admin/roles')({
   component: AdminRolesPage,
@@ -34,6 +45,8 @@ function AdminRolesPage() {
   const createRoleMutation = useCreateRoleMutation()
   const updateRoleMutation = useUpdateRoleMutation()
   const deleteRoleMutation = useDeleteRoleMutation()
+  const permissionsQuery = usePermissionsQuery()
+  const assignPermissionsMutation = useAssignRolePermissionsMutation()
 
   const [createOpen, setCreateOpen] = useState(false)
   const [createName, setCreateName] = useState('')
@@ -47,6 +60,34 @@ function AdminRolesPage() {
 
   const [deleteRoleId, setDeleteRoleId] = useState<string | null>(null)
   const deleteTarget = deleteRoleId ? rolesQuery.data?.find((r) => r.id === deleteRoleId) : null
+
+  const [managePermsRoleId, setManagePermsRoleId] = useState<string | null>(null)
+  const [selectedPermIds, setSelectedPermIds] = useState<Set<string>>(new Set())
+  const [permsError, setPermsError] = useState<string | null>(null)
+
+  const openManagePerms = (roleId: string) => {
+    setManagePermsRoleId(roleId)
+    setSelectedPermIds(new Set())
+    setPermsError(null)
+  }
+
+  const handleAssignPerms = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!managePermsRoleId) return
+    setPermsError(null)
+    try {
+      await assignPermissionsMutation.mutateAsync({ id: managePermsRoleId, permissionIds: [...selectedPermIds] })
+      setManagePermsRoleId(null)
+    } catch (err) {
+      setPermsError(err instanceof Error ? err.message : 'Failed to assign permissions')
+    }
+  }
+
+  const togglePerm = (permId: string) => {
+    const next = new Set(selectedPermIds)
+    if (next.has(permId)) { next.delete(permId) } else { next.add(permId) }
+    setSelectedPermIds(next)
+  }
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -168,6 +209,65 @@ function AdminRolesPage() {
           </AlertDialogContent>
         </AlertDialog>
 
+        <Dialog open={managePermsRoleId !== null} onOpenChange={(open) => { if (!open) { setManagePermsRoleId(null); setPermsError(null) } }}>
+          <DialogContent>
+            <form onSubmit={handleAssignPerms}>
+              <DialogHeader>
+                <DialogTitle>Manage Permissions</DialogTitle>
+                <DialogDescription>
+                  Select the permissions for this role.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {permissionsQuery.isPending ? (
+                  <p className="text-sm text-(--nd-text-muted)">Loading permissions...</p>
+                ) : permissionsQuery.isError ? (
+                  <p className="text-sm text-destructive">Failed to load permissions.</p>
+                ) : permissionsQuery.data ? (
+                  <ScrollArea className="max-h-72">
+                    <div className="space-y-3">
+                      {permissionsQuery.data.map((perm) => {
+                        const checked = selectedPermIds.has(perm.id)
+                        return (
+                          <div key={perm.id} className="flex items-start gap-3">
+                            <Checkbox
+                              checked={checked}
+                              id={`perm-${perm.id}`}
+                              onCheckedChange={() => togglePerm(perm.id)}
+                            />
+                            <div className="grid gap-0.5">
+                              <Label
+                                className="font-mono text-xs uppercase leading-none tracking-[0.1em]"
+                                htmlFor={`perm-${perm.id}`}
+                              >
+                                {perm.id}
+                              </Label>
+                              {perm.description ? (
+                                <p className="text-xs text-(--nd-text-muted)">
+                                  {perm.description}
+                                </p>
+                              ) : null}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </ScrollArea>
+                ) : null}
+                {permsError && <p className="text-sm text-destructive">{permsError}</p>}
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button disabled={assignPermissionsMutation.isPending} type="submit">
+                  {assignPermissionsMutation.isPending ? 'Saving...' : 'Save Permissions'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
         {rolesQuery.isPending ? (
           <LoadingState description="Fetching roles..." title="Loading" />
         ) : rolesQuery.isError ? (
@@ -216,6 +316,15 @@ function AdminRolesPage() {
                           variant="outline"
                         >
                           Edit
+                        </PermissionButton>
+                        <PermissionButton
+                          permission="roles:update"
+                          disabledFallbackReason=""
+                          onClick={() => openManagePerms(role.id)}
+                          size="sm"
+                          variant="outline"
+                        >
+                          Permissions
                         </PermissionButton>
                         <PermissionButton
                           permission="roles:update"

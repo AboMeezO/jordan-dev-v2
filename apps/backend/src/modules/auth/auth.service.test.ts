@@ -12,8 +12,13 @@ import type { BackendConfigService } from "../../config/app.config.js";
 import type { UserService } from "../users/user.service.js";
 import { AuthService } from "./auth.service.js";
 
+const getUserMock = vi.fn();
+
 vi.mock("@clerk/backend", () => ({
 	verifyToken: vi.fn(),
+	createClerkClient: vi.fn(() => ({
+		users: { getUser: getUserMock },
+	})),
 }));
 
 const verifyTokenMock = vi.mocked(verifyToken);
@@ -21,6 +26,7 @@ const verifyTokenMock = vi.mocked(verifyToken);
 describe("AuthService", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		getUserMock.mockReset();
 	});
 
 	it.each([

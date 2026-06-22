@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { PermissionButton, PermissionGate } from '#/components/auth/permission-gate'
 import { FormField, InlineError, LoadingState } from '#/components/app'
+import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import {
@@ -181,7 +182,7 @@ function AdminUsersPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-(--nd-border) font-mono text-[11px] uppercase tracking-[0.14em] text-(--nd-text-muted)">
-                    <th className="px-4 py-3 font-normal">Name</th>
+                    <th className="px-4 py-3 font-normal">User</th>
                     <th className="px-4 py-3 font-normal">Email</th>
                     <th className="px-4 py-3 font-normal">Roles</th>
                     <th className="px-4 py-3 font-normal">Joined</th>
@@ -191,8 +192,20 @@ function AdminUsersPage() {
                 <tbody>
                   {usersQuery.data.users.map((user) => (
                     <tr key={user.id} className="border-b border-(--nd-border) last:border-0">
-                      <td className="px-4 py-3 text-(--nd-text-primary)">
-                        {user.displayName ?? '—'}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="size-8">
+                            {user.avatarUrl ? (
+                              <AvatarImage alt={user.displayName ?? ''} src={user.avatarUrl} />
+                            ) : null}
+                            <AvatarFallback className="font-mono text-[11px] uppercase">
+                              {(user.displayName ?? user.email ?? user.clerkUserId).slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-(--nd-text-primary)">
+                            {user.displayName ?? '—'}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-(--nd-text-muted)">
                         {user.email ?? '—'}

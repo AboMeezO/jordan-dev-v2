@@ -1,4 +1,4 @@
-import { verifyToken } from "@clerk/backend";
+import { createClerkClient, verifyToken } from "@clerk/backend";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 
 import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
@@ -16,12 +16,24 @@ type ClerkClaims = {
 	picture?: unknown;
 };
 
+type ClerkProfile = {
+	email: string | null;
+	displayName: string | null;
+	avatarUrl: string | null;
+};
+
 @Injectable()
 export class AuthService {
+	private readonly clerkClient: ReturnType<typeof createClerkClient>;
+
 	constructor(
 		private readonly config: BackendConfigService,
 		private readonly users: UserService,
-	) {}
+	) {
+		this.clerkClient = createClerkClient({
+			secretKey: this.config.clerkSecretKey,
+		});
+	}
 
 	extractBearerToken(authorization: string | undefined): string | undefined {
 		const [scheme, token] = authorization?.split(" ") ?? [];
@@ -39,7 +51,7 @@ export class AuthService {
 
 	async authenticateBearerToken(token: string): Promise<AuthenticatedUser> {
 		const claims = await this.verifyClerkToken(token);
-		const identity = this.toClerkIdentity(claims);
+		const identity = await this.toClerkIdentity(claims);
 		const user = await this.users.upsertFromClerkIdentity(identity);
 
 		return {
@@ -65,19 +77,59 @@ export class AuthService {
 		}
 	}
 
-	private toClerkIdentity(claims: ClerkClaims): ClerkUserIdentity {
+	private async toClerkIdentity(
+		claims: ClerkClaims,
+	): Promise<ClerkUserIdentity> {
 		if (typeof claims.sub !== "string" || claims.sub.length === 0) {
 			throw new UnauthorizedException(
 				"Clerk token did not include a user subject.",
 			);
 		}
 
-		return {
+		const identity: ClerkUserIdentity = {
 			clerkUserId: claims.sub,
 			email: firstString(claims.email, claims.email_address),
 			displayName: firstString(claims.name, claims.full_name),
 			avatarUrl: firstString(claims.image_url, claims.picture),
 		};
+
+		const fetched = await this.fetchClerkProfile(identity.clerkUserId);
+
+		if (fetched !== null) {
+			if (identity.email === null) {
+				identity.email = fetched.email;
+			}
+			if (identity.displayName === null) {
+				identity.displayName = fetched.displayName;
+			}
+			if (identity.avatarUrl === null) {
+				identity.avatarUrl = fetched.avatarUrl;
+			}
+		}
+
+		return identity;
+	}
+
+	private async fetchClerkProfile(
+		clerkUserId: string,
+	): Promise<ClerkProfile | null> {
+		try {
+			const clerkUser =
+				await this.clerkClient.users.getUser(clerkUserId);
+
+			const email =
+				clerkUser.emailAddresses?.[0]?.emailAddress ?? null;
+			const displayName =
+				clerkUser.fullName ??
+				clerkUser.firstName ??
+				clerkUser.username ??
+				null;
+			const avatarUrl = clerkUser.imageUrl ?? null;
+
+			return { email, displayName, avatarUrl };
+		} catch {
+			return null;
+		}
 	}
 }
 
