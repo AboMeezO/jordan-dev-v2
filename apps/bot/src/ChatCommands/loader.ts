@@ -3,8 +3,9 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { Logger } from "#Logger";
-import type { ChatCommandDefinition } from "./types.js";
+
 import { toTreeNode } from "./registry.js";
+import type { ChatCommandDefinition } from "./types.js";
 import { renderCommandTree } from "./usage-guide.js";
 
 const log = new Logger("loader");

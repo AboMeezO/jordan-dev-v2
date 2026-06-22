@@ -1,12 +1,11 @@
-import { promises as dns } from "node:dns";
 import type { CaaRecord } from "node:dns";
+import { promises as dns } from "node:dns";
 
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
-import { botConfig } from "#Config";
 
 const DOMAIN_COOLDOWN_MS = 5_000;
 const domainCooldowns = new Map<string, number>();
@@ -161,7 +160,7 @@ export const dnsCommand = subcommand({
 			.trim();
 
 		const resolvedType =
-			typeRaw?.toUpperCase() ?? ("A" as RecordType);
+			typeRaw?.toUpperCase() ?? ("A");
 		const parsed = dnsSchema.safeParse({
 			domain,
 			type: resolvedType,

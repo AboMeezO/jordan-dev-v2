@@ -1,5 +1,4 @@
 import slugify from "slugify";
-
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";

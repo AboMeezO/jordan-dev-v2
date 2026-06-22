@@ -1,5 +1,4 @@
 import { colord, type RgbColor } from "colord";
-
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";

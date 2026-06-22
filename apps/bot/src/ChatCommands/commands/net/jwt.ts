@@ -1,13 +1,12 @@
-import { z } from "zod";
 import {
-	jwtVerify,
 	createRemoteJWKSet,
-	decodeJwt,
 	errors,
+	jwtVerify,
 } from "jose";
+import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";
-import { safeInline, safeOutput } from "#ChatCommands";
+import { safeOutput } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
 
 const jwtSchema = z.object({

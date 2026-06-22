@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect,it } from "vitest";
 
-import { ChatCommandRegistry } from "../../ChatCommands/registry.js";
 import { commandTree } from "../../ChatCommands/hierarchy.js";
+import { ChatCommandRegistry } from "../../ChatCommands/registry.js";
 import { toTreeNode } from "../../ChatCommands/registry.js";
 import { renderCommandTree } from "../../ChatCommands/usage-guide.js";
 

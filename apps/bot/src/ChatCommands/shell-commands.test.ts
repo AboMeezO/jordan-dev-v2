@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 
 import {
-	parseChatCommandInput,
 	ChatCommandRegistry,
+	parseChatCommandInput,
 } from "#ChatCommands";
 
 import { chatCommandTrees } from "./commands/index.js";

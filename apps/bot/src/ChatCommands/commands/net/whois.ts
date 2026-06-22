@@ -1,9 +1,8 @@
 import { whoisDomain } from "whoiser";
-
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";
-import { safeInline, safeOutput } from "#ChatCommands";
+import { safeOutput } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
 
 const PRIVACY_KEYWORDS = [

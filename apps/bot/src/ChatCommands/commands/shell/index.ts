@@ -1,7 +1,7 @@
 import type { ChatCommandDefinition } from "#ChatCommands";
 
-import { dateCommand } from "./date.js";
 import { contextCommand } from "./context.js";
+import { dateCommand } from "./date.js";
 import { groupsCommand } from "./groups.js";
 import { hostnameCommand } from "./hostname.js";
 import { idCommand } from "./id.js";

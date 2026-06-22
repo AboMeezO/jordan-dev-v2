@@ -1,6 +1,6 @@
-import { botConfig } from "#Config";
-import { safeFetch } from "#ChatCommands";
 import type { SafeFetchResult } from "#ChatCommands";
+import { safeFetch } from "#ChatCommands";
+import { botConfig } from "#Config";
 
 export interface ScanResult {
 	readonly url: string;

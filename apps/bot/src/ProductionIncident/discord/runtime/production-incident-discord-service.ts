@@ -2,14 +2,12 @@ import type {
 	ButtonInteraction,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-	TextBasedChannel,
-} from "discord.js";
+	ContainerBuilder,	Message,
+	TextBasedChannel} from "discord.js";
 import {
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
-	ContainerBuilder,
 	EmbedBuilder,
 	MessageFlags,
 	SeparatorBuilder,
@@ -17,7 +15,6 @@ import {
 } from "discord.js";
 
 import { buildContainer } from "#ComponentsV2";
-
 import { Logger } from "#Logger";
 
 import {

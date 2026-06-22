@@ -1,4 +1,4 @@
-import { Logger } from "#Logger";
+import { logCommandExecution } from "#AuditLog";
 import {
 	canUseChatCommand,
 	commandTree,
@@ -6,9 +6,9 @@ import {
 	executeChatCommandResolution,
 	parseChatCommandInput,
 } from "#ChatCommands";
+import { Logger } from "#Logger";
 
 import { shellOutput } from "../../format.js";
-import { logCommandExecution } from "#AuditLog";
 
 const log = new Logger("sudo");
 

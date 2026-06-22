@@ -1,10 +1,9 @@
+import safeRegex from "safe-regex2";
 import { z } from "zod";
 
 import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import { textInputSchema } from "#ChatCommands";
-
-import safeRegex from "safe-regex2";
 
 const regexSchema = z.object({
 	pattern: textInputSchema(500),

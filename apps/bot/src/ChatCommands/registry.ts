@@ -3,7 +3,6 @@ import { maxPermissionLevel } from "./permissions.js";
 import type {
 	ChatCommandDefinition,
 	ChatCommandInvocation,
-	ChatCommandNodeKind,
 	ChatCommandParseResult,
 	ChatPermissionLevel,
 	CommandTreeNode,
@@ -240,7 +239,7 @@ export function toTreeNode(
 		cooldown: definition.cooldown ?? null,
 		description: definition.description,
 		enabled: definition.enabled !== false,
-		kind: definition.kind ?? ("command" as ChatCommandNodeKind),
+		kind: definition.kind ?? ("command"),
 		name: definition.name,
 		path,
 		permission: definition.permission ?? "public",

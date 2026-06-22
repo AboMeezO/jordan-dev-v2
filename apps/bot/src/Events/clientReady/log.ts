@@ -1,6 +1,7 @@
 import type { Client } from "discord.js";
 
 import { Logger } from "#Logger";
+
 import {
 	createDefaultChatCommandRegistry,
 	renderCommandTree,

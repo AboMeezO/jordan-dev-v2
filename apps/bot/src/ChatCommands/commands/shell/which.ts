@@ -5,6 +5,7 @@ import {
 	renderCommandTree,
 	toTreeNode,
 } from "#ChatCommands";
+
 import { shellOutput } from "../../format.js";
 
 interface FlatEntry {

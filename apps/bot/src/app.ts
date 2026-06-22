@@ -4,9 +4,9 @@ import { CommandKit } from "commandkit";
 import type * as DiscordJs from "discord.js" with { "resolution-mode": "require" };
 import path from "path";
 
-import { Logger } from "#Logger";
 import { migrateAuditSchema } from "#AuditLog";
 import { validateConfig } from "#Config";
+import { Logger } from "#Logger";
 
 const log = new Logger("bot");
 const require = createRequire(import.meta.url);

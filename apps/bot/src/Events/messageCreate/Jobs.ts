@@ -1,4 +1,4 @@
-import { Client, Message } from "discord.js";
+import type { Client, Message } from "discord.js";
 
 const URL_AT_START_REGEX = /^\s*(https?:\/\/[^\s<>()]+)/i;
 

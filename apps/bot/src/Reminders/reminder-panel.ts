@@ -1,9 +1,8 @@
+import type {
+	MessageFlags} from "discord.js";
 import {
 	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	ContainerBuilder,
-	MessageFlags,
 	ModalBuilder,
 	SeparatorBuilder,
 	StringSelectMenuBuilder,
@@ -13,15 +12,14 @@ import {
 	TextInputStyle,
 } from "discord.js";
 
+import type { ButtonInput } from "#ComponentsV2";
 import {
 	buildButtonRow,
 	buildContainer,
-	buildTextDisplay,
-	componentsV2Flags,
 	componentsV2EphemeralFlags,
+	componentsV2Flags,
 } from "#ComponentsV2";
 
-import type { ButtonInput } from "#ComponentsV2";
 import type { ReminderRecord } from "./reminder-service.js";
 
 export const REMINDER_CUSTOM_ID_PREFIX = "rem";

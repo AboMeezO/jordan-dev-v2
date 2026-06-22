@@ -1,8 +1,8 @@
 import { resolve } from "node:path";
 
 import { chatCommandTrees } from "./commands/index.js";
-import { ChatCommandRegistry } from "./registry.js";
 import { loadCommandDefinitions } from "./loader.js";
+import { ChatCommandRegistry } from "./registry.js";
 
 export async function createDefaultChatCommandRegistry(
 ): Promise<ChatCommandRegistry> {

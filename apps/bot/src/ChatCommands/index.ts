@@ -5,14 +5,23 @@ export {
 } from "./cooldown.js";
 export { createDefaultChatCommandRegistry } from "./default-registry.js";
 export {
+	dispatchChatCommand,
+	executeChatCommandResolution,
+} from "./dispatcher.js";
+export {
+	commandGroup,
+	commandTree,
+	subcommand,
+} from "./hierarchy.js";
+export {
 	extractHostname,
 	formatNetworkErrorMessage,
 	isPrivateIp,
+	type NetworkSafetyResult,
 	resolveAndCheck,
 	safeFetch,
 	type SafeFetchOptions,
 	type SafeFetchResult,
-	type NetworkSafetyResult,
 } from "./network.js";
 export {
 	ansiShellOutput,
@@ -24,32 +33,6 @@ export {
 	safeOutput,
 	unknownErrorOutput,
 } from "./output.js";
-export {
-	base64Schema,
-	discordSnowflakeSchema,
-	domainSchema,
-	extractOptionFlag,
-	extractOptionString,
-	extractPositionalInput,
-	hashAlgorithmSchema,
-	httpUrlSchema,
-	integerSchema,
-	modeSchema,
-	optionalTextInputSchema,
-	portSchema,
-	safeCommandStringSchema,
-	textInputSchema,
-	urlSchema,
-} from "./validation.js";
-export {
-	dispatchChatCommand,
-	executeChatCommandResolution,
-} from "./dispatcher.js";
-export {
-	commandGroup,
-	commandTree,
-	subcommand,
-} from "./hierarchy.js";
 export {
 	parseChatCommandInput,
 	tokenizeShellLike,
@@ -67,14 +50,14 @@ export type {
 	ChatCommandInputLimits,
 	ChatCommandInvocation,
 	ChatCommandNodeKind,
+	ChatCommandOperator,
 	ChatCommandOptionGuide,
 	ChatCommandOptionValue,
 	ChatCommandParseResult,
-	ChatCommandUsageExample,
-	ChatCommandUsageGuide,
 	ChatCommandRedirect,
 	ChatCommandSegment,
-	ChatCommandOperator,
+	ChatCommandUsageExample,
+	ChatCommandUsageGuide,
 	ChatPermissionLevel,
 	CommandTreeNode,
 } from "./types.js";
@@ -84,3 +67,20 @@ export {
 	renderCommandTreeShell,
 	renderUsageGuide,
 } from "./usage-guide.js";
+export {
+	base64Schema,
+	discordSnowflakeSchema,
+	domainSchema,
+	extractOptionFlag,
+	extractOptionString,
+	extractPositionalInput,
+	hashAlgorithmSchema,
+	httpUrlSchema,
+	integerSchema,
+	modeSchema,
+	optionalTextInputSchema,
+	portSchema,
+	safeCommandStringSchema,
+	textInputSchema,
+	urlSchema,
+} from "./validation.js";

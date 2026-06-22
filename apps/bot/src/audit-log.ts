@@ -1,6 +1,6 @@
-import { Logger } from "#Logger";
-import { getDatabase } from "#Database";
 import type { DatabaseAdapter, DatabaseTransaction } from "#Database";
+import { getDatabase } from "#Database";
+import { Logger } from "#Logger";
 
 const log = new Logger("audit-log");
 

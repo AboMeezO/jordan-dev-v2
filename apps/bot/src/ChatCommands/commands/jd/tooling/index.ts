@@ -1,7 +1,5 @@
 import { commandGroup } from "#ChatCommands";
 
-import { argsCommand } from "./args.js";
-import { moderationGroup } from "./moderation/index.js";
 import { base64Command } from "../../tools/base64.js";
 import { caseCommand } from "../../tools/case_.js";
 import { colorCommand } from "../../tools/color.js";
@@ -13,6 +11,8 @@ import { snowflakeCommand } from "../../tools/snowflake.js";
 import { timestampCommand } from "../../tools/timestamp.js";
 import { urlCommand } from "../../tools/url.js";
 import { uuidCommand } from "../../tools/uuid.js";
+import { argsCommand } from "./args.js";
+import { moderationGroup } from "./moderation/index.js";
 
 export const toolsGroup = commandGroup({
 	description: "Developer utility tools.",

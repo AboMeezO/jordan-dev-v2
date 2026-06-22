@@ -6,7 +6,6 @@ import { subcommand } from "#ChatCommands";
 import { safeInline } from "#ChatCommands";
 import {
 	extractOptionString,
-	textInputSchema,
 } from "#ChatCommands";
 
 const UUID_PATTERN =

@@ -1,6 +1,8 @@
 import type { Client, Message } from "discord.js";
 
+import { logCommandExecution } from "#AuditLog";
 import { Logger } from "#Logger";
+
 import { checkCommandAvailability } from "./availability.js";
 import {
 	checkCooldown,
@@ -14,7 +16,6 @@ import type {
 } from "./registry.js";
 import type { ChatCommandParseResult } from "./types.js";
 import { renderUsageGuide } from "./usage-guide.js";
-import { logCommandExecution } from "#AuditLog";
 
 const log = new Logger("dispatch");
 

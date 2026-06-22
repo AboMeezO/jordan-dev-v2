@@ -1,7 +1,6 @@
 import type { Message } from "discord.js";
 
 import type {
-	ChatCommandAvailabilityScope,
 	ChatCommandDefinition,
 } from "./types.js";
 

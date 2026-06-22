@@ -1,10 +1,8 @@
+import type { AvailableEmoji } from "../../../EmojiRegistry/index.js";
 import {
 	EmojiRegistry,
 	loadEmojiConfig,
 } from "../../../EmojiRegistry/index.js";
-
-import type { AvailableEmoji } from "../../../EmojiRegistry/index.js";
-
 import type {
 	EmojiConfigEntry,
 	EmojiSyncSummary,
@@ -13,8 +11,8 @@ import type {
 export type ProductionIncidentEmojiKey = string;
 
 export {
-	EmojiRegistry as ProductionIncidentEmojiRegistry,
 	loadEmojiConfig,
+	EmojiRegistry as ProductionIncidentEmojiRegistry,
 };
 
 export type {

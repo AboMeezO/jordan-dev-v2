@@ -1,9 +1,9 @@
 import { commandTree } from "#ChatCommands";
 
+import { gitignoreCommand } from "./gitignore_.js";
 import { githubIssueCommand } from "./issue.js";
 import { githubRepoCommand } from "./repo.js";
 import { githubUserCommand } from "./user.js";
-import { gitignoreCommand } from "./gitignore_.js";
 
 export const githubCommandTree = commandTree({
 	name: "github",

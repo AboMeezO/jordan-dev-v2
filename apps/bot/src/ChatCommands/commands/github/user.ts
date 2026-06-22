@@ -7,7 +7,6 @@ import {
 	MediaGalleryBuilder,
 	MediaGalleryItemBuilder,
 	MessageFlags,
-	SeparatorBuilder,
 	TextDisplayBuilder,
 } from "discord.js";
 import { z } from "zod";
