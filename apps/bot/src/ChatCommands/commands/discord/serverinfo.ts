@@ -6,7 +6,7 @@ import {
 	TextDisplayBuilder,
 } from "discord.js";
 
-import { commandTree } from "#ChatCommands";
+import { commandTree } from "../../hierarchy.js";
 
 export const serverInfoCommand = commandTree({
 	aliases: ["server-info", "guildinfo", "guild-info"],

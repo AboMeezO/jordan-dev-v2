@@ -131,10 +131,19 @@ assert.equal(
 	undefined,
 );
 
+const incidentEmojiConfig = {
+	incident: {
+		animated: false,
+		fallback: "\u{1F6A8}",
+		id: null,
+		name: "pi_incident",
+	},
+};
+
 const renderer = new DiscordIncidentRenderer(
-	new ProductionIncidentEmojiRegistry(),
+	new ProductionIncidentEmojiRegistry(incidentEmojiConfig),
 );
-const emojiRegistry = new ProductionIncidentEmojiRegistry();
+const emojiRegistry = new ProductionIncidentEmojiRegistry(incidentEmojiConfig);
 const guildOnlyEmojiSummary = emojiRegistry.sync([
 	{
 		animated: false,

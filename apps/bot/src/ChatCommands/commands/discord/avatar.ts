@@ -11,11 +11,11 @@ import {
 } from "discord.js";
 import { z } from "zod";
 
-import { commandTree } from "#ChatCommands";
+import { commandTree } from "../../hierarchy.js";
 import {
 	discordSnowflakeSchema,
 	extractOptionString,
-} from "#ChatCommands";
+} from "../../validation.js";
 
 const SUPPORTED_SIZES = [
 	16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
