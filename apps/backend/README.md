@@ -61,6 +61,8 @@ FRONTEND_ORIGIN=http://localhost:3000
 CLERK_AUTHORIZED_PARTIES=http://localhost:3000
 ```
 
+Set these in `apps/backend/.env` (backend-local) or in the root `.env` (repo-wide). Root `.env` takes precedence when both exist.
+
 Secrets stay server-side. Do not expose Clerk secret keys or database URLs through frontend env variables.
 
 ## Database
@@ -159,6 +161,35 @@ The command always syncs known permissions from `@jordan-devs/shared`.
 If `INITIAL_ADMIN_CLERK_USER_ID` is set, the command also creates or updates an `admin` role with all known permissions, upserts a local user for that Clerk user ID, and assigns the role. Use a Clerk user ID such as `user_...`, not an email address.
 
 If `INITIAL_ADMIN_CLERK_USER_ID` is unset, the command only syncs known permissions and does not assign any administrator role.
+
+### Quick start bootstrap
+
+After running database migrations (`pnpm --dir apps/backend db:migrate`), bootstrap permissions:
+
+```bash
+pnpm --dir apps/backend permissions:bootstrap
+```
+
+To bootstrap with an initial admin user:
+
+1. Find your Clerk user ID (from the Clerk Dashboard → Users → your user → `User ID`).
+2. Set it in `apps/backend/.env`:
+   ```txt
+   INITIAL_ADMIN_CLERK_USER_ID=user_2abc123...
+   ```
+3. Run:
+   ```bash
+   pnpm --dir apps/backend permissions:bootstrap
+   ```
+4. Expected output:
+   ```
+   Permission bootstrap complete.
+     known_permissions_synced=9
+     admin_role=admin
+     INITIAL_ADMIN_CLERK_USER_ID present=true
+     target_clerk_user_id=user_2abc123...
+     admin_users_assigned=1
+   ```
 
 ## API Error Format
 

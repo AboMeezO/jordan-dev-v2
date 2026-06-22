@@ -1,4 +1,4 @@
-import { useAuth } from '@clerk/clerk-react'
+import { useAuth, useUser } from '@clerk/clerk-react'
 import { ChevronUp, LogOut, Settings, User } from 'lucide-react'
 import type { ComponentType } from 'react'
 
@@ -26,9 +26,12 @@ type UserMenuItem = {
 
 export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
   const { isLoaded, isSignedIn, signOut } = useAuth()
+  const { user: clerkUser } = useUser()
   const session = useBackendSession()
 
-  const user = session?.user
+  const displayName = clerkUser?.fullName ?? session?.user.displayName ?? null
+  const email = clerkUser?.primaryEmailAddress?.emailAddress ?? session?.user.email ?? null
+  const avatarUrl = clerkUser?.imageUrl ?? session?.user.avatarUrl ?? null
 
   const menuItems: Array<UserMenuItem> = [
     {
@@ -66,11 +69,11 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
     )
   }
 
-  if (!isSignedIn || !user) {
+  if (!isSignedIn) {
     return null
   }
 
-  const initials = (user.displayName ?? user.email ?? '?')
+  const initials = (displayName ?? email ?? '?')
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -85,10 +88,10 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
           type="button"
         >
           <Avatar className="size-10 shrink-0">
-            {user.avatarUrl ? (
+            {avatarUrl ? (
               <AvatarImage
-                alt={user.displayName ?? 'User'}
-                src={user.avatarUrl}
+                alt={displayName ?? 'User'}
+                src={avatarUrl}
               />
             ) : null}
             <AvatarFallback className="font-mono text-xs text-(--nd-text-secondary)">
@@ -101,10 +104,10 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
             }`}
           >
             <p className="truncate font-sans text-sm text-(--nd-text-primary)">
-              {user.displayName ?? user.email ?? 'User'}
+              {displayName ?? email ?? 'User'}
             </p>
             <p className="truncate font-mono text-[11px] text-(--nd-text-disabled)">
-              {user.email ?? ''}
+              {email ?? ''}
             </p>
           </div>
           <ChevronUp
@@ -124,10 +127,10 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex items-center gap-3">
             <Avatar className="size-8">
-              {user.avatarUrl ? (
+              {avatarUrl ? (
                 <AvatarImage
-                  alt={user.displayName ?? 'User'}
-                  src={user.avatarUrl}
+                  alt={displayName ?? 'User'}
+                  src={avatarUrl}
                 />
               ) : null}
               <AvatarFallback className="font-mono text-xs text-(--nd-text-secondary)">
@@ -136,10 +139,10 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
             </Avatar>
             <div className="min-w-0 flex-1">
               <p className="truncate font-sans text-sm text-(--nd-text-primary)">
-                {user.displayName ?? 'User'}
+                {displayName ?? 'User'}
               </p>
               <p className="truncate font-mono text-[11px] text-(--nd-text-disabled)">
-                {user.email ?? ''}
+                {email ?? ''}
               </p>
             </div>
           </div>
