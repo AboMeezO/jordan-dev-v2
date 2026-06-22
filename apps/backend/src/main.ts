@@ -28,6 +28,8 @@ async function bootstrap(): Promise<void> {
 	app.enableCors({
 		credentials: true,
 		origin: config.frontendOrigins ?? true,
+		methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization"],
 	});
 
 	await app.listen(config.port, "0.0.0.0");
