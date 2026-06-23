@@ -159,6 +159,16 @@ export async function toggleReminderDelivery(
 	});
 }
 
+export async function updateReminderChannel(
+	client: Client,
+	reminderId: string,
+	channelId: Snowflake,
+): Promise<ReminderRecord | undefined> {
+	return getReminderService(client).update(reminderId, {
+		channelId,
+	});
+}
+
 export function cancelReminder(
 	client: Client,
 	reminderId: string,

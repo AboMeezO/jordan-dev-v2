@@ -1,5 +1,4 @@
-import type {
-	MessageFlags} from "discord.js";
+import type { MessageFlags } from "discord.js";
 import {
 	ActionRowBuilder,
 	ContainerBuilder,
@@ -23,8 +22,6 @@ import {
 import type { ReminderRecord } from "./reminder-service.js";
 
 export const REMINDER_CUSTOM_ID_PREFIX = "rem";
-
-export type ReminderPanelMode = "list" | "detail";
 
 export interface ReminderPanelInput {
 	readonly reminders: readonly ReminderRecord[];
@@ -102,6 +99,18 @@ export function buildReminderPanel(
 						: "Use DM",
 				style: "secondary",
 			},
+			...(input.selectedReminder.delivery === "channel"
+				? [
+						{
+							customId: buildReminderCustomId(
+								"change-channel",
+								input.selectedReminder.id,
+							),
+							label: "Change channel",
+							style: "secondary" as const,
+						},
+					]
+				: []),
 			{
 				customId: buildReminderCustomId(
 					"cancel",
@@ -121,7 +130,9 @@ export function buildReminderPanel(
 					buildReminderDetail(input.selectedReminder),
 				),
 			)
-			.addActionRowComponents(buildButtonRow(actionButtons));
+			.addActionRowComponents(
+				buildButtonRow(actionButtons),
+			);
 	}
 
 	return container;
@@ -257,18 +268,33 @@ function buildReminderDetail(
 	return [
 		"### Selected reminder",
 		`**When:** <t:${toDiscordTimestamp(reminder.remindAt)}:F> (<t:${toDiscordTimestamp(reminder.remindAt)}:R>)`,
-		`**Delivery:** ${reminder.delivery === "dm" ? "DM" : "Channel"}`,
-		`**Message:** ${reminder.message}`,
+		`**Delivery:** ${reminder.delivery === "dm" ? "DM" : `Channel (<#${reminder.channelId}>)`}`,
+		`>>> **${reminder.message}**`,
 	].join("\n");
 }
 
 function formatReminderOptionLabel(
 	reminder: ReminderRecord,
 ): string {
-	const label = `${formatDiscordTimestamp(reminder.remindAt)} - ${reminder.message}`;
+	const label = `${formatRelativeTime(reminder.remindAt)} - ${reminder.message}`;
 	return label.length > 100
 		? `${label.slice(0, 97)}...`
 		: label;
+}
+
+function formatRelativeTime(date: Date): string {
+	const diff = date.getTime() - Date.now();
+	const seconds = Math.floor(Math.abs(diff) / 1000);
+	const prefix = diff >= 0 ? "in " : "";
+	const suffix = diff < 0 ? " ago" : "";
+
+	if (seconds < 60) return `${prefix}<1m${suffix}`;
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) return `${prefix}${minutes}m${suffix}`;
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${prefix}${hours}h${suffix}`;
+	const days = Math.floor(hours / 24);
+	return `${prefix}${days}d${suffix}`;
 }
 
 function formatDiscordTimestamp(date: Date): string {

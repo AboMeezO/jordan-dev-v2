@@ -1,16 +1,24 @@
 import type {
 	ButtonInteraction,
+	ChannelSelectMenuInteraction,
 	Client,
 	Interaction,
 	ModalSubmitInteraction,
 	StringSelectMenuInteraction,
 } from "discord.js";
-import { MessageFlags } from "discord.js";
+import {
+	ActionRowBuilder,
+	ChannelSelectMenuBuilder,
+	ContainerBuilder,
+	MessageFlags,
+	TextDisplayBuilder,
+} from "discord.js";
 
 import {
 	cancelReminder,
 	listUserReminders,
 	toggleReminderDelivery,
+	updateReminderChannel,
 	updateReminderMessage,
 	updateReminderTime,
 } from "../../Reminders/reminder-command.js";
@@ -31,6 +39,7 @@ export default async function (
 	if (
 		!interaction.isButton() &&
 		!interaction.isStringSelectMenu() &&
+		!interaction.isChannelSelectMenu() &&
 		!interaction.isModalSubmit()
 	) {
 		return;
@@ -46,6 +55,11 @@ export default async function (
 
 	if (interaction.isStringSelectMenu()) {
 		await handleSelect(interaction, client);
+		return;
+	}
+
+	if (interaction.isChannelSelectMenu()) {
+		await handleChannelSelect(interaction, client, parsed.reminderId);
 		return;
 	}
 
@@ -109,14 +123,20 @@ async function handleButton(
 	);
 
 	if (!reminder) {
-		const content =
-			"That reminder is no longer active.";
-
 		if (interaction.deferred) {
-			await interaction.editReply({ content });
+			await interaction.editReply({
+				components: [
+					new ContainerBuilder()
+						.addTextDisplayComponents(
+							new TextDisplayBuilder().setContent(
+								"That reminder is no longer active.",
+							),
+						),
+				],
+			});
 		} else {
 			await interaction.reply({
-				content,
+				content: "That reminder is no longer active.",
 				flags: MessageFlags.Ephemeral,
 			});
 		}
@@ -151,9 +171,148 @@ async function handleButton(
 		return;
 	}
 
+	if (action === "change-channel") {
+		const originalMessageId = interaction.message.id;
+
+		const channelSelectContainer = new ContainerBuilder()
+			.setAccentColor(0x00FFFF)
+			.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					"Select a channel for delivery:",
+				),
+			)
+			.addActionRowComponents(
+				new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+					new ChannelSelectMenuBuilder()
+						.setCustomId(
+							`rem:select-channel:${reminder.id}:${originalMessageId}`,
+						)
+						.setPlaceholder("Pick a channel")
+						.setMinValues(1)
+						.setMaxValues(1),
+				),
+			);
+
+		await interaction.reply({
+			components: [channelSelectContainer],
+			flags: [
+				MessageFlags.IsComponentsV2,
+				MessageFlags.Ephemeral,
+			],
+		});
+		return;
+	}
+
 	if (action === "cancel") {
 		await cancelReminder(client, reminder.id);
 		await updatePanelDeferred(interaction, client);
+	}
+}
+
+async function handleChannelSelect(
+	interaction: ChannelSelectMenuInteraction,
+	client: Client,
+	reminderIdPayload: string | undefined,
+): Promise<void> {
+	const channelId = interaction.values[0];
+
+	if (!channelId) {
+		await interaction.reply({
+			content: "No channel selected.",
+			flags: MessageFlags.Ephemeral,
+		});
+		return;
+	}
+
+	// The reminderIdPayload is "<reminderId>:<originalMessageId>"
+	const parts = reminderIdPayload?.split(":") ?? [];
+	const reminderId = parts[0];
+	const originalMessageId = parts.slice(1).join(":");
+
+	if (!reminderId || !originalMessageId) {
+		await interaction.reply({
+			content: "Invalid request.",
+			flags: MessageFlags.Ephemeral,
+		});
+		return;
+	}
+
+	const reminder = await findOwnedReminder(
+		client,
+		interaction.user.id,
+		reminderId,
+	);
+
+	if (!reminder) {
+		await interaction.reply({
+			content: "That reminder is no longer active.",
+			flags: MessageFlags.Ephemeral,
+		});
+		return;
+	}
+
+	try {
+		await updateReminderChannel(client, reminder.id, channelId);
+
+		const reminders = await listUserReminders(
+			client,
+			interaction.user.id,
+		);
+		const selectedReminder = reminders.find(
+			(item) => item.id === reminder.id,
+		);
+		const newPanel = buildReminderPanel({
+			reminders,
+			selectedReminder,
+		});
+
+		// Dismiss the ephemeral channel select message
+		await interaction.update({
+			components: [
+				new ContainerBuilder()
+					.setAccentColor(0x00FFFF)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(
+							"✅ Channel updated!",
+						),
+					),
+			],
+		});
+
+		// Update the original panel
+		try {
+			await interaction.webhook.editMessage(originalMessageId, {
+				components: [newPanel],
+			});
+		} catch {
+			try {
+				if (interaction.channel?.isTextBased()) {
+					const originalMessage =
+						await interaction.channel.messages.fetch(
+							originalMessageId,
+						);
+					await originalMessage.edit({
+						components: [newPanel],
+					});
+				}
+			} catch {
+				// Could not update original panel — user can refresh manually
+			}
+		}
+	} catch (error) {
+		await interaction.update({
+			components: [
+				new ContainerBuilder()
+					.setAccentColor(0x00FFFF)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(
+							error instanceof Error
+								? error.message
+								: "Failed to change channel.",
+						),
+					),
+			],
+		});
 	}
 }
 
@@ -163,9 +322,7 @@ async function handleModal(
 	action: string,
 	reminderId: string | undefined,
 ): Promise<void> {
-	await interaction.deferReply({
-		flags: MessageFlags.Ephemeral,
-	});
+	await interaction.deferUpdate();
 
 	const reminder = await findOwnedReminder(
 		client,
@@ -175,8 +332,14 @@ async function handleModal(
 
 	if (!reminder) {
 		await interaction.editReply({
-			content:
-				"That reminder is no longer active.",
+			components: [
+				new ContainerBuilder()
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(
+							"That reminder is no longer active.",
+						),
+					),
+			],
 		});
 		return;
 	}
@@ -208,17 +371,29 @@ async function handleModal(
 			(item) => item.id === reminder.id,
 		);
 
-		await interaction.editReply({
-			components: [
-				buildReminderPanel({ reminders, selectedReminder }),
-			],
-		});
+		if (selectedReminder) {
+			await interaction.editReply({
+				components: [
+					buildReminderPanel({ reminders, selectedReminder }),
+				],
+			});
+		} else {
+			await interaction.editReply({
+				components: [buildReminderPanel({ reminders })],
+			});
+		}
 	} catch (error) {
 		await interaction.editReply({
-			content:
-				error instanceof Error
-					? error.message
-					: "Failed to update reminder.",
+			components: [
+				new ContainerBuilder()
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(
+							error instanceof Error
+								? error.message
+								: "Failed to update reminder.",
+						),
+					),
+			],
 		});
 	}
 }

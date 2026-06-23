@@ -108,7 +108,7 @@ export class ReminderService {
 		updates: Partial<
 			Pick<
 				ReminderRequest,
-				"delivery" | "message" | "remindAt"
+				"channelId" | "delivery" | "message" | "remindAt"
 			>
 		>,
 	): Promise<ReminderRecord | undefined> {

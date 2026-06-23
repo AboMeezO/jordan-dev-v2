@@ -101,7 +101,7 @@ export class ReminderRepository {
 		updates: Partial<
 			Pick<
 				ReminderRequest,
-				"delivery" | "message" | "remindAt"
+				"channelId" | "delivery" | "message" | "remindAt"
 			>
 		>,
 	): Promise<StoredReminderRecord | undefined> {
@@ -121,13 +121,15 @@ export class ReminderRepository {
 			await tx.execute(
 				`
           UPDATE reminders
-          SET delivery = ?,
+          SET channel_id = ?,
+              delivery = ?,
               message = ?,
               remind_at = ?,
               updated_at = ?
           WHERE id = ? AND status = 'pending'
         `,
 				[
+					next.channelId,
 					next.delivery,
 					next.message,
 					next.remindAt,
