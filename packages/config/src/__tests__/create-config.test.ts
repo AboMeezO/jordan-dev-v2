@@ -66,7 +66,7 @@ describe("createConfig", () => {
 		});
 	});
 
-	it("merges env vars with path notation (lowercased)", () => {
+	it("merges env vars with path notation (exact case match)", () => {
 		withTempDir((dir) => {
 			writeFileSync(join(dir, "schema.yaml"), schemaYaml, "utf-8");
 			writeFileSync(join(dir, "Config.yaml"), configYaml, "utf-8");
@@ -74,7 +74,7 @@ describe("createConfig", () => {
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
 				configPath: join(dir, "Config.yaml"),
-				env: { "SERVER.PORT": "5000" },
+				env: { "server.port": "5000" },
 			});
 
 			expect(cfg.get<number>("server.port")).toBe("5000");
@@ -108,7 +108,7 @@ describe("createConfig", () => {
 
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
-				env: { "SERVER.PORT": "5000" },
+				env: { "server.port": "5000" },
 			});
 
 			const all = cfg.getAll();

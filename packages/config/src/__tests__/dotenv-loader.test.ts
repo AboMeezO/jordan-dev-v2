@@ -33,16 +33,16 @@ describe("envToNestedObject", () => {
 		expect(result).toEqual({ FOO: "bar", BAZ: "qux" });
 	});
 
-	it("converts dot-notation keys to nested objects (lowercased path)", () => {
-		const result = envToNestedObject({ "SERVER.PORT": "4000", "SERVER.HOST": "0.0.0.0" });
+	it("converts dot-notation keys to nested objects (exact case)", () => {
+		const result = envToNestedObject({ "server.port": "4000", "server.host": "0.0.0.0" });
 		expect(result).toEqual({ server: { port: "4000", host: "0.0.0.0" } });
 	});
 
-	it("mixes flat and dot-notation keys", () => {
+	it("mixes flat and dot-notation keys (exact case)", () => {
 		const result = envToNestedObject({
 			"TOKEN": "abc",
-			"DATABASE.URL": "postgres://localhost/db",
-			"DATABASE.DRIVER": "postgres",
+			"database.url": "postgres://localhost/db",
+			"database.driver": "postgres",
 		});
 		expect(result).toEqual({
 			TOKEN: "abc",
@@ -50,8 +50,8 @@ describe("envToNestedObject", () => {
 		});
 	});
 
-	it("handles deeply nested paths (lowercased)", () => {
-		const result = envToNestedObject({ "A.B.C.D": "deep" });
+	it("handles deeply nested paths (exact case)", () => {
+		const result = envToNestedObject({ "a.b.c.d": "deep" });
 		expect(result).toEqual({ a: { b: { c: { d: "deep" } } } });
 	});
 });

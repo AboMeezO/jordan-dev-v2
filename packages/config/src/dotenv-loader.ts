@@ -35,7 +35,7 @@ export function envToNestedObject(
 	const result: Record<string, unknown> = {};
 	for (const [key, value] of Object.entries(envVars)) {
 		if (key.includes(".")) {
-			const parts = key.split(".").map((p) => p.toLowerCase());
+			const parts = key.split(".");
 			setNested(result, parts, value);
 		} else {
 			result[key] = value;
