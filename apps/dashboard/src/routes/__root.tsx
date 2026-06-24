@@ -60,6 +60,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* eslint-disable-next-line react-doctor/nextjs-no-native-script -- TanStack Start, not Next.js */}
         <script
           dangerouslySetInnerHTML={{
             __html: themeBootScript,

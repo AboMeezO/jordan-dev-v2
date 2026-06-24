@@ -1,4 +1,6 @@
 import { createEnv } from '@t3-oss/env-core'
+/* eslint-disable react-doctor/zod-v4-prefer-top-level-string-formats --
+   Zod 3 project; migration to Zod 4 is a separate task. */
 import { z } from 'zod'
 
 export const env = createEnv({

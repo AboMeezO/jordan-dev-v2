@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext, use } from 'react'
 import type { ReactNode } from 'react'
 
 import type { SessionBootstrap } from '@jordan-devs/shared'
@@ -11,7 +11,7 @@ import { useSessionBootstrapQuery } from './queries'
 const BackendSessionContext = createContext<SessionBootstrap | null>(null)
 
 export function useBackendSession(): SessionBootstrap | null {
-  return useContext(BackendSessionContext)
+  return use(BackendSessionContext)
 }
 
 export function BackendSessionGate({ children }: { children: ReactNode }) {
