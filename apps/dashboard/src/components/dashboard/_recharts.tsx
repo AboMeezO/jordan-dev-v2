@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 /* eslint-disable react-doctor/prefer-dynamic-import --
    This module is always loaded via React.lazy() from charts.tsx. */
@@ -57,30 +57,25 @@ function MeasuredChartFrame({
   height?: number
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(720)
+  const [width, setWidth] = useState<number | null>(null)
 
-  useEffect(() => {
-    const element = ref.current
-
-    if (!element) {
-      return
-    }
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
 
     const updateWidth = () => {
-      setWidth(Math.max(280, Math.floor(element.getBoundingClientRect().width)))
+      setWidth(Math.max(280, Math.floor(el.getBoundingClientRect().width)))
     }
-
     updateWidth()
 
     const observer = new ResizeObserver(updateWidth)
-    observer.observe(element)
-
+    observer.observe(el)
     return () => observer.disconnect()
   }, [])
 
   return (
     <div className="min-w-0 overflow-hidden" ref={ref} style={{ height }}>
-      {children({ height, width })}
+      {width !== null ? children({ height, width }) : null}
     </div>
   )
 }
