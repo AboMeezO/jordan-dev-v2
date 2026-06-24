@@ -1,5 +1,5 @@
 import type { Client } from "discord.js";
-
+import chalk from "chalk";
 import { Logger } from "#Logger";
 
 import type { CommandTreeNode } from "../../ChatCommands/index.js";
@@ -29,9 +29,12 @@ export default async function (
 	log.info(`Client is ready as ${client.user?.tag}`);
 
 	const registry = await createDefaultChatCommandRegistry();
-		const trees = registry.listRootTreeNodes();
+	const trees = registry.listRootTreeNodes();
 	const total = countTreeNodes(trees);
 
-	const allLines = [`Loaded ${total} commands:`, renderCommandTree(trees)];
-	console.log(allLines.join("\n"));
+	const allLines = [
+		`Loaded ${total} commands:`,
+		renderCommandTree(trees),
+	];
+	console.log(chalk.green(allLines.join("\n")));
 }

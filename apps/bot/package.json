@@ -21,6 +21,7 @@
 	"dependencies": {
 		"@jordan-devs/config": "workspace:*",
 		"@octokit/rest": "^22.0.1",
+		"chalk": "^5.6.2",
 		"change-case": "^5.4.4",
 		"colord": "^2.9.3",
 		"commandkit": "github:AboMeezO/DevRoots-Commandkit#2f2dd30dfe2d88bed821519f35869f6ffac14ece",
@@ -36,7 +37,6 @@
 		"zod": "^4.4.3"
 	},
 	"imports": {
-	
 		"#Database": "./dist/src/Database/index.js",
 		"#ChatCommands": "./dist/src/ChatCommands/index.js",
 		"#Config": "./dist/src/config.js",
