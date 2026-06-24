@@ -82,6 +82,33 @@ Use the smallest relevant verification set first, then broaden before committing
 
 Do not document or require commands that are not present in `package.json` files.
 
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked as GitHub issues; external PRs are also treated as a triage surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+All five canonical labels use their default names. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Multi-context monorepo — `CONTEXT-MAP.md` at the root points to per-context `CONTEXT.md` files. See `docs/agents/domain.md`.
+
+### Skill usage by task
+
+| Task category | Load skill | When |
+|---|---|---|
+| Backend features | `nestjs-best-practices` | Always |
+| Dashboard UI | `shadcn`, `design-taste-frontend`, `impeccable`, `redesign-existing-projects`, `emil-design-eng`, `nothing-design`, `full-output-enforcement` | Always |
+| Landing page (website) | `design-taste-frontend`, `impeccable`, `imagegen-frontend-web`, `emil-design-eng`, `redesign-existing-projects`, `full-output-enforcement` | Always |
+| Codebase refactoring / architecture | `improve-codebase-architecture` | Always |
+| Animation review | `review-animations` | Only when explicitly asked |
+| Any code generation | `full-output-enforcement` | Always (prevents truncated output) |
+
+`setup-matt-pocock-skills` and `design-taste-frontend-v1` are for human use only — do not load them.
+
 ## Commit Rules
 
 - Use conventional commits.
