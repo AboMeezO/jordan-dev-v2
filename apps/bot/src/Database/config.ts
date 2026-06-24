@@ -1,22 +1,14 @@
-import path from "node:path";
-
+import { botConfig } from "#Config";
 import type {
 	DatabaseConfig,
 	DatabaseDriver,
 } from "./types.js";
 
-const DEFAULT_SQLITE_PATH = path.resolve(
-	process.cwd(),
-	"data/bot.sqlite",
-);
-
 export function loadDatabaseConfig(
-	env: NodeJS.ProcessEnv = process.env,
+	_env: NodeJS.ProcessEnv = process.env,
 ): DatabaseConfig {
-	const driver = parseDriver(env.DATABASE_DRIVER);
-	const url =
-		env.DATABASE_URL?.trim() ||
-		`file:${DEFAULT_SQLITE_PATH}`;
+	const driver = parseDriver(botConfig.database.driver);
+	const url = botConfig.database.url;
 
 	return { driver, url };
 }

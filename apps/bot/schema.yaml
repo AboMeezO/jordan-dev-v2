@@ -1,0 +1,60 @@
+discord:
+  token:
+    type: string
+    description: Discord bot token (required)
+  prefix:
+    type: string
+    default: "!"
+    description: Command prefix
+  devGuildId:
+    type: string
+    optional: true
+    description: Dev guild ID for guild-specific commands
+
+owners:
+  ids:
+    type: string
+    optional: true
+    description: Comma-separated Discord owner user IDs
+  devIds:
+    type: string
+    optional: true
+    description: Comma-separated Discord dev user IDs
+
+github:
+  token:
+    type: string
+    optional: true
+    description: GitHub API token
+
+scanning:
+  virustotalApiKey:
+    type: string
+    optional: true
+    description: VirusTotal API key for URL scanning
+  cacheTtlMs:
+    type: number
+    default: 300000
+    description: Scan cache TTL in milliseconds
+  rateLimit:
+    type: number
+    default: 10
+    description: Scan rate limit per user
+  timeoutMs:
+    type: number
+    default: 10000
+    description: Network timeout in milliseconds
+  maxRedirects:
+    type: number
+    default: 10
+    description: Maximum redirects to follow
+
+database:
+  driver:
+    type: string
+    default: sqlite
+    description: Database driver (sqlite, postgres, mysql, json, memory)
+  url:
+    type: string
+    default: "file:data/bot.sqlite"
+    description: Database connection URL

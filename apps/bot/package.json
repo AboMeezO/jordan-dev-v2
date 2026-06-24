@@ -19,12 +19,12 @@
 		"test:phase1": "tsx src/ProductionIncident/testing/phase1/phase1-smoke.test.ts"
 	},
 	"dependencies": {
+		"@jordan-devs/config": "workspace:*",
 		"@octokit/rest": "^22.0.1",
 		"change-case": "^5.4.4",
 		"colord": "^2.9.3",
 		"commandkit": "github:AboMeezO/DevRoots-Commandkit#2f2dd30dfe2d88bed821519f35869f6ffac14ece",
 		"discord.js": "^14.26.4",
-		"dotenv": "^17.4.2",
 		"fastest-levenshtein": "^1.0.16",
 		"ipaddr.js": "^2.4.0",
 		"jose": "^6.2.3",

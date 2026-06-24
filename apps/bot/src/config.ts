@@ -1,50 +1,37 @@
-import { Logger } from "#Logger";
+import { createConfig } from "@jordan-devs/config";
+import type { Config } from "@jordan-devs/config";
 
-const log = new Logger("config");
-
-function requireEnv(name: string): () => string {
-	return () => {
-		const value = process.env[name];
-		if (!value) {
-			throw new Error(`Missing required environment variable: ${name}`);
-		}
-		return value;
-	};
-}
-
-function optionalEnv(name: string): string | undefined {
-	return process.env[name]?.trim() || undefined;
-}
-
-function commaSplit(value: string | undefined): readonly string[] {
-	if (!value) return [];
-	return value.split(",").map((s) => s.trim()).filter(Boolean);
-}
-
-function numEnv(name: string, defaultVal: number): number {
-	const val = process.env[name];
-	return val ? Number(val) || defaultVal : defaultVal;
-}
+const cfg: Config = createConfig({
+	configPath: "Config.yaml",
+	schemaPath: "schema.yaml",
+	autoSyncEnabled: true,
+	envFilePath: ".env",
+	env: process.env,
+});
 
 export const botConfig = {
 	discord: {
-		get token() { return requireEnv("TOKEN")(); },
-		prefix: process.env.PREFIX ?? "!",
-		devGuildId: optionalEnv("DEV_GUILD_ID"),
+		get token() { return cfg.get<string>("discord.token"); },
+		prefix: cfg.get<string>("discord.prefix"),
+		devGuildId: cfg.get<string | undefined>("discord.devGuildId"),
 	},
 	owners: {
-		ids: commaSplit(process.env.OWNER_IDS ?? process.env.OWNER_ID),
-		devIds: commaSplit(process.env.DEV_IDS),
+		ids: commaSplit(cfg.get<string | undefined>("owners.ids")),
+		devIds: commaSplit(cfg.get<string | undefined>("owners.devIds")),
 	},
 	github: {
-		token: optionalEnv("GITHUB_TOKEN"),
+		token: cfg.get<string | undefined>("github.token"),
 	},
 	scanning: {
-		virustotalApiKey: optionalEnv("VIRUSTOTAL_API_KEY"),
-		cacheTtlMs: numEnv("SCAN_CACHE_TTL_MS", 300_000),
-		rateLimitPerUser: numEnv("SCAN_RATE_LIMIT", 10),
-		timeoutMs: numEnv("NETWORK_TIMEOUT_MS", 10_000),
-		maxRedirects: numEnv("MAX_REDIRECTS", 10),
+		virustotalApiKey: cfg.get<string | undefined>("scanning.virustotalApiKey"),
+		cacheTtlMs: cfg.get<number>("scanning.cacheTtlMs"),
+		rateLimitPerUser: cfg.get<number>("scanning.rateLimit"),
+		timeoutMs: cfg.get<number>("scanning.timeoutMs"),
+		maxRedirects: cfg.get<number>("scanning.maxRedirects"),
+	},
+	database: {
+		driver: cfg.get<string>("database.driver"),
+		url: cfg.get<string>("database.url"),
 	},
 	suspiciousTlds: [
 		"xyz", "top", "gq", "ml", "cf", "ga", "tk",
@@ -71,6 +58,11 @@ export function getPrivilegedIds(): ReadonlySet<string> {
 
 export function validateConfig(): void {
 	if (!botConfig.scanning.virustotalApiKey) {
-		log.warn("VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only");
+		console.warn("[config] VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only");
 	}
+}
+
+function commaSplit(value: string | undefined): readonly string[] {
+	if (!value) return [];
+	return value.split(",").map((s) => s.trim()).filter(Boolean);
 }

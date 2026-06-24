@@ -1,0 +1,12 @@
+discord:
+  prefix: "!"
+owners: {}
+github: {}
+scanning:
+  cacheTtlMs: 300000
+  rateLimit: 10
+  timeoutMs: 10000
+  maxRedirects: 10
+database:
+  driver: sqlite
+  url: file:data/bot.sqlite
