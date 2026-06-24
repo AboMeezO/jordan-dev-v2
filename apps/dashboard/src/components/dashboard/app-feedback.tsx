@@ -18,14 +18,13 @@ export function AppPendingIndicator() {
   }
 
   return (
-    <div
+    <output
       aria-live="polite"
       aria-label="Loading"
       className="pointer-events-none fixed inset-x-0 top-0 z-100lex justify-center pt-4"
-      role="status"
     >
       <LoadingSpinner />
-    </div>
+    </output>
   )
 }
 
