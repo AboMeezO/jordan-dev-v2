@@ -1,3 +1,5 @@
+/* eslint-disable react-doctor/nextjs-no-img-element --
+   TanStack Start has no built-in Image component. */
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
