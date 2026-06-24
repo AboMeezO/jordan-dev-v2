@@ -33,6 +33,7 @@
 		"build": "pnpm run build:shared && pnpm run build:backend && pnpm run build:web && pnpm run build:bot && pnpm run build:dashboard",
 		"build:bot": "pnpm --dir apps/bot build",
 		"build:backend": "pnpm --dir apps/backend build",
+		"build:config": "pnpm --dir packages/config build",
 		"build:shared": "pnpm --dir packages/shared build",
 		"build:web": "pnpm --dir apps/web build",
 		"build:dashboard": "pnpm --dir apps/dashboard build",

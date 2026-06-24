@@ -2,6 +2,7 @@
 	"files": [],
 	"references": [
 		{ "path": "./packages/shared" },
+		{ "path": "./packages/config" },
 		{ "path": "./apps/backend" },
 		{ "path": "./apps/bot" }
 	]
