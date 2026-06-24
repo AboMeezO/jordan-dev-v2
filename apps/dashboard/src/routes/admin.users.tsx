@@ -29,6 +29,9 @@ export const Route = createFileRoute('/admin/users')({
   component: AdminUsersPage,
 })
 
+/* eslint-disable react-doctor/no-giant-component, react-doctor/prefer-useReducer --
+   Splitting AdminUsersPage is tracked separately. The 9 useState calls are
+   for independent form dialogs that don't share state. */
 function AdminUsersPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -277,8 +280,8 @@ function AdminUsersPage() {
                     <th className="px-4 py-3 font-normal">Email</th>
                     <th className="px-4 py-3 font-normal">Roles</th>
                     <th className="px-4 py-3 font-normal">Joined</th>
-                    <th className="px-4 py-3 font-normal" />
-                  </tr>
+                  <th className="px-4 py-3 font-normal" aria-label="Actions" />
+                </tr>
                 </thead>
                 <tbody>
                   {usersQuery.data.users.map((user) => (

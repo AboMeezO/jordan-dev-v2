@@ -43,6 +43,9 @@ export const Route = createFileRoute('/admin/roles')({
   component: AdminRolesPage,
 })
 
+/* eslint-disable react-doctor/no-giant-component, react-doctor/prefer-useReducer --
+   Splitting AdminRolesPage is tracked separately. The 12 useState calls are
+   for independent form dialogs that don't share state. */
 function AdminRolesPage() {
   const rolesQuery = useRolesQuery()
   const createRoleMutation = useCreateRoleMutation()
@@ -420,7 +423,7 @@ function AdminRolesPage() {
                   <th className="px-4 py-3 font-normal">Description</th>
                   <th className="px-4 py-3 font-normal">Users</th>
                   <th className="px-4 py-3 font-normal">Created</th>
-                  <th className="px-4 py-3 font-normal" />
+                  <th className="px-4 py-3 font-normal" aria-label="Actions" />
                 </tr>
               </thead>
               <tbody>

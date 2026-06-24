@@ -1,7 +1,19 @@
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
+/* eslint-disable react-doctor/zod-v4-no-deprecated-schema-apis --
+   Zod 3 project; migration to Zod 4 is a separate task. */
+import z from 'zod'
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js'
+
+const jsonRpcRequestSchema = z
+  .object({
+    jsonrpc: z.literal('2.0'),
+    id: z.union([z.string(), z.number(), z.null()]).optional(),
+    method: z.string(),
+    params: z.unknown().optional(),
+  })
+  .strict()
 
 export async function handleMcpRequest(
   request: Request,
@@ -11,7 +23,9 @@ export async function handleMcpRequest(
     null
 
   try {
-    const jsonRpcRequest = (await request.json()) as JSONRPCMessage
+    const raw = await request.json()
+    const parsed = jsonRpcRequestSchema.parse(raw)
+    const jsonRpcRequest = parsed as JSONRPCMessage
 
     transports = InMemoryTransport.createLinkedPair()
     const [clientTransport, serverTransport] = transports
@@ -27,6 +41,8 @@ export async function handleMcpRequest(
       }
     })
 
+    /* eslint-disable react-doctor/async-parallel --
+       Each step depends on the previous one; they cannot be parallelized. */
     await server.connect(serverTransport)
 
     await clientTransport.start()
@@ -64,9 +80,7 @@ export async function handleMcpRequest(
     )
   } finally {
     if (transports) {
-      await Promise.allSettled(
-        transports.map((transport) => transport.close()),
-      )
+      await Promise.allSettled(transports.map((transport) => transport.close()))
     }
   }
 }

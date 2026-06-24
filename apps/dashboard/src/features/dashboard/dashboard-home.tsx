@@ -10,6 +10,9 @@ import { useDashboardOverviewQuery } from './queries'
 
 import type { DashboardSection, DashboardWindowKey } from './types'
 
+/* eslint-disable react-doctor/prefer-useReducer --
+   These are independent state slices passed as individual props to
+   DashboardLayout. Consolidating into a reducer would harm readability. */
 export function DashboardHome() {
   const [activeSection, setActiveSection] =
     useState<DashboardSection>('overview')
