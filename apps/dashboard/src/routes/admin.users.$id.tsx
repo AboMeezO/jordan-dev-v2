@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import {
   PermissionGate,
@@ -31,17 +31,11 @@ function AdminUserDetailPage() {
   const user = userQuery.data
   const roles = rolesQuery.data
 
-  const [displayName, setDisplayName] = useState('')
-  const [email, setEmail] = useState('')
-  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(new Set())
-
-  useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName ?? '')
-      setEmail(user.email ?? '')
-      setSelectedRoleIds(new Set(user.roles.map((r) => r.id)))
-    }
-  }, [user])
+  const [displayName, setDisplayName] = useState(() => user?.displayName ?? '')
+  const [email, setEmail] = useState(() => user?.email ?? '')
+  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(
+    () => new Set(user?.roles.map((r) => r.id) ?? []),
+  )
 
   const roleIdsChanged =
     !user ||
@@ -69,7 +63,7 @@ function AdminUserDetailPage() {
         <p className="nd-label">You do not have permission to view users.</p>
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-6" key={id}>
         <div className="flex items-center gap-4">
           <Link
             to="/admin/users"

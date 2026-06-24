@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 async function loadMcpHandler() {
-  const specifier = '../server/mcp/index'
-  return import(specifier)
+  return import('../server/mcp/index')
 }
 
 async function authorizeRequest(request: Request): Promise<void> {

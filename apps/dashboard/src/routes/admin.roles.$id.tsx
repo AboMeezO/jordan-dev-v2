@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import {
   PermissionGate,
@@ -31,19 +31,11 @@ function AdminRoleDetailPage() {
   const role = roleQuery.data
   const permissions = permissionsQuery.data
 
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
+  const [name, setName] = useState(() => role?.name ?? '')
+  const [description, setDescription] = useState(() => role?.description ?? '')
   const [selectedPermissionIds, setSelectedPermissionIds] = useState<
     Set<string>
-  >(new Set())
-
-  useEffect(() => {
-    if (role) {
-      setName(role.name)
-      setDescription(role.description ?? '')
-      setSelectedPermissionIds(new Set(role.permissions))
-    }
-  }, [role])
+  >(() => new Set(role?.permissions ?? []))
 
   const permissionsChanged =
     !role ||
@@ -81,7 +73,7 @@ function AdminRoleDetailPage() {
         <p className="nd-label">You do not have permission to view roles.</p>
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-6" key={id}>
         <Link
           to="/admin/roles"
           className="inline-block font-mono text-[11px] uppercase tracking-[0.14em] text-(--nd-accent) hover:underline"
