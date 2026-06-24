@@ -1,0 +1,6 @@
+server:
+  port: 3001
+  nodeEnv: development
+clerk:
+  authorizedParties: "http://localhost:3000"
+

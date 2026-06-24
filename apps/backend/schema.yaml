@@ -1,0 +1,37 @@
+server:
+  port:
+    type: number
+    default: 3001
+    min: 1
+    max: 65535
+    description: HTTP server port
+  nodeEnv:
+    type: string
+    default: development
+    description: Node environment (development, test, production)
+  frontendOrigins:
+    type: string
+    optional: true
+    description: Comma-separated list of allowed CORS origins
+
+clerk:
+  secretKey:
+    type: string
+    description: Clerk secret key (required)
+  jwtKey:
+    type: string
+    description: Clerk JWT public key (required)
+  authorizedParties:
+    type: string
+    optional: true
+    description: Comma-separated list of Clerk authorized parties
+
+database:
+  url:
+    type: string
+    description: PostgreSQL connection URL (required)
+
+initialAdminClerkUserId:
+  type: string
+  optional: true
+  description: Clerk user ID to auto-assign admin role on bootstrap

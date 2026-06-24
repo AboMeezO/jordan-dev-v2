@@ -1,16 +1,19 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule as NestConfigModule } from "@nestjs/config";
+import { JDConfigModule } from "@jordan-devs/config/nest";
 
 import { BackendConfigService } from "./app.config.js";
 
 @Module({
-	exports: [BackendConfigService],
 	imports: [
-		NestConfigModule.forRoot({
-			envFilePath: ["../../.env", ".env"],
-			isGlobal: true,
+		JDConfigModule.forRoot({
+			configPath: "Config.yaml",
+			schemaPath: "schema.yaml",
+			autoSyncEnabled: true,
+			envFilePath: ".env",
+			validateOnBoot: false,
 		}),
 	],
+	exports: [BackendConfigService],
 	providers: [BackendConfigService],
 })
 export class BackendConfigModule {}

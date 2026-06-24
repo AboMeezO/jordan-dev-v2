@@ -1,48 +1,57 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
-import { createBackendEnv } from "./env.schema.js";
+import { JD_CONFIG } from "@jordan-devs/config/nest";
+import type { Config } from "@jordan-devs/config";
 
 @Injectable()
 export class BackendConfigService {
-	private readonly env = createBackendEnv(process.env);
+	public constructor(
+		@Inject(JD_CONFIG) private readonly config: Config,
+	) {}
 
-	public get nodeEnv() {
-		return this.env.NODE_ENV;
+	public get port(): number {
+		return this.config.get<number>("server.port");
 	}
 
-	public get port() {
-		return this.env.PORT;
+	public get nodeEnv(): string {
+		return this.config.get<string>("server.nodeEnv");
 	}
 
-	public get frontendOrigins() {
-		return this.env.FRONTEND_ORIGIN;
+	public get isProduction(): boolean {
+		return this.nodeEnv === "production";
 	}
 
-	public get databaseUrl() {
-		return this.env.DATABASE_URL;
+	public get frontendOrigins(): string[] | undefined {
+		const raw = this.config.get<string | undefined>("server.frontendOrigins");
+		return raw
+			? raw.split(",").map((s) => s.trim()).filter(Boolean)
+			: undefined;
 	}
 
-	public get clerkSecretKey() {
-		return this.env.CLERK_SECRET_KEY;
+	public get databaseUrl(): string {
+		return this.config.get<string>("database.url");
 	}
 
-	public get clerkJwtKey() {
-		return this.env.CLERK_JWT_KEY;
+	public get clerkSecretKey(): string {
+		return this.config.get<string>("clerk.secretKey");
 	}
 
-	public get clerkAuthorizedParties() {
-		return this.env.CLERK_AUTHORIZED_PARTIES;
+	public get clerkJwtKey(): string {
+		return this.config.get<string>("clerk.jwtKey");
 	}
 
-	public get initialAdminClerkUserId() {
-		return this.env.INITIAL_ADMIN_CLERK_USER_ID;
+	public get clerkAuthorizedParties(): string[] | undefined {
+		const raw = this.config.get<string | undefined>("clerk.authorizedParties");
+		return raw
+			? raw.split(",").map((s) => s.trim()).filter(Boolean)
+			: undefined;
 	}
 
-	public get isProduction() {
-		return this.env.NODE_ENV === "production";
+	public get initialAdminClerkUserId(): string | undefined {
+		return this.config.get<string | undefined>("initialAdminClerkUserId");
 	}
 
 	public assertLoaded(): void {
-		void this.env;
+		this.config.validate();
 	}
 }
