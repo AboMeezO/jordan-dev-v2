@@ -153,7 +153,7 @@ const UsersByRoleChartInner = lazy(() =>
 
 function ChartSkeleton() {
   return (
-    <div className="flex min-h-[200px] items-center justify-center text-xs text-(--nd-text-disabled) font-mono">
+    <div className="flex min-h-50 items-center justify-center text-xs text-(--nd-text-disabled) font-mono">
       Loading chart...
     </div>
   )

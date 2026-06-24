@@ -13,7 +13,12 @@
 			"lightningcss",
 			"prisma",
 			"unrs-resolver"
-		]
+		],
+		"patchedDependencies": {
+			"@tanstack/react-router@1.170.16": "patches/@tanstack__react-router@1.170.16.patch",
+			"@modelcontextprotocol/sdk@1.29.0": "patches/@modelcontextprotocol__sdk@1.29.0.patch",
+			"zod@4.4.3": "patches/zod@4.4.3.patch"
+		}
 	},
 	"workspaces": [
 		"apps/*",

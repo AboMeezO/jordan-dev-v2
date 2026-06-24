@@ -1,0 +1,24 @@
+diff --git a/v4/core/util.js b/v4/core/util.js
+index ab2e47035f615af10c06057c42b88feb633b5366..2bab588c9e6fd5fc4125c97d966168b690dbc513 100644
+--- a/v4/core/util.js
++++ b/v4/core/util.js	
+@@ -143,8 +143,6 @@ export function isObject(data) {
+     return typeof data === "object" && data !== null && !Array.isArray(data);
+ }
+ export const allowsEval = /* @__PURE__*/ cached(() => {
+-    // Skip the probe under `jitless`: strict CSPs report the caught `new Function`
+-    // as a `securitypolicyviolation` even though the throw is swallowed.
+     if (globalConfig.jitless) {
+         return false;
+     }
+@@ -153,9 +151,7 @@ export const allowsEval = /* @__PURE__*/ cached(() => {
+         return false;
+     }
+     try {
+-        const F = Function;
+-        new F("");
+-        return true;
++        return typeof Function !== "undefined";
+     }
+     catch (_) {
+         return false;

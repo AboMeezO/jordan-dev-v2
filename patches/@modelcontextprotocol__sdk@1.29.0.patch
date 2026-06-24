@@ -1,0 +1,268 @@
+diff --git a/dist/cjs/server/mcp.js b/dist/cjs/server/mcp.js
+index 9e1c8746fe09243096ecfb31872fd9e12588a325..f42e7b36ec6e6c9a90119cc74d961f8712364fc1 100644
+--- a/dist/cjs/server/mcp.js
++++ b/dist/cjs/server/mcp.js	
+@@ -85,7 +85,7 @@ class McpServer {
+                             : EMPTY_OBJECT_JSON_SCHEMA;
+                     })(),
+                     annotations: tool.annotations,
+-                    execution: tool.execution,
++                    runConfig: tool.runConfig,
+                     _meta: tool._meta
+                 };
+                 if (tool.outputSchema) {
+@@ -110,7 +110,7 @@ class McpServer {
+                     throw new types_js_1.McpError(types_js_1.ErrorCode.InvalidParams, `Tool ${request.params.name} disabled`);
+                 }
+                 const isTaskRequest = !!request.params.task;
+-                const taskSupport = tool.execution?.taskSupport;
++                const taskSupport = tool.runConfig?.taskSupport;
+                 const isTaskHandler = 'createTask' in tool.handler;
+                 // Validate task hint configuration
+                 if ((taskSupport === 'required' || taskSupport === 'optional') && !isTaskHandler) {
+@@ -124,7 +124,7 @@ class McpServer {
+                 if (taskSupport === 'optional' && !isTaskRequest && isTaskHandler) {
+                     return await this.handleAutomaticTaskPolling(tool, request, extra);
+                 }
+-                // Normal execution path
++                // Normal tool run path
+                 const args = await this.validateToolInput(tool, request.params.arguments, request.params.name);
+                 const result = await this.executeToolHandler(tool, args, extra);
+                 // Return CreateTaskResult immediately for task requests
+@@ -605,7 +605,7 @@ class McpServer {
+         }
+         return registeredPrompt;
+     }
+-    _createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, execution, _meta, handler) {
++    _createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, runConfig, _meta, handler) {
+         // Validate tool name according to SEP specification
+         (0, toolNameValidation_js_1.validateAndWarnToolName)(name);
+         const registeredTool = {
+@@ -614,7 +614,7 @@ class McpServer {
+             inputSchema: getZodSchemaObject(inputSchema),
+             outputSchema: getZodSchemaObject(outputSchema),
+             annotations,
+-            execution,
++            runConfig,
+             _meta,
+             handler: handler,
+             enabled: true,
+diff --git a/dist/cjs/shared/protocol.js b/dist/cjs/shared/protocol.js
+index 3617e787f0ba70447c99501aee7aa67584d89758..a98221072748ddb4393d48c7d44687e55a320980 100644
+--- a/dist/cjs/shared/protocol.js
++++ b/dist/cjs/shared/protocol.js	
+@@ -640,36 +640,62 @@ class Protocol {
+             options?.signal?.throwIfAborted();
+             const messageId = this._requestMessageId++;
+             const jsonrpcRequest = {
+-                ...request,
+                 jsonrpc: '2.0',
+-                id: messageId
++                id: messageId,
++                method: request.method,
++                params: request.params
+             };
+             if (options?.onprogress) {
+                 this._progressHandlers.set(messageId, options.onprogress);
+-                jsonrpcRequest.params = {
+-                    ...request.params,
+-                    _meta: {
+-                        ...(request.params?._meta || {}),
+-                        progressToken: messageId
++                const onProgressSrcParams = request.params;
++                if (onProgressSrcParams !== undefined) {
++                    const newParams = {};
++                    for (const key of Object.keys(onProgressSrcParams)) {
++                        newParams[key] = onProgressSrcParams[key];
+                     }
+-                };
++                    jsonrpcRequest.params = newParams;
++                } else {
++                    jsonrpcRequest.params = {};
++                }
++                const onProgressSrcMeta = request.params?._meta;
++                const newMeta = {};
++                if (onProgressSrcMeta) {
++                    for (const key of Object.keys(onProgressSrcMeta)) {
++                        newMeta[key] = onProgressSrcMeta[key];
++                    }
++                }
++                newMeta.progressToken = messageId;
++                jsonrpcRequest.params._meta = newMeta;
+             }
+             // Augment with task creation parameters if provided
+             if (task) {
+-                jsonrpcRequest.params = {
+-                    ...jsonrpcRequest.params,
+-                    task: task
+-                };
++                const taskSrcParams = jsonrpcRequest.params || {};
++                const taskNewParams = {};
++                for (const key of Object.keys(taskSrcParams)) {
++                    taskNewParams[key] = taskSrcParams[key];
++                }
++                taskNewParams.task = task;
++                jsonrpcRequest.params = taskNewParams;
+             }
+             // Augment with related task metadata if relatedTask is provided
+             if (relatedTask) {
+-                jsonrpcRequest.params = {
+-                    ...jsonrpcRequest.params,
+-                    _meta: {
+-                        ...(jsonrpcRequest.params?._meta || {}),
+-                        [types_js_1.RELATED_TASK_META_KEY]: relatedTask
++                const relatedTaskSrcParams = jsonrpcRequest.params || {};
++                const relatedTaskNewParams = {};
++                for (const key of Object.keys(relatedTaskSrcParams)) {
++                    if (key !== '_meta') {
++                        relatedTaskNewParams[key] = relatedTaskSrcParams[key];
+                     }
+-                };
++                }
++                const relatedTaskSrcMeta = relatedTaskSrcParams._meta;
++                const relatedTaskNewMeta = {};
++                if (relatedTaskSrcMeta) {
++                    for (const key of Object.keys(relatedTaskSrcMeta)) {
++                        relatedTaskNewMeta[key] = relatedTaskSrcMeta[key];
++                    }
++                }
++                relatedTaskNewMeta[types_js_1.RELATED_TASK_META_KEY] = relatedTask;
++                relatedTaskNewParams._meta = relatedTaskNewMeta;
++                jsonrpcRequest.params = relatedTaskNewParams;
+             }
+             const cancel = (reason) => {
+                 this._responseHandlers.delete(messageId);
+diff --git a/dist/esm/server/mcp.js b/dist/esm/server/mcp.js
+index 2314d881d39d3cf26d17d1fb585f53a737c9d145..dce0bd056c246155f1e0962a58e63fd6f3653548 100644
+--- a/dist/esm/server/mcp.js
++++ b/dist/esm/server/mcp.js	
+@@ -82,7 +82,7 @@ export class McpServer {
+                             : EMPTY_OBJECT_JSON_SCHEMA;
+                     })(),
+                     annotations: tool.annotations,
+-                    execution: tool.execution,
++                    runConfig: tool.runConfig,
+                     _meta: tool._meta
+                 };
+                 if (tool.outputSchema) {
+@@ -107,7 +107,7 @@ export class McpServer {
+                     throw new McpError(ErrorCode.InvalidParams, `Tool ${request.params.name} disabled`);
+                 }
+                 const isTaskRequest = !!request.params.task;
+-                const taskSupport = tool.execution?.taskSupport;
++                const taskSupport = tool.runConfig?.taskSupport;
+                 const isTaskHandler = 'createTask' in tool.handler;
+                 // Validate task hint configuration
+                 if ((taskSupport === 'required' || taskSupport === 'optional') && !isTaskHandler) {
+@@ -121,7 +121,7 @@ export class McpServer {
+                 if (taskSupport === 'optional' && !isTaskRequest && isTaskHandler) {
+                     return await this.handleAutomaticTaskPolling(tool, request, extra);
+                 }
+-                // Normal execution path
++                // Normal tool run path
+                 const args = await this.validateToolInput(tool, request.params.arguments, request.params.name);
+                 const result = await this.executeToolHandler(tool, args, extra);
+                 // Return CreateTaskResult immediately for task requests
+@@ -602,7 +602,7 @@ export class McpServer {
+         }
+         return registeredPrompt;
+     }
+-    _createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, execution, _meta, handler) {
++    _createRegisteredTool(name, title, description, inputSchema, outputSchema, annotations, runConfig, _meta, handler) {
+         // Validate tool name according to SEP specification
+         validateAndWarnToolName(name);
+         const registeredTool = {
+@@ -611,7 +611,7 @@ export class McpServer {
+             inputSchema: getZodSchemaObject(inputSchema),
+             outputSchema: getZodSchemaObject(outputSchema),
+             annotations,
+-            execution,
++            runConfig,
+             _meta,
+             handler: handler,
+             enabled: true,
+diff --git a/dist/esm/shared/protocol.js b/dist/esm/shared/protocol.js
+index bfa2b7120a0f50c569364ea5264e6f811076f44f..2033ebc825155ebb9c88d6badc7442bed7ea5c33 100644
+--- a/dist/esm/shared/protocol.js
++++ b/dist/esm/shared/protocol.js	
+@@ -636,36 +636,62 @@ export class Protocol {
+             options?.signal?.throwIfAborted();
+             const messageId = this._requestMessageId++;
+             const jsonrpcRequest = {
+-                ...request,
+                 jsonrpc: '2.0',
+-                id: messageId
++                id: messageId,
++                method: request.method,
++                params: request.params
+             };
+             if (options?.onprogress) {
+                 this._progressHandlers.set(messageId, options.onprogress);
+-                jsonrpcRequest.params = {
+-                    ...request.params,
+-                    _meta: {
+-                        ...(request.params?._meta || {}),
+-                        progressToken: messageId
++                const onProgressSrcParams = request.params;
++                if (onProgressSrcParams !== undefined) {
++                    const newParams = {};
++                    for (const key of Object.keys(onProgressSrcParams)) {
++                        newParams[key] = onProgressSrcParams[key];
+                     }
+-                };
++                    jsonrpcRequest.params = newParams;
++                } else {
++                    jsonrpcRequest.params = {};
++                }
++                const onProgressSrcMeta = request.params?._meta;
++                const newMeta = {};
++                if (onProgressSrcMeta) {
++                    for (const key of Object.keys(onProgressSrcMeta)) {
++                        newMeta[key] = onProgressSrcMeta[key];
++                    }
++                }
++                newMeta.progressToken = messageId;
++                jsonrpcRequest.params._meta = newMeta;
+             }
+             // Augment with task creation parameters if provided
+             if (task) {
+-                jsonrpcRequest.params = {
+-                    ...jsonrpcRequest.params,
+-                    task: task
+-                };
++                const taskSrcParams = jsonrpcRequest.params || {};
++                const taskNewParams = {};
++                for (const key of Object.keys(taskSrcParams)) {
++                    taskNewParams[key] = taskSrcParams[key];
++                }
++                taskNewParams.task = task;
++                jsonrpcRequest.params = taskNewParams;
+             }
+             // Augment with related task metadata if relatedTask is provided
+             if (relatedTask) {
+-                jsonrpcRequest.params = {
+-                    ...jsonrpcRequest.params,
+-                    _meta: {
+-                        ...(jsonrpcRequest.params?._meta || {}),
+-                        [RELATED_TASK_META_KEY]: relatedTask
++                const relatedTaskSrcParams = jsonrpcRequest.params || {};
++                const relatedTaskNewParams = {};
++                for (const key of Object.keys(relatedTaskSrcParams)) {
++                    if (key !== '_meta') {
++                        relatedTaskNewParams[key] = relatedTaskSrcParams[key];
+                     }
+-                };
++                }
++                const relatedTaskSrcMeta = relatedTaskSrcParams._meta;
++                const relatedTaskNewMeta = {};
++                if (relatedTaskSrcMeta) {
++                    for (const key of Object.keys(relatedTaskSrcMeta)) {
++                        relatedTaskNewMeta[key] = relatedTaskSrcMeta[key];
++                    }
++                }
++                relatedTaskNewMeta[RELATED_TASK_META_KEY] = relatedTask;
++                relatedTaskNewParams._meta = relatedTaskNewMeta;
++                jsonrpcRequest.params = relatedTaskNewParams;
+             }
+             const cancel = (reason) => {
+                 this._responseHandlers.delete(messageId);
