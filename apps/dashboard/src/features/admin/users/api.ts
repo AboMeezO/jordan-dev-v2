@@ -1,7 +1,4 @@
-import type {
-  UserDetail,
-  UserListResponse,
-} from '@jordan-devs/shared'
+import type { UserDetail, UserListResponse } from '@jordan-devs/shared'
 import {
   updateUserResponseSchema,
   userDetailResponseSchema,

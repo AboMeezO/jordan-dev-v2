@@ -7,7 +7,10 @@ import type { z } from 'zod'
 
 type HttpMethod = 'DELETE' | 'GET' | 'PATCH' | 'POST'
 
-type ApiRequestOptions = Omit<RequestInit, 'body' | 'credentials' | 'method'> & {
+type ApiRequestOptions = Omit<
+  RequestInit,
+  'body' | 'credentials' | 'method'
+> & {
   body?: unknown
   method?: HttpMethod
 }

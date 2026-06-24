@@ -108,9 +108,9 @@ describe('fetchDashboardOverview', () => {
       ),
     )
 
-    await expect(
-      fetchDashboardOverview('test-token'),
-    ).rejects.toThrow('The API returned an unexpected response.')
+    await expect(fetchDashboardOverview('test-token')).rejects.toThrow(
+      'The API returned an unexpected response.',
+    )
 
     fetchMock.mockRestore()
   })
@@ -118,9 +118,6 @@ describe('fetchDashboardOverview', () => {
 
 describe('query keys', () => {
   it('keeps dashboard overview query key stable', () => {
-    expect(queryKeys.dashboard.overview()).toEqual([
-      'dashboard',
-      'overview',
-    ])
+    expect(queryKeys.dashboard.overview()).toEqual(['dashboard', 'overview'])
   })
 })

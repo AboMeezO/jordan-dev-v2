@@ -1,12 +1,20 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
-import { PermissionGate, PermissionButton } from '#/components/auth/permission-gate'
+import {
+  PermissionGate,
+  PermissionButton,
+} from '#/components/auth/permission-gate'
 import { InlineError, LoadingState } from '#/components/app'
 import { FormField } from '#/components/app/form-field'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
-import { useAssignRolePermissionsMutation, usePermissionsQuery, useRoleQuery, useUpdateRoleMutation } from '#/features/admin'
+import {
+  useAssignRolePermissionsMutation,
+  usePermissionsQuery,
+  useRoleQuery,
+  useUpdateRoleMutation,
+} from '#/features/admin'
 import type { Permission } from '@jordan-devs/shared'
 
 export const Route = createFileRoute('/admin/roles/$id')({
@@ -25,7 +33,9 @@ function AdminRoleDetailPage() {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [selectedPermissionIds, setSelectedPermissionIds] = useState<Set<string>>(new Set())
+  const [selectedPermissionIds, setSelectedPermissionIds] = useState<
+    Set<string>
+  >(new Set())
 
   useEffect(() => {
     if (role) {
@@ -41,11 +51,17 @@ function AdminRoleDetailPage() {
     role.permissions.some((p) => !selectedPermissionIds.has(p))
 
   const handleSavePermissions = async () => {
-    await assignPermissionsMutation.mutateAsync({ id, permissionIds: [...selectedPermissionIds] as readonly Permission[] })
+    await assignPermissionsMutation.mutateAsync({
+      id,
+      permissionIds: [...selectedPermissionIds] as readonly Permission[],
+    })
   }
 
   const handleSaveDetails = async () => {
-    await updateRoleMutation.mutateAsync({ id, data: { name: name || undefined, description: description || undefined } })
+    await updateRoleMutation.mutateAsync({
+      id,
+      data: { name: name || undefined, description: description || undefined },
+    })
   }
 
   const togglePermission = (permId: string) => {
@@ -59,7 +75,12 @@ function AdminRoleDetailPage() {
   }
 
   return (
-    <PermissionGate permission="roles:read" fallback={<p className="nd-label">You do not have permission to view roles.</p>}>
+    <PermissionGate
+      permission="roles:read"
+      fallback={
+        <p className="nd-label">You do not have permission to view roles.</p>
+      }
+    >
       <div className="space-y-6">
         <Link
           to="/admin/roles"
@@ -69,7 +90,10 @@ function AdminRoleDetailPage() {
         </Link>
 
         {roleQuery.isPending ? (
-          <LoadingState description="Fetching role details..." title="Loading" />
+          <LoadingState
+            description="Fetching role details..."
+            title="Loading"
+          />
         ) : roleQuery.isError ? (
           <InlineError error={roleQuery.error} title="Failed to load role" />
         ) : role ? (
@@ -78,10 +102,16 @@ function AdminRoleDetailPage() {
               <PermissionGate permission="roles:update">
                 <div className="grid max-w-md gap-4">
                   <FormField label="Name">
-                    <Input onChange={(e) => setName(e.target.value)} value={name} />
+                    <Input
+                      onChange={(e) => setName(e.target.value)}
+                      value={name}
+                    />
                   </FormField>
                   <FormField label="Description">
-                    <Input onChange={(e) => setDescription(e.target.value)} value={description} />
+                    <Input
+                      onChange={(e) => setDescription(e.target.value)}
+                      value={description}
+                    />
                   </FormField>
                   <div>
                     <Button
@@ -89,7 +119,9 @@ function AdminRoleDetailPage() {
                       onClick={handleSaveDetails}
                       size="sm"
                     >
-                      {updateRoleMutation.isPending ? 'Saving...' : 'Save Details'}
+                      {updateRoleMutation.isPending
+                        ? 'Saving...'
+                        : 'Save Details'}
                     </Button>
                     {updateRoleMutation.isError ? (
                       <p className="mt-2 text-xs text-(--nd-accent)">
@@ -102,21 +134,28 @@ function AdminRoleDetailPage() {
 
               {!permissionsQuery.isPending && !permissionsQuery.isError ? (
                 <p className="font-mono text-xs text-(--nd-text-muted)">
-                  To view permissions, you need the &apos;permissions:read&apos; permission.
+                  To view permissions, you need the &apos;permissions:read&apos;
+                  permission.
                 </p>
               ) : null}
             </div>
 
             <PermissionGate permission="roles:update">
               <div className="nd-panel space-y-4 p-6">
-                <h3 className="font-mono text-sm tracking-[-0.05em] text-(--nd-text-display)">
+                <h3 className="font-mono text-sm tracking-tighter text-(--nd-text-display)">
                   Permission Assignment
                 </h3>
 
                 {permissionsQuery.isPending ? (
-                  <LoadingState description="Loading permissions..." title="Loading" />
+                  <LoadingState
+                    description="Loading permissions..."
+                    title="Loading"
+                  />
                 ) : permissionsQuery.isError ? (
-                  <InlineError error={permissionsQuery.error} title="Failed to load permissions" />
+                  <InlineError
+                    error={permissionsQuery.error}
+                    title="Failed to load permissions"
+                  />
                 ) : permissions ? (
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {permissions.map((perm) => {
@@ -137,7 +176,7 @@ function AdminRoleDetailPage() {
                             type="checkbox"
                           />
                           <div className="min-w-0">
-                            <p className="break-all font-mono text-xs uppercase tracking-[0.1em] text-(--nd-text-primary)">
+                            <p className="break-all font-mono text-xs uppercase tracking-widest text-(--nd-text-primary)">
                               {perm.id}
                             </p>
                             <p className="mt-0.5 text-xs text-(--nd-text-muted)">
@@ -157,7 +196,9 @@ function AdminRoleDetailPage() {
                   onClick={handleSavePermissions}
                   size="sm"
                 >
-                  {assignPermissionsMutation.isPending ? 'Saving...' : 'Save Permissions'}
+                  {assignPermissionsMutation.isPending
+                    ? 'Saving...'
+                    : 'Save Permissions'}
                 </PermissionButton>
 
                 {assignPermissionsMutation.isError ? (

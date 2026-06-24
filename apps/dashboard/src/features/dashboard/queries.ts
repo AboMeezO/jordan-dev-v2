@@ -15,11 +15,13 @@ export function useDashboardOverviewQuery() {
     queryFn: async () => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message:
-            'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return fetchDashboardOverview(token)
     },

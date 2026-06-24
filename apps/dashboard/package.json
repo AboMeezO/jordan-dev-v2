@@ -14,7 +14,8 @@
     "test": "vitest run --config vitest.config.ts",
     "lint": "eslint",
     "format": "prettier --write . && eslint --fix",
-    "check": "prettier --check ."
+    "check": "prettier --check .",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.61.3",
@@ -35,6 +36,7 @@
     "@tanstack/router-plugin": "^1.132.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "eslint-plugin-react-doctor": "^0.5.8",
     "jotai": "^2.20.1",
     "lucide-react": "^0.577.0",
     "nitro": "npm:nitro-nightly@3.0.1-20260619-111502-ca57c6e5",
@@ -61,6 +63,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.20.0",
     "jsdom": "^28.1.0",
+    "patch-package": "^8.0.1",
     "prettier": "^3.8.1",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",

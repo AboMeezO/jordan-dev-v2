@@ -64,7 +64,7 @@ export function ChartPanel({
 }) {
   return (
     <div className="nd-panel min-w-0 overflow-hidden">
-      <div className="flex items-center justify-between gap-4 border-b border-[var(--nd-border)] p-4">
+      <div className="flex items-center justify-between gap-4 border-b border-(--nd-border) p-4">
         <div>
           <p className="nd-label">{label}</p>
           <h2 className="mt-1 text-xl font-medium tracking-[-0.02em]">
@@ -235,7 +235,7 @@ export function ChannelDonutChart({ data }: { data: Array<ChannelPoint> }) {
       <div className="grid gap-3">
         {chartData.map((segment) => (
           <div
-            className="flex items-center justify-between border-b border-[var(--nd-border)] pb-2 last:border-0"
+            className="flex items-center justify-between border-b border-(--nd-border) pb-2 last:border-0"
             key={segment.label}
           >
             <span className="nd-label">{segment.label}</span>
@@ -293,7 +293,7 @@ export function ServiceGraphChart({
   const nodeById = new Map(nodes.map((node) => [node.id, node]))
 
   return (
-    <div className="h-[280px] min-w-0 overflow-hidden">
+    <div className="h-70 min-w-0 overflow-hidden">
       <svg
         aria-label="Service dependency graph"
         className="h-full w-full"
@@ -377,15 +377,15 @@ function ChartTooltip({
   if (!active || !payload?.length) return null
 
   return (
-    <div className="max-w-[90vw] border border-[var(--nd-border-visible)] bg-[var(--nd-surface)] px-3 py-2">
-      <p className="nd-label break-words">{label}</p>
+    <div className="max-w-[90vw] border border-(--nd-border-visible) bg-(--nd-surface) px-3 py-2">
+      <p className="nd-label wrap-break-word">{label}</p>
       <div className="mt-2 grid gap-1">
         {payload.map((item) => (
           <div
             className="flex items-center justify-between gap-6 font-mono text-xs"
             key={item.name}
           >
-            <span className="text-[var(--nd-text-secondary)]">{item.name}</span>
+            <span className="text-(--nd-text-secondary)">{item.name}</span>
             <span>{item.value}</span>
           </div>
         ))}
@@ -407,7 +407,8 @@ export type RoleCountPoint = { role: string; users: number }
 function statusFill(label: string): string {
   const key = label.toUpperCase()
   if (key === 'VERIFIED' || key === 'COMPLETED') return 'var(--nd-success)'
-  if (key === 'PENDING' || key === 'ROLE_GRANT_PENDING') return 'var(--nd-warning)'
+  if (key === 'PENDING' || key === 'ROLE_GRANT_PENDING')
+    return 'var(--nd-warning)'
   if (key === 'FAILED' || key === 'ROLE_GRANT_FAILED') return 'var(--nd-accent)'
   return 'var(--nd-text-display)'
 }
@@ -456,11 +457,17 @@ export function VerificationStatusChart({
       <div className="grid gap-2">
         {chartData.map((segment, index) => (
           <div
-            className="flex items-center justify-between border-b border-[var(--nd-border)] pb-2 last:border-0"
+            className="flex items-center justify-between border-b border-(--nd-border) pb-2 last:border-0"
             key={segment.label}
           >
             <span className="nd-label">{segment.label}</span>
-            <span className="font-mono text-sm" style={{ color: statusFill(segment.label), opacity: statusOpacity(index) }}>
+            <span
+              className="font-mono text-sm"
+              style={{
+                color: statusFill(segment.label),
+                opacity: statusOpacity(index),
+              }}
+            >
               {segment.value}
             </span>
           </div>
@@ -470,11 +477,7 @@ export function VerificationStatusChart({
   )
 }
 
-export function UsersByRoleChart({
-  data,
-}: {
-  data: Array<RoleCountPoint>
-}) {
+export function UsersByRoleChart({ data }: { data: Array<RoleCountPoint> }) {
   const chartData = data.length > 0 ? data : [{ role: 'no data', users: 0 }]
 
   return (
@@ -515,10 +518,7 @@ export function UsersByRoleChart({
             radius={0}
           >
             {chartData.map((entry) => (
-              <Cell
-                fill="var(--nd-text-display)"
-                key={entry.role}
-              />
+              <Cell fill="var(--nd-text-display)" key={entry.role} />
             ))}
           </Bar>
         </BarChart>

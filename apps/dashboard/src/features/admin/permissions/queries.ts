@@ -15,15 +15,21 @@ export function usePermissionsQuery() {
     queryFn: async () => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return fetchPermissions(token)
     },
     retry: (failureCount, error) => {
-      if (error instanceof ApiClientError && (error.status === 401 || error.status === 403)) {
+      if (
+        error instanceof ApiClientError &&
+        (error.status === 401 || error.status === 403)
+      ) {
         return false
       }
       return failureCount < 3

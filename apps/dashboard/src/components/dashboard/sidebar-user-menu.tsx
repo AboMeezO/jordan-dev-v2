@@ -30,7 +30,8 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
   const session = useBackendSession()
 
   const displayName = clerkUser?.fullName ?? session?.user.displayName ?? null
-  const email = clerkUser?.primaryEmailAddress?.emailAddress ?? session?.user.email ?? null
+  const email =
+    clerkUser?.primaryEmailAddress?.emailAddress ?? session?.user.email ?? null
   const avatarUrl = clerkUser?.imageUrl ?? session?.user.avatarUrl ?? null
 
   const menuItems: Array<UserMenuItem> = [
@@ -89,10 +90,7 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
         >
           <Avatar className="size-10 shrink-0">
             {avatarUrl ? (
-              <AvatarImage
-                alt={displayName ?? 'User'}
-                src={avatarUrl}
-              />
+              <AvatarImage alt={displayName ?? 'User'} src={avatarUrl} />
             ) : null}
             <AvatarFallback className="font-mono text-xs text-(--nd-text-secondary)">
               {initials}
@@ -128,10 +126,7 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
           <div className="flex items-center gap-3">
             <Avatar className="size-8">
               {avatarUrl ? (
-                <AvatarImage
-                  alt={displayName ?? 'User'}
-                  src={avatarUrl}
-                />
+                <AvatarImage alt={displayName ?? 'User'} src={avatarUrl} />
               ) : null}
               <AvatarFallback className="font-mono text-xs text-(--nd-text-secondary)">
                 {initials}
@@ -158,9 +153,7 @@ export function SidebarUserMenu({ compactMode }: { compactMode: boolean }) {
                 onSelect={item.onSelect}
                 variant={item.destructive ? 'destructive' : 'default'}
               >
-                {Icon ? (
-                  <Icon className="size-4" strokeWidth={1.5} />
-                ) : null}
+                {Icon ? <Icon className="size-4" strokeWidth={1.5} /> : null}
                 <span>{item.label}</span>
               </DropdownMenuItem>
             )

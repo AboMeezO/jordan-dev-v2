@@ -20,11 +20,11 @@ export function FormField({
       </Label>
       {children}
       {error ? (
-        <span className="text-xs leading-5 text-[var(--nd-accent)]">
+        <span className="text-xs leading-5 text-(--nd-accent)">
           {error}
         </span>
       ) : hint ? (
-        <span className="text-xs leading-5 text-[var(--nd-text-secondary)]">
+        <span className="text-xs leading-5 text-(--nd-text-secondary)">
           {hint}
         </span>
       ) : null}

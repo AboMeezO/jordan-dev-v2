@@ -1,9 +1,5 @@
 import { useAuth } from '@clerk/clerk-react'
-import {
-  can,
-  canAll,
-  canAny,
-} from '@jordan-devs/shared'
+import { can, canAll, canAny } from '@jordan-devs/shared'
 import type { ComponentProps, ReactNode } from 'react'
 
 import { Button } from '#/components/ui/button'

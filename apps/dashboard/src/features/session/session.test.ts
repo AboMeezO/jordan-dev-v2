@@ -79,9 +79,9 @@ describe('fetchSessionBootstrap', () => {
       ),
     )
 
-    await expect(
-      fetchSessionBootstrap('test-token'),
-    ).rejects.toThrow('The API returned an unexpected response.')
+    await expect(fetchSessionBootstrap('test-token')).rejects.toThrow(
+      'The API returned an unexpected response.',
+    )
 
     fetchMock.mockRestore()
   })

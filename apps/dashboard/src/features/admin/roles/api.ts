@@ -1,7 +1,4 @@
-import type {
-  RoleDetail,
-  RoleListResponse,
-} from '@jordan-devs/shared'
+import type { RoleDetail, RoleListResponse } from '@jordan-devs/shared'
 import {
   createRoleResponseSchema,
   deleteRoleResponseSchema,
@@ -13,7 +10,9 @@ import {
 
 import { apiRequest } from '#/lib/api'
 
-export async function fetchRoles(token: string): Promise<RoleListResponse['data']> {
+export async function fetchRoles(
+  token: string,
+): Promise<RoleListResponse['data']> {
   const response = await apiRequest(
     '/admin/roles',
     {
@@ -25,7 +24,10 @@ export async function fetchRoles(token: string): Promise<RoleListResponse['data'
   return response.data
 }
 
-export async function fetchRole(token: string, id: string): Promise<RoleDetail> {
+export async function fetchRole(
+  token: string,
+  id: string,
+): Promise<RoleDetail> {
   const response = await apiRequest(
     `/admin/roles/${id}`,
     {

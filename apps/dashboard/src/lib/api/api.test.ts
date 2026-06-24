@@ -45,14 +45,12 @@ describe('parseJsonResponse', () => {
 
 describe('apiRequest', () => {
   it('parses successful JSON responses with Zod', async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(
-        new Response(JSON.stringify({ id: 1, name: 'Jordan Devs' }), {
-          headers: { 'content-type': 'application/json' },
-          status: 200,
-        }),
-      )
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ id: 1, name: 'Jordan Devs' }), {
+        headers: { 'content-type': 'application/json' },
+        status: 200,
+      }),
+    )
 
     await expect(
       apiRequest(

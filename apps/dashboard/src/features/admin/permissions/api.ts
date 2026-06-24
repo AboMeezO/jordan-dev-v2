@@ -3,7 +3,9 @@ import { permissionsListResponseSchema } from '@jordan-devs/shared'
 
 import { apiRequest } from '#/lib/api'
 
-export async function fetchPermissions(token: string): Promise<PermissionsListResponse['data']> {
+export async function fetchPermissions(
+  token: string,
+): Promise<PermissionsListResponse['data']> {
   const response = await apiRequest(
     '/admin/permissions',
     {

@@ -1,13 +1,21 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
-import { PermissionGate, PermissionButton } from '#/components/auth/permission-gate'
+import {
+  PermissionGate,
+  PermissionButton,
+} from '#/components/auth/permission-gate'
 import { InlineError, LoadingState } from '#/components/app'
 import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { FormField } from '#/components/app/form-field'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
-import { useAssignUserRolesMutation, useRolesQuery, useUpdateUserMutation, useUserQuery } from '#/features/admin'
+import {
+  useAssignUserRolesMutation,
+  useRolesQuery,
+  useUpdateUserMutation,
+  useUserQuery,
+} from '#/features/admin'
 
 export const Route = createFileRoute('/admin/users/$id')({
   component: AdminUserDetailPage,
@@ -45,11 +53,22 @@ function AdminUserDetailPage() {
   }
 
   const handleSaveProfile = async () => {
-    await updateUserMutation.mutateAsync({ id, data: { displayName: displayName || undefined, email: email || undefined } })
+    await updateUserMutation.mutateAsync({
+      id,
+      data: {
+        displayName: displayName || undefined,
+        email: email || undefined,
+      },
+    })
   }
 
   return (
-    <PermissionGate permission="user:read" fallback={<p className="nd-label">You do not have permission to view users.</p>}>
+    <PermissionGate
+      permission="user:read"
+      fallback={
+        <p className="nd-label">You do not have permission to view users.</p>
+      }
+    >
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Link
@@ -61,7 +80,10 @@ function AdminUserDetailPage() {
         </div>
 
         {userQuery.isPending ? (
-          <LoadingState description="Fetching user details..." title="Loading" />
+          <LoadingState
+            description="Fetching user details..."
+            title="Loading"
+          />
         ) : userQuery.isError ? (
           <InlineError error={userQuery.error} title="Failed to load user" />
         ) : user ? (
@@ -70,10 +92,16 @@ function AdminUserDetailPage() {
               <div className="flex items-center gap-4">
                 <Avatar className="size-12">
                   {user.avatarUrl ? (
-                    <AvatarImage alt={user.displayName ?? ''} src={user.avatarUrl} />
+                    <AvatarImage
+                      alt={user.displayName ?? ''}
+                      src={user.avatarUrl}
+                    />
                   ) : null}
                   <AvatarFallback className="font-mono text-sm uppercase">
-                    {(user.displayName ?? user.email ?? user.clerkUserId).slice(0, 2)}
+                    {(user.displayName ?? user.email ?? user.clerkUserId).slice(
+                      0,
+                      2,
+                    )}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
@@ -89,10 +117,16 @@ function AdminUserDetailPage() {
               <PermissionGate permission="user:update">
                 <div className="grid max-w-md gap-4">
                   <FormField label="Display Name">
-                    <Input onChange={(e) => setDisplayName(e.target.value)} value={displayName} />
+                    <Input
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      value={displayName}
+                    />
                   </FormField>
                   <FormField label="Email">
-                    <Input onChange={(e) => setEmail(e.target.value)} value={email} />
+                    <Input
+                      onChange={(e) => setEmail(e.target.value)}
+                      value={email}
+                    />
                   </FormField>
                   <div>
                     <Button
@@ -100,7 +134,9 @@ function AdminUserDetailPage() {
                       onClick={handleSaveProfile}
                       size="sm"
                     >
-                      {updateUserMutation.isPending ? 'Saving...' : 'Save Profile'}
+                      {updateUserMutation.isPending
+                        ? 'Saving...'
+                        : 'Save Profile'}
                     </Button>
                     {updateUserMutation.isError ? (
                       <p className="mt-2 text-xs text-(--nd-accent)">
@@ -119,7 +155,10 @@ function AdminUserDetailPage() {
                 </h3>
 
                 {rolesQuery.isPending ? (
-                  <LoadingState description="Loading roles..." title="Loading" />
+                  <LoadingState
+                    description="Loading roles..."
+                    title="Loading"
+                  />
                 ) : roles ? (
                   <div className="flex flex-wrap gap-2">
                     {roles.map((role) => {

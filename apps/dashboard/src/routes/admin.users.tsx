@@ -1,7 +1,10 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
-import { PermissionButton, PermissionGate } from '#/components/auth/permission-gate'
+import {
+  PermissionButton,
+  PermissionGate,
+} from '#/components/auth/permission-gate'
 import { FormField, InlineError, LoadingState } from '#/components/app'
 import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Button } from '#/components/ui/button'
@@ -15,7 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
-import { useAssignUserRolesMutation, useRolesQuery, useUpdateUserMutation, useUsersQuery } from '#/features/admin'
+import {
+  useAssignUserRolesMutation,
+  useRolesQuery,
+  useUpdateUserMutation,
+  useUsersQuery,
+} from '#/features/admin'
 
 export const Route = createFileRoute('/admin/users')({
   component: AdminUsersPage,
@@ -25,22 +33,40 @@ function AdminUsersPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
 
-  const usersQuery = useUsersQuery({ page, limit: 20, search: search || undefined })
+  const usersQuery = useUsersQuery({
+    page,
+    limit: 20,
+    search: search || undefined,
+  })
   const rolesQuery = useRolesQuery()
   const updateUserMutation = useUpdateUserMutation()
   const assignRolesMutation = useAssignUserRolesMutation()
 
-  const [editUser, setEditUser] = useState<{ id: string; displayName: string; email: string } | null>(null)
+  const [editUser, setEditUser] = useState<{
+    id: string
+    displayName: string
+    email: string
+  } | null>(null)
   const [editDisplayName, setEditDisplayName] = useState('')
   const [editEmail, setEditEmail] = useState('')
   const [editError, setEditError] = useState<string | null>(null)
 
-  const [assignRolesUser, setAssignRolesUser] = useState<{ id: string } | null>(null)
+  const [assignRolesUser, setAssignRolesUser] = useState<{ id: string } | null>(
+    null,
+  )
   const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(new Set())
   const [rolesError, setRolesError] = useState<string | null>(null)
 
-  const openEdit = (user: { id: string; displayName: string | null; email: string | null }) => {
-    setEditUser({ id: user.id, displayName: user.displayName ?? '', email: user.email ?? '' })
+  const openEdit = (user: {
+    id: string
+    displayName: string | null
+    email: string | null
+  }) => {
+    setEditUser({
+      id: user.id,
+      displayName: user.displayName ?? '',
+      email: user.email ?? '',
+    })
     setEditDisplayName(user.displayName ?? '')
     setEditEmail(user.email ?? '')
     setEditError(null)
@@ -51,7 +77,13 @@ function AdminUsersPage() {
     if (!editUser) return
     setEditError(null)
     try {
-      await updateUserMutation.mutateAsync({ id: editUser.id, data: { displayName: editDisplayName || undefined, email: editEmail || undefined } })
+      await updateUserMutation.mutateAsync({
+        id: editUser.id,
+        data: {
+          displayName: editDisplayName || undefined,
+          email: editEmail || undefined,
+        },
+      })
       setEditUser(null)
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'Failed to update user')
@@ -70,18 +102,30 @@ function AdminUsersPage() {
     if (!assignRolesUser) return
     setRolesError(null)
     try {
-      await assignRolesMutation.mutateAsync({ id: assignRolesUser.id, roleIds: [...selectedRoleIds] })
+      await assignRolesMutation.mutateAsync({
+        id: assignRolesUser.id,
+        roleIds: [...selectedRoleIds],
+      })
       setAssignRolesUser(null)
     } catch (err) {
-      setRolesError(err instanceof Error ? err.message : 'Failed to assign roles')
+      setRolesError(
+        err instanceof Error ? err.message : 'Failed to assign roles',
+      )
     }
   }
 
   return (
-    <PermissionGate permission="user:read" fallback={<p className="nd-label">You do not have permission to view users.</p>}>
+    <PermissionGate
+      permission="user:read"
+      fallback={
+        <p className="nd-label">You do not have permission to view users.</p>
+      }
+    >
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">Users</h1>
+          <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">
+            Users
+          </h1>
         </div>
 
         <Input
@@ -94,26 +138,47 @@ function AdminUsersPage() {
           value={search}
         />
 
-        <Dialog open={editUser !== null} onOpenChange={(open) => { if (!open) { setEditUser(null); setEditError(null) } }}>
+        <Dialog
+          open={editUser !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditUser(null)
+              setEditError(null)
+            }
+          }}
+        >
           <DialogContent>
-            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleEdit}>
+            <form
+              className="flex flex-col gap-4 flex-1 overflow-hidden"
+              onSubmit={handleEdit}
+            >
               <DialogHeader className="shrink-0">
                 <DialogTitle>Edit User</DialogTitle>
               </DialogHeader>
               <DialogBody>
                 <div className="space-y-4">
                   <FormField label="Display Name">
-                    <Input onChange={(e) => setEditDisplayName(e.target.value)} value={editDisplayName} />
+                    <Input
+                      onChange={(e) => setEditDisplayName(e.target.value)}
+                      value={editDisplayName}
+                    />
                   </FormField>
                   <FormField label="Email">
-                    <Input onChange={(e) => setEditEmail(e.target.value)} value={editEmail} />
+                    <Input
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      value={editEmail}
+                    />
                   </FormField>
-                  {editError && <p className="text-sm text-destructive">{editError}</p>}
+                  {editError && (
+                    <p className="text-sm text-destructive">{editError}</p>
+                  )}
                 </div>
               </DialogBody>
               <DialogFooter className="shrink-0">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
                 </DialogClose>
                 <Button disabled={updateUserMutation.isPending} type="submit">
                   {updateUserMutation.isPending ? 'Saving...' : 'Save'}
@@ -123,16 +188,29 @@ function AdminUsersPage() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={assignRolesUser !== null} onOpenChange={(open) => { if (!open) { setAssignRolesUser(null); setRolesError(null) } }}>
+        <Dialog
+          open={assignRolesUser !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setAssignRolesUser(null)
+              setRolesError(null)
+            }
+          }}
+        >
           <DialogContent>
-            <form className="flex flex-col gap-4 flex-1 overflow-hidden" onSubmit={handleAssignRoles}>
+            <form
+              className="flex flex-col gap-4 flex-1 overflow-hidden"
+              onSubmit={handleAssignRoles}
+            >
               <DialogHeader className="shrink-0">
                 <DialogTitle>Assign Roles</DialogTitle>
               </DialogHeader>
               <DialogBody>
                 <div className="space-y-4">
                   {rolesQuery.isPending ? (
-                    <p className="text-sm text-(--nd-text-muted)">Loading roles...</p>
+                    <p className="text-sm text-(--nd-text-muted)">
+                      Loading roles...
+                    </p>
                   ) : rolesQuery.data ? (
                     <div className="flex flex-wrap gap-2">
                       {rolesQuery.data.map((role) => {
@@ -151,7 +229,11 @@ function AdminUsersPage() {
                               className="sr-only"
                               onChange={() => {
                                 const next = new Set(selectedRoleIds)
-                                if (checked) { next.delete(role.id) } else { next.add(role.id) }
+                                if (checked) {
+                                  next.delete(role.id)
+                                } else {
+                                  next.add(role.id)
+                                }
                                 setSelectedRoleIds(next)
                               }}
                               type="checkbox"
@@ -162,12 +244,16 @@ function AdminUsersPage() {
                       })}
                     </div>
                   ) : null}
-                  {rolesError && <p className="text-sm text-destructive">{rolesError}</p>}
+                  {rolesError && (
+                    <p className="text-sm text-destructive">{rolesError}</p>
+                  )}
                 </div>
               </DialogBody>
               <DialogFooter className="shrink-0">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
                 </DialogClose>
                 <Button disabled={assignRolesMutation.isPending} type="submit">
                   {assignRolesMutation.isPending ? 'Saving...' : 'Save Roles'}
@@ -196,15 +282,25 @@ function AdminUsersPage() {
                 </thead>
                 <tbody>
                   {usersQuery.data.users.map((user) => (
-                    <tr key={user.id} className="border-b border-(--nd-border) last:border-0">
+                    <tr
+                      key={user.id}
+                      className="border-b border-(--nd-border) last:border-0"
+                    >
                       <td className="max-w-0 px-4 py-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="size-8 shrink-0">
                             {user.avatarUrl ? (
-                              <AvatarImage alt={user.displayName ?? ''} src={user.avatarUrl} />
+                              <AvatarImage
+                                alt={user.displayName ?? ''}
+                                src={user.avatarUrl}
+                              />
                             ) : null}
                             <AvatarFallback className="font-mono text-[11px] uppercase">
-                              {(user.displayName ?? user.email ?? user.clerkUserId).slice(0, 2)}
+                              {(
+                                user.displayName ??
+                                user.email ??
+                                user.clerkUserId
+                              ).slice(0, 2)}
                             </AvatarFallback>
                           </Avatar>
                           <span className="min-w-0 truncate text-(--nd-text-primary)">
@@ -213,15 +309,22 @@ function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="max-w-0 px-4 py-3 text-(--nd-text-muted)">
-                        <span className="truncate block">{user.email ?? '—'}</span>
+                        <span className="truncate block">
+                          {user.email ?? '—'}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
                           {user.roles.length === 0 ? (
-                            <span className="text-xs text-(--nd-text-disabled)">None</span>
+                            <span className="text-xs text-(--nd-text-disabled)">
+                              None
+                            </span>
                           ) : (
                             user.roles.map((role) => (
-                              <span key={role.id} className="rounded-full border border-(--nd-border) px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]">
+                              <span
+                                key={role.id}
+                                className="rounded-full border border-(--nd-border) px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]"
+                              >
                                 {role.name}
                               </span>
                             ))
@@ -259,8 +362,12 @@ function AdminUsersPage() {
 
             <div className="flex items-center justify-between font-mono text-xs text-(--nd-text-muted)">
               <span>
-                Page {usersQuery.data.page} of {Math.max(1, Math.ceil(usersQuery.data.total / usersQuery.data.limit))}
-                {' '}({usersQuery.data.total} total)
+                Page {usersQuery.data.page} of{' '}
+                {Math.max(
+                  1,
+                  Math.ceil(usersQuery.data.total / usersQuery.data.limit),
+                )}{' '}
+                ({usersQuery.data.total} total)
               </span>
               <div className="flex gap-2">
                 <Button
@@ -272,7 +379,9 @@ function AdminUsersPage() {
                   Previous
                 </Button>
                 <Button
-                  disabled={page * usersQuery.data.limit >= usersQuery.data.total}
+                  disabled={
+                    page * usersQuery.data.limit >= usersQuery.data.total
+                  }
                   onClick={() => setPage((p) => p + 1)}
                   size="sm"
                   variant="outline"

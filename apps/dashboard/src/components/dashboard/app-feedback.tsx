@@ -21,7 +21,7 @@ export function AppPendingIndicator() {
     <div
       aria-live="polite"
       aria-label="Loading"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[100] flex justify-center pt-4"
+      className="pointer-events-none fixed inset-x-0 top-0 z-100lex justify-center pt-4"
       role="status"
     >
       <LoadingSpinner />
@@ -36,14 +36,11 @@ export function AppErrorFallback({
   error: unknown
   reset?: () => void
 }) {
-  const message =
-    error instanceof Error ? error.message : 'The dashboard failed to render.'
-
   return (
     <main className="grid min-h-screen place-items-center bg-background px-6 text-foreground">
       <section className="nd-panel w-full max-w-lg p-6">
         <p className="nd-label">Dashboard Error</p>
-        <h1 className="mt-4 text-2xl font-medium tracking-[-0.04em] text-[var(--nd-accent)]">
+        <h1 className="mt-4 text-2xl font-medium tracking-[-0.04em] text-(--nd-accent)">
           Something went wrong
         </h1>
         <div className="mt-5">
@@ -52,7 +49,7 @@ export function AppErrorFallback({
         <div className="mt-6 flex flex-wrap gap-3">
           {reset ? (
             <Button
-              className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+              className="rounded-full font-mono text-xs uppercase tracking-widest"
               onClick={reset}
               type="button"
             >
@@ -60,7 +57,7 @@ export function AppErrorFallback({
             </Button>
           ) : null}
           <Button
-            className="rounded-full font-mono text-xs uppercase tracking-[0.1em]"
+            className="rounded-full font-mono text-xs uppercase tracking-widest"
             onClick={() => window.location.reload()}
             type="button"
             variant="outline"
@@ -77,7 +74,7 @@ function LoadingSpinner({ size = 'sm' }: { size?: 'sm' | 'lg' }) {
   return (
     <span
       aria-hidden="true"
-      className={`dashboard-spinner rounded-full border-2 border-[var(--nd-border-visible)] border-t-[var(--nd-accent)] ${
+      className={`dashboard-spinner rounded-full border-2 border-(--nd-border-visible) border-t-(--nd-accent) ${
         size === 'lg' ? 'size-10' : 'size-4'
       }`}
     />

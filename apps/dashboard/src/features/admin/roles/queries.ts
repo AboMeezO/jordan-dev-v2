@@ -22,15 +22,21 @@ export function useRolesQuery() {
     queryFn: async () => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return fetchRoles(token)
     },
     retry: (failureCount, error) => {
-      if (error instanceof ApiClientError && (error.status === 401 || error.status === 403)) {
+      if (
+        error instanceof ApiClientError &&
+        (error.status === 401 || error.status === 403)
+      ) {
         return false
       }
       return failureCount < 3
@@ -47,15 +53,21 @@ export function useRoleQuery(id: string) {
     queryFn: async () => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return fetchRole(token, id)
     },
     retry: (failureCount, error) => {
-      if (error instanceof ApiClientError && (error.status === 401 || error.status === 403 || error.status === 404)) {
+      if (
+        error instanceof ApiClientError &&
+        (error.status === 401 || error.status === 403 || error.status === 404)
+      ) {
         return false
       }
       return failureCount < 3
@@ -68,13 +80,20 @@ export function useCreateRoleMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: { name: string; description?: string; permissions?: readonly string[] }) => {
+    mutationFn: async (data: {
+      name: string
+      description?: string
+      permissions?: readonly string[]
+    }) => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return createRole(token, data)
     },
@@ -90,19 +109,30 @@ export function useUpdateRoleMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { name?: string; description?: string | null } }) => {
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: { name?: string; description?: string | null }
+    }) => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return updateRole(token, id, data)
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.roles.list() })
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.roles.detail(variables.id) })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.roles.detail(variables.id),
+      })
     },
     onError: () => {},
   })
@@ -116,10 +146,13 @@ export function useDeleteRoleMutation() {
     mutationFn: async (id: string) => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return deleteRole(token, id)
     },
@@ -135,18 +168,29 @@ export function useAssignRolePermissionsMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, permissionIds }: { id: string; permissionIds: readonly string[] }) => {
+    mutationFn: async ({
+      id,
+      permissionIds,
+    }: {
+      id: string
+      permissionIds: readonly string[]
+    }) => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return assignRolePermissions(token, id, permissionIds)
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.roles.detail(variables.id) })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.roles.detail(variables.id),
+      })
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.roles.list() })
     },
     onError: () => {},

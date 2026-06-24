@@ -52,10 +52,7 @@ export function ModuleTable({
             ))
           ) : (
             <tr>
-              <td
-                className="px-4"
-                colSpan={moduleColumns.length}
-              >
+              <td className="px-4" colSpan={moduleColumns.length}>
                 <EmptyState
                   description="Try clearing the search filter or turning off alerts-only mode."
                   title="[NO MATCHING MODULES]"

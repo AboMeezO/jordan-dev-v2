@@ -12,14 +12,26 @@ function AdminPermissionsPage() {
   const permissionsQuery = usePermissionsQuery()
 
   return (
-    <PermissionGate permission="permissions:read" fallback={<p className="nd-label">You do not have permission to view permissions.</p>}>
+    <PermissionGate
+      permission="permissions:read"
+      fallback={
+        <p className="nd-label">
+          You do not have permission to view permissions.
+        </p>
+      }
+    >
       <div className="space-y-6">
-        <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">Permissions</h1>
+        <h1 className="font-mono text-xl tracking-tighter text-(--nd-text-display)">
+          Permissions
+        </h1>
 
         {permissionsQuery.isPending ? (
           <LoadingState description="Fetching permissions..." title="Loading" />
         ) : permissionsQuery.isError ? (
-          <InlineError error={permissionsQuery.error} title="Failed to load permissions" />
+          <InlineError
+            error={permissionsQuery.error}
+            title="Failed to load permissions"
+          />
         ) : permissionsQuery.data ? (
           <div className="nd-panel overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -31,7 +43,10 @@ function AdminPermissionsPage() {
               </thead>
               <tbody>
                 {permissionsQuery.data.map((perm) => (
-                  <tr key={perm.id} className="border-b border-(--nd-border) last:border-0">
+                  <tr
+                    key={perm.id}
+                    className="border-b border-(--nd-border) last:border-0"
+                  >
                     <td className="max-w-0 px-4 py-3">
                       <span className="block break-all font-mono text-xs uppercase tracking-[0.14em] text-(--nd-text-primary)">
                         {perm.id}

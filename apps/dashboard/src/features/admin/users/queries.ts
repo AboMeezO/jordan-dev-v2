@@ -15,20 +15,28 @@ export function useUsersQuery(params?: {
   const { getToken, isLoaded, isSignedIn } = useAuth()
 
   return useQuery({
-    queryKey: queryKeys.admin.users.list(params as Record<string, unknown> | undefined),
+    queryKey: queryKeys.admin.users.list(
+      params as Record<string, unknown> | undefined,
+    ),
     enabled: isLoaded && Boolean(isSignedIn),
     queryFn: async () => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return fetchUsers(token, params)
     },
     retry: (failureCount, error) => {
-      if (error instanceof ApiClientError && (error.status === 401 || error.status === 403)) {
+      if (
+        error instanceof ApiClientError &&
+        (error.status === 401 || error.status === 403)
+      ) {
         return false
       }
       return failureCount < 3
@@ -45,15 +53,21 @@ export function useUserQuery(id: string) {
     queryFn: async () => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return fetchUser(token, id)
     },
     retry: (failureCount, error) => {
-      if (error instanceof ApiClientError && (error.status === 401 || error.status === 403 || error.status === 404)) {
+      if (
+        error instanceof ApiClientError &&
+        (error.status === 401 || error.status === 403 || error.status === 404)
+      ) {
         return false
       }
       return failureCount < 3
@@ -66,19 +80,30 @@ export function useUpdateUserMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: { displayName?: string; email?: string } }) => {
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: { displayName?: string; email?: string }
+    }) => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return updateUser(token, id, data)
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.users.list() })
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users.detail(variables.id) })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.users.detail(variables.id),
+      })
     },
     onError: () => {},
   })
@@ -89,18 +114,29 @@ export function useAssignUserRolesMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, roleIds }: { id: string; roleIds: readonly string[] }) => {
+    mutationFn: async ({
+      id,
+      roleIds,
+    }: {
+      id: string
+      roleIds: readonly string[]
+    }) => {
       const token = await getToken()
       if (!token) {
-        throw new ApiClientError({
-          code: 'missing_clerk_token',
-          message: 'The current Clerk session did not provide a token.',
-        }, 401)
+        throw new ApiClientError(
+          {
+            code: 'missing_clerk_token',
+            message: 'The current Clerk session did not provide a token.',
+          },
+          401,
+        )
       }
       return assignUserRoles(token, id, roleIds)
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users.detail(variables.id) })
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.admin.users.detail(variables.id),
+      })
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.users.list() })
     },
     onError: () => {},

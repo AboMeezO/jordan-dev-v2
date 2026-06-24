@@ -49,9 +49,11 @@ describe('permission helpers', () => {
     expect(can(granted, permissions.dashboardRead)).toBe(true)
     expect(can(granted, permissions.settingsRead)).toBe(false)
     expect(canAll(granted, [permissions.dashboardRead])).toBe(true)
-    expect(canAll(granted, [permissions.dashboardRead, permissions.userRead]))
-      .toBe(false)
-    expect(canAny(granted, [permissions.settingsRead, permissions.guildUpdate]))
-      .toBe(true)
+    expect(
+      canAll(granted, [permissions.dashboardRead, permissions.userRead]),
+    ).toBe(false)
+    expect(
+      canAny(granted, [permissions.settingsRead, permissions.guildUpdate]),
+    ).toBe(true)
   })
 })

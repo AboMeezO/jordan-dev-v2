@@ -1,4 +1,12 @@
-import { Bot, Database, LayoutDashboard, ShieldCheck, ShieldHalf, Users, KeyRound } from 'lucide-react'
+import {
+  Bot,
+  Database,
+  LayoutDashboard,
+  ShieldCheck,
+  ShieldHalf,
+  Users,
+  KeyRound,
+} from 'lucide-react'
 
 import type {
   ChannelMixPoint,
@@ -23,7 +31,12 @@ export const sidebarItems: Array<DashboardSidebarItem> = [
 export const adminSidebarItems: Array<DashboardSidebarItem> = [
   { id: 'admin-users', label: 'Users', icon: Users, to: '/admin/users' },
   { id: 'admin-roles', label: 'Roles', icon: ShieldHalf, to: '/admin/roles' },
-  { id: 'admin-permissions', label: 'Permissions', icon: KeyRound, to: '/admin/permissions' },
+  {
+    id: 'admin-permissions',
+    label: 'Permissions',
+    icon: KeyRound,
+    to: '/admin/permissions',
+  },
 ]
 
 export const modules: Array<ModuleRow> = [

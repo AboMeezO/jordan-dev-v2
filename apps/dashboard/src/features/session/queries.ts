@@ -28,7 +28,10 @@ export function useSessionBootstrapQuery() {
       return fetchSessionBootstrap(token)
     },
     retry: (failureCount, error) => {
-      if (error instanceof ApiClientError && (error.status === 401 || error.status === 403)) {
+      if (
+        error instanceof ApiClientError &&
+        (error.status === 401 || error.status === 403)
+      ) {
         return false
       }
 

@@ -15,7 +15,14 @@ export function DashboardOverview({
 }: {
   overview: DashboardOverview
 }) {
-  const { stats, verificationStatusCounts, usersByRole, recentUsers, recentVerificationEvents, system } = overview
+  const {
+    stats,
+    verificationStatusCounts,
+    usersByRole,
+    recentUsers,
+    recentVerificationEvents,
+    system,
+  } = overview
 
   return (
     <>
@@ -34,7 +41,13 @@ export function DashboardOverview({
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-(--nd-text-secondary)">
             <div className="flex items-center gap-2">
               <span className="nd-label">Database</span>
-              <span className={system.databaseReady ? 'font-mono text-xs text-(--nd-success)' : 'font-mono text-xs text-(--nd-accent)'}>
+              <span
+                className={
+                  system.databaseReady
+                    ? 'font-mono text-xs text-(--nd-success)'
+                    : 'font-mono text-xs text-(--nd-accent)'
+                }
+              >
                 {system.databaseReady ? 'CONNECTED' : 'DISCONNECTED'}
               </span>
             </div>
@@ -47,12 +60,39 @@ export function DashboardOverview({
           </div>
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            <MetricCard label="Total Users" unit="registered" value={compactNumber(stats.totalUsers)} />
-            <MetricCard label="Verified" tone="success" unit={`of ${compactNumber(stats.totalUsers)}`} value={compactNumber(stats.verifiedUsers)} />
-            <MetricCard label="Unverified" tone={stats.unverifiedUsers > 0 ? 'warning' : 'default'} unit={`of ${compactNumber(stats.totalUsers)}`} value={compactNumber(stats.unverifiedUsers)} />
-            <MetricCard label="Roles" unit="defined" value={String(stats.totalRoles)} />
-            <MetricCard label="Permissions" unit="known" value={String(stats.totalPermissions)} />
-            <MetricCard label="Pending Role Grants" tone={stats.pendingRoleGrants > 0 ? 'warning' : 'default'} unit={stats.pendingRoleGrants === 1 ? 'job' : 'jobs'} value={String(stats.pendingRoleGrants)} />
+            <MetricCard
+              label="Total Users"
+              unit="registered"
+              value={compactNumber(stats.totalUsers)}
+            />
+            <MetricCard
+              label="Verified"
+              tone="success"
+              unit={`of ${compactNumber(stats.totalUsers)}`}
+              value={compactNumber(stats.verifiedUsers)}
+            />
+            <MetricCard
+              label="Unverified"
+              tone={stats.unverifiedUsers > 0 ? 'warning' : 'default'}
+              unit={`of ${compactNumber(stats.totalUsers)}`}
+              value={compactNumber(stats.unverifiedUsers)}
+            />
+            <MetricCard
+              label="Roles"
+              unit="defined"
+              value={String(stats.totalRoles)}
+            />
+            <MetricCard
+              label="Permissions"
+              unit="known"
+              value={String(stats.totalPermissions)}
+            />
+            <MetricCard
+              label="Pending Role Grants"
+              tone={stats.pendingRoleGrants > 0 ? 'warning' : 'default'}
+              unit={stats.pendingRoleGrants === 1 ? 'job' : 'jobs'}
+              value={String(stats.pendingRoleGrants)}
+            />
           </div>
         </div>
 
@@ -61,19 +101,31 @@ export function DashboardOverview({
           <div className="mt-6 grid gap-5">
             <div className="flex items-center justify-between border-b border-(--nd-border) pb-3">
               <span className="nd-label shrink-0">Verified</span>
-              <span className="font-mono text-lg text-(--nd-success)">{compactNumber(stats.verifiedUsers)}</span>
+              <span className="font-mono text-lg text-(--nd-success)">
+                {compactNumber(stats.verifiedUsers)}
+              </span>
             </div>
             <div className="flex items-center justify-between border-b border-(--nd-border) pb-3">
               <span className="nd-label shrink-0">Unverified</span>
-              <span className={`font-mono text-lg ${stats.unverifiedUsers > 0 ? 'text-(--nd-warning)' : 'text-(--nd-text-display)'}`}>{compactNumber(stats.unverifiedUsers)}</span>
+              <span
+                className={`font-mono text-lg ${stats.unverifiedUsers > 0 ? 'text-(--nd-warning)' : 'text-(--nd-text-display)'}`}
+              >
+                {compactNumber(stats.unverifiedUsers)}
+              </span>
             </div>
             <div className="flex items-center justify-between border-b border-(--nd-border) pb-3">
               <span className="nd-label shrink-0">Pending Grants</span>
-              <span className={`font-mono text-lg ${stats.pendingRoleGrants > 0 ? 'text-(--nd-warning)' : 'text-(--nd-text-display)'}`}>{String(stats.pendingRoleGrants)}</span>
+              <span
+                className={`font-mono text-lg ${stats.pendingRoleGrants > 0 ? 'text-(--nd-warning)' : 'text-(--nd-text-display)'}`}
+              >
+                {String(stats.pendingRoleGrants)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="nd-label shrink-0">Roles</span>
-              <span className="font-mono text-lg text-(--nd-text-display)">{String(stats.totalRoles)}</span>
+              <span className="font-mono text-lg text-(--nd-text-display)">
+                {String(stats.totalRoles)}
+              </span>
             </div>
           </div>
         </div>
@@ -88,7 +140,10 @@ export function DashboardOverview({
           {verificationStatusCounts.length > 0 ? (
             <VerificationStatusChart data={verificationStatusCounts} />
           ) : (
-            <EmptyState title="No verification data" description="No users have completed verification yet." />
+            <EmptyState
+              title="No verification data"
+              description="No users have completed verification yet."
+            />
           )}
         </ChartPanel>
       </section>
@@ -104,7 +159,10 @@ export function DashboardOverview({
           {recentUsers.length > 0 ? (
             <div className="divide-y divide-(--nd-border)">
               {recentUsers.map((user) => (
-                <div className="flex items-center gap-3 px-5 py-3" key={user.id}>
+                <div
+                  className="flex items-center gap-3 px-5 py-3"
+                  key={user.id}
+                >
                   <span className="grid size-8 shrink-0 place-items-center rounded-full border border-(--nd-border-visible) font-mono text-xs text-(--nd-text-secondary)">
                     {user.displayName?.charAt(0)?.toUpperCase() ?? '?'}
                   </span>
@@ -124,7 +182,10 @@ export function DashboardOverview({
             </div>
           ) : (
             <div className="px-5 py-10">
-              <EmptyState title="No recent users" description="No users have been created yet." />
+              <EmptyState
+                title="No recent users"
+                description="No users have been created yet."
+              />
             </div>
           )}
         </div>
@@ -141,7 +202,9 @@ export function DashboardOverview({
               {recentVerificationEvents.map((event) => (
                 <div className="px-5 py-3" key={event.id}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-(--nd-text-secondary)">{event.type}</span>
+                    <span className="font-mono text-xs text-(--nd-text-secondary)">
+                      {event.type}
+                    </span>
                     <span className="font-mono text-[11px] text-(--nd-text-disabled)">
                       {new Date(event.createdAt).toLocaleDateString()}
                     </span>
@@ -155,7 +218,10 @@ export function DashboardOverview({
             </div>
           ) : (
             <div className="px-5 py-10">
-              <EmptyState title="No recent events" description="No verification events have been recorded yet." />
+              <EmptyState
+                title="No recent events"
+                description="No verification events have been recorded yet."
+              />
             </div>
           )}
         </div>

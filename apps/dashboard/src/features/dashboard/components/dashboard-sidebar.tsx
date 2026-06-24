@@ -48,24 +48,14 @@ function SidebarLink({
 
   if (to) {
     return (
-      <Link
-        className={className}
-        onClick={onClick}
-        title={label}
-        to={to}
-      >
+      <Link className={className} onClick={onClick} title={label} to={to}>
         {content}
       </Link>
     )
   }
 
   return (
-    <button
-      className={className}
-      onClick={onClick}
-      title={label}
-      type="button"
-    >
+    <button className={className} onClick={onClick} title={label} type="button">
       {content}
     </button>
   )
@@ -96,7 +86,10 @@ export function DashboardSidebar({
       } ${open ? 'translate-x-0' : '-translate-x-full'}`}
     >
       <div className="flex h-full min-h-0 flex-col">
-        <SidebarBrandHeader compactMode={compactMode} onToggleCompact={onToggleCompact} />
+        <SidebarBrandHeader
+          compactMode={compactMode}
+          onToggleCompact={onToggleCompact}
+        />
 
         <Button
           aria-label="Close sidebar"

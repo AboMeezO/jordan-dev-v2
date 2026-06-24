@@ -1,7 +1,7 @@
 //  @ts-check
 
 import { tanstackConfig } from '@tanstack/eslint-config'
-
+import reactDoctor from 'eslint-plugin-react-doctor'
 export default [
   ...tanstackConfig,
   {
@@ -25,4 +25,9 @@ export default [
       'prettier.config.js',
     ],
   },
+  reactDoctor.configs.recommended,
+  reactDoctor.configs.next,
+  reactDoctor.configs['react-native'],
+  reactDoctor.configs['tanstack-start'],
+  reactDoctor.configs['tanstack-query'],
 ]
