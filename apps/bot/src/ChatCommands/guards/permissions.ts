@@ -6,7 +6,7 @@ import {
 
 import { getOwnerIds } from "#Config";
 
-import type { ChatPermissionLevel } from "./types.js";
+import type { ChatPermissionLevel } from "../types.js";
 
 const permissionRank: Readonly<
 	Record<ChatPermissionLevel, number>

@@ -4,7 +4,7 @@ import type {
 	ChatCommandParseResult,
 	ChatCommandRedirect,
 	ChatCommandSegment,
-} from "./types.js";
+} from "../types.js";
 
 type Token =
 	| {

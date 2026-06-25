@@ -1,13 +1,12 @@
-export { checkCommandAvailability } from "./availability.js";
+export { checkCommandAvailability } from "./guards/availability.js";
 export {
 	checkCooldown,
 	formatRemainingTime,
-} from "./cooldown.js";
-export { createDefaultChatCommandRegistry } from "./default-registry.js";
+} from "./guards/cooldown.js";
 export {
 	dispatchChatCommand,
 	executeChatCommandResolution,
-} from "./dispatcher.js";
+} from "./dispatcher/index.js";
 export {
 	commandGroup,
 	commandTree,
@@ -32,16 +31,17 @@ export {
 	safeInline,
 	safeOutput,
 	unknownErrorOutput,
-} from "./output.js";
+} from "./output/output.js";
+export { loadCommandDefinitions } from "./loader.js";
 export {
 	parseChatCommandInput,
 	tokenizeShellLike,
-} from "./parser.js";
+} from "./parser/index.js";
 export {
 	canUseChatCommand,
 	comparePermissionLevels,
-} from "./permissions.js";
-export { ChatCommandRegistry, toTreeNode } from "./registry.js";
+} from "./guards/permissions.js";
+export { ChatCommandRegistry, toTreeNode } from "./registry/index.js";
 export type {
 	ChatCommandArgumentGuide,
 	ChatCommandAvailabilityScope,
@@ -66,7 +66,19 @@ export {
 	renderCommandTree,
 	renderCommandTreeShell,
 	renderUsageGuide,
-} from "./usage-guide.js";
+} from "./output/usage-guide.js";
+export {
+	shellOutput,
+	formatMs,
+	formatDuration,
+	guildMember,
+	userDisplayName,
+	roleNames,
+	permissionNames,
+	channelPath,
+	channelKind,
+	sortedRootCommands,
+} from "./output/format.js";
 export {
 	base64Schema,
 	discordSnowflakeSchema,

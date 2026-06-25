@@ -2,7 +2,7 @@ import type { Message } from "discord.js";
 
 import { getPrivilegedIds } from "#Config";
 
-import type { ChatCommandDefinition } from "./types.js";
+import type { ChatCommandDefinition } from "../types.js";
 
 interface CooldownEntry {
 	readonly expiresAt: number;

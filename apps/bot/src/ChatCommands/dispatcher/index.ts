@@ -3,19 +3,19 @@ import type { Client, Message } from "discord.js";
 import { logCommandExecution } from "#AuditLog";
 import { Logger } from "#Logger";
 
-import { checkCommandAvailability } from "./availability.js";
+import { checkCommandAvailability } from "../guards/availability.js";
 import {
 	checkCooldown,
 	formatRemainingTime,
-} from "./cooldown.js";
-import { parseChatCommandInput } from "./parser.js";
-import { canUseChatCommand } from "./permissions.js";
+} from "../guards/cooldown.js";
+import { parseChatCommandInput } from "../parser/index.js";
+import { canUseChatCommand } from "../guards/permissions.js";
 import type {
 	ChatCommandRegistry,
 	ChatCommandResolution,
-} from "./registry.js";
-import type { ChatCommandParseResult } from "./types.js";
-import { renderUsageGuide } from "./usage-guide.js";
+} from "../registry/index.js";
+import type { ChatCommandParseResult } from "../types.js";
+import { renderUsageGuide } from "../output/usage-guide.js";
 
 const log = new Logger("dispatch");
 

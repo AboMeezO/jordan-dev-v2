@@ -7,7 +7,7 @@ import {
 
 import type {
 	ChatCommandDefinition,
-} from "./types.js";
+} from "../types.js";
 
 export type AvailabilityResult =
 	| { readonly allowed: true }
@@ -294,5 +294,3 @@ function checkUserAllowDeny(
 
 	return { allowed: true };
 }
-
-

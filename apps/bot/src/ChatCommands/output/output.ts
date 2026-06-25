@@ -1,6 +1,6 @@
 import { AttachmentBuilder } from "discord.js";
 
-import type { ChatCommandDefinition } from "./types.js";
+import type { ChatCommandDefinition } from "../types.js";
 
 const MAX_INLINE_LENGTH = 1900;
 const MAX_ATTACHMENT_LENGTH = 8_000_000;

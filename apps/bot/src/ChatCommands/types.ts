@@ -1,6 +1,6 @@
 import type { Client, Message } from "discord.js";
 
-import type { ChatCommandRegistry } from "./registry.js";
+import type { ChatCommandRegistry } from "./registry/index.js";
 
 export type ChatPermissionLevel =
 	| "public"

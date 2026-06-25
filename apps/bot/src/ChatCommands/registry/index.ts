@@ -1,12 +1,12 @@
-import { createInvocation } from "./parser.js";
-import { maxPermissionLevel } from "./permissions.js";
+import { createInvocation } from "../parser/index.js";
+import { maxPermissionLevel } from "../guards/permissions.js";
 import type {
 	ChatCommandDefinition,
 	ChatCommandInvocation,
 	ChatCommandParseResult,
 	ChatPermissionLevel,
 	CommandTreeNode,
-} from "./types.js";
+} from "../types.js";
 
 export interface ChatCommandResolution {
 	readonly allowPrefixless: boolean;

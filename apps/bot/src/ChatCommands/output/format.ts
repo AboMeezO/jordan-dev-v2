@@ -8,7 +8,7 @@ import {
 import type {
 	ChatCommandContext,
 	ChatCommandDefinition,
-} from "#ChatCommands";
+} from "../types.js";
 
 export function shellOutput(
 	lines: readonly string[],

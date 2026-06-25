@@ -4,7 +4,7 @@ import type {
 	ChatCommandUsageGuide,
 	ChatPermissionLevel,
 	CommandTreeNode,
-} from "./types.js";
+} from "../types.js";
 
 export interface RenderUsageGuideInput {
 	readonly command: ChatCommandDefinition;
