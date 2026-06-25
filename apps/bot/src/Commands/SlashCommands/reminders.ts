@@ -3,11 +3,11 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 
-import { listUserReminders } from "../Reminders/reminder-command.js";
+import { listUserReminders } from "../../Reminders/reminder-command.js";
 import {
 	buildReminderPanel,
 	reminderInteractionFlags,
-} from "../Reminders/reminder-panel.js";
+} from "../../Reminders/reminder-panel.js";
 
 export const data = new SlashCommandBuilder()
 	.setName("reminders")

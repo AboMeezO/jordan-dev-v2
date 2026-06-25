@@ -37,7 +37,7 @@ export class Bot {
 
 		new CommandKit({
 			client: this.client,
-			commandsPath: path.resolve("src/Commands"),
+			commandsPath: path.resolve("src/Commands/SlashCommands"),
 			eventsPath: path.resolve("src/Events"),
 			devGuildIds: process.env.DEV_GUILD_ID
 				? [process.env.DEV_GUILD_ID]

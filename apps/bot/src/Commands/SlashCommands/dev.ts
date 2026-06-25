@@ -3,7 +3,7 @@ import type { ChatInputCommandInteraction } from "discord.js";
 import {
 	productionIncidentCommandData,
 	ProductionIncidentDiscordService,
-} from "../ProductionIncident/discord/index.js";
+} from "../../ProductionIncident/discord/index.js";
 
 export const data = productionIncidentCommandData;
 

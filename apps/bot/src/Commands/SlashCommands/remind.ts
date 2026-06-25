@@ -6,7 +6,7 @@ import {
 import {
 	normalizeReminderDelivery,
 	scheduleReminder,
-} from "../Reminders/reminder-command.js";
+} from "../../Reminders/reminder-command.js";
 
 export const data = new SlashCommandBuilder()
 	.setName("remind")
