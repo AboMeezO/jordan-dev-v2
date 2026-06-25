@@ -1,9 +1,8 @@
 import { describe, expect,it } from "vitest";
 
 import { commandTree } from "../../ChatCommands/hierarchy.js";
-import { ChatCommandRegistry } from "../../ChatCommands/registry.js";
-import { toTreeNode } from "../../ChatCommands/registry.js";
-import { renderCommandTree } from "../../ChatCommands/usage-guide.js";
+import { ChatCommandRegistry, toTreeNode } from "../../ChatCommands/registry/index.js";
+import { renderCommandTree } from "../../ChatCommands/output/usage-guide.js";
 
 function createTestRegistry(): ChatCommandRegistry {
 	const registry = new ChatCommandRegistry();

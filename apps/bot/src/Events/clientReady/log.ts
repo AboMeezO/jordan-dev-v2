@@ -2,11 +2,9 @@ import type { Client } from "discord.js";
 import chalk from "chalk";
 import { Logger } from "#Logger";
 
+import { createDefaultChatCommandRegistry } from "../../Commands/Boot/boot.js";
 import type { CommandTreeNode } from "../../ChatCommands/index.js";
-import {
-	createDefaultChatCommandRegistry,
-	renderCommandTree,
-} from "../../ChatCommands/index.js";
+import { renderCommandTree } from "../../ChatCommands/index.js";
 import { getReminderService } from "../../Reminders/index.js";
 
 const log = new Logger("client-ready");

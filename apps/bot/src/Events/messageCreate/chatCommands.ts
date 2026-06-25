@@ -1,10 +1,8 @@
 import type { Client, Message } from "discord.js";
 
+import { createDefaultChatCommandRegistry } from "../../Commands/Boot/boot.js";
 import type { ChatCommandRegistry } from "../../ChatCommands/index.js";
-import {
-	createDefaultChatCommandRegistry,
-	dispatchChatCommand,
-} from "../../ChatCommands/index.js";
+import { dispatchChatCommand } from "../../ChatCommands/index.js";
 
 const DEFAULT_PREFIX = "!";
 let registryPromise: Promise<ChatCommandRegistry> | null = null;
