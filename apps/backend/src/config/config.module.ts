@@ -10,7 +10,7 @@ import { BackendConfigService } from "./app.config.js";
 			schemaPath: "schema.yaml",
 			autoSyncEnabled: true,
 			envFilePath: ".env",
-			validateOnBoot: false,
+			validateOnBoot: true,
 		}),
 	],
 	exports: [BackendConfigService],
