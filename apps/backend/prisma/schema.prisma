@@ -9,7 +9,8 @@ datasource db {
 
 model User {
   id                 String                     @id @default(cuid())
-  clerkUserId        String                     @unique @map("clerk_user_id")
+  clerkUserId        String?                    @unique @map("clerk_user_id")
+  discordUserId      String?                    @unique @map("discord_user_id")
   email              String?
   displayName        String?                    @map("display_name")
   avatarUrl          String?                    @map("avatar_url")
@@ -19,6 +20,7 @@ model User {
   verifications      Verification[]
   verificationEvents VerificationEvent[]
   roleGrantJobs      VerificationRoleGrantJob[]
+  applications       MembershipApplication[]
 
   @@map("users")
 }
@@ -149,4 +151,74 @@ model VerificationRoleGrantJob {
   @@index([status])
   @@index([userId])
   @@map("verification_role_grant_jobs")
+}
+
+enum ApplicationStatus {
+  DRAFTING
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum ReferralSource {
+  REDDIT
+  FRIEND_INVITE
+  WEB_SEARCH
+  GITHUB
+  OTHER
+}
+
+enum ExperienceLevel {
+  JUNIOR
+  MID
+  SENIOR
+  STAFF
+}
+
+model MembershipApplication {
+  id                 String            @id @default(cuid())
+  userId             String            @map("user_id")
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guildId            String            @map("guild_id")
+  status             ApplicationStatus @default(DRAFTING)
+
+  displayName        String            @map("display_name")
+  githubHandle       String            @map("github_handle")
+  strongestProject   String            @map("strongest_project")
+  projectExplanation String            @map("project_explanation")
+  techStack          String            @map("tech_stack")
+  experienceLevel    ExperienceLevel   @map("experience_level")
+  purposeOfJoining   String            @map("purpose_of_joining")
+  selfIntroduction   String            @map("self_introduction")
+  linkedInUrl        String?           @map("linked_in_url")
+  portfolioUrl       String?           @map("portfolio_url")
+
+  referralSource     ReferralSource    @map("referral_source")
+  referralOtherText  String?           @map("referral_other_text")
+
+  reviewedBy         String?           @map("reviewed_by")
+  reviewedAt         DateTime?         @map("reviewed_at")
+  rejectionReason    String?           @map("rejection_reason")
+
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@index([guildId])
+  @@map("membership_applications")
+}
+
+model GuildConfig {
+  id                    String   @id @default(cuid())
+  guildId               String   @unique @map("guild_id")
+  unverifiedRoleId      String   @map("unverified_role_id")
+  verifiedRoleId        String   @map("verified_role_id")
+  reviewerRoleId        String   @map("reviewer_role_id")
+  verificationChannelId String   @map("verification_channel_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("guild_configs")
 }
