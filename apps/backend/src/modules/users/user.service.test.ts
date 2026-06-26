@@ -13,6 +13,7 @@ describe("UserService", () => {
 				Promise.resolve({
 					id: "user_123",
 					clerkUserId: "clerk_123",
+					discordUserId: null,
 					email: "user@example.com",
 					displayName: "User",
 					avatarUrl: null,

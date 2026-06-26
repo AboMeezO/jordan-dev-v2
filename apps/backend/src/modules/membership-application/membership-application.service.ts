@@ -29,6 +29,9 @@ export class MembershipApplicationService {
 
 		const application = await this.applications.create({
 			...request,
+			linkedInUrl: request.linkedInUrl ?? null,
+			portfolioUrl: request.portfolioUrl ?? null,
+			referralOtherText: request.referralOtherText ?? null,
 			userId,
 		});
 

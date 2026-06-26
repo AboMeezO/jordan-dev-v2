@@ -17,7 +17,7 @@ export const dashboardRoleCountSchema = z.object({
 
 export const dashboardRecentUserSchema = z.object({
 	id: z.string().min(1),
-	clerkUserId: z.string().min(1),
+	clerkUserId: z.string().nullable(),
 	email: z.string().email().nullable(),
 	displayName: z.string().nullable(),
 	avatarUrl: z.string().url().nullable(),

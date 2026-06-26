@@ -160,6 +160,7 @@ function mockUserData(): User {
 	return {
 		id: "user_123",
 		clerkUserId: "clerk_123",
+		discordUserId: null,
 		email: "persisted@example.com",
 		displayName: "Persisted User",
 		avatarUrl: "https://example.com/persisted.png",
