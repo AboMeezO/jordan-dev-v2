@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 
-import { config as loadDotenv } from "dotenv";
+import { parse as parseDotenv } from "dotenv";
 
 import { autoSync } from "./auto-sync.js";
-import { envToNestedObject, parseEnvFile } from "./dotenv-loader.js";
+import { envToNestedObject } from "./dotenv-loader.js";
 import { compileSchema } from "./schema.js";
 import { yamlFileExists, loadYamlFile } from "./yaml-utils.js";
 import type { CompiledSchema } from "./schema.js";
@@ -75,7 +75,7 @@ export function createConfig(options: CreateConfigOptions): Config {
 
 	if (options.envFilePath && existsSync(options.envFilePath)) {
 		const envContent = readFileSync(options.envFilePath, "utf-8");
-		const parsed = parseEnvFile(envContent);
+		const parsed = parseDotenv(envContent);
 		Object.assign(envObj, parsed);
 	}
 
