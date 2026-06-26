@@ -98,14 +98,14 @@ Multi-context monorepo — `CONTEXT-MAP.md` at the root points to per-context `C
 
 ### Skill usage by task
 
-| Task category | Load skill | When |
-|---|---|---|
-| Backend features | `nestjs-best-practices` | Always |
-| Dashboard UI | `shadcn`, `design-taste-frontend`, `impeccable`, `redesign-existing-projects`, `emil-design-eng`, `nothing-design`, `full-output-enforcement` | Always |
-| Landing page (website) | `design-taste-frontend`, `impeccable`, `imagegen-frontend-web`, `emil-design-eng`, `redesign-existing-projects`, `full-output-enforcement` | Always |
-| Codebase refactoring / architecture | `improve-codebase-architecture` | Always |
-| Animation review | `review-animations` | Only when explicitly asked |
-| Any code generation | `full-output-enforcement` | Always (prevents truncated output) |
+| Task category                       | Load skill                                                                                                                                    | When                               |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Backend features                    | `nestjs-best-practices`                                                                                                                       | Always                             |
+| Dashboard UI                        | `shadcn`, `design-taste-frontend`, `impeccable`, `redesign-existing-projects`, `emil-design-eng`, `nothing-design`, `full-output-enforcement` | Always                             |
+| Landing page (website)              | `design-taste-frontend`, `impeccable`, `imagegen-frontend-web`, `emil-design-eng`, `redesign-existing-projects`, `full-output-enforcement`    | Always                             |
+| Codebase refactoring / architecture | `improve-codebase-architecture`                                                                                                               | Always                             |
+| Animation review                    | `review-animations`                                                                                                                           | Only when explicitly asked         |
+| Any code generation                 | `full-output-enforcement`                                                                                                                     | Always (prevents truncated output) |
 
 `setup-matt-pocock-skills` and `design-taste-frontend-v1` are for human use only — do not load them.
 
@@ -113,6 +113,19 @@ Multi-context monorepo — `CONTEXT-MAP.md` at the root points to per-context `C
 
 - Use conventional commits.
 - One logical change per commit.
-- Do not bundle cleanup with features.
-- Commit only after relevant checks pass.
-- Commit messages must be project-focused and should not include unrelated implementation context.
+- Keep commits small, focused, and reviewable.
+- Do not commit after every file edit or partial step.
+- Commit only when a complete logical change is implemented, reviewed, and verified.
+- Run the smallest relevant verification set before committing.
+- If a task requires multiple unrelated logical changes, split them into separate commits.
+- Do not bundle cleanup, refactors, formatting, or unrelated fixes with feature work.
+- Do not commit pre-existing user changes.
+- Do not stage files blindly.
+- Review `git status --short` and the relevant diff before staging.
+- Stage only files that belong to the current logical change.
+- Do not mention tools, agents, AI, or generated-code context in commit messages.
+- Commit messages must be project-focused and describe the actual repository change.
+- Do not commit if relevant checks fail, unless the user explicitly instructs otherwise and the failure is documented.
+- Do not create empty commits.
+- Do not rewrite history, amend commits, rebase, force-push, or squash unless explicitly instructed.
+- Do not push unless explicitly instructed.

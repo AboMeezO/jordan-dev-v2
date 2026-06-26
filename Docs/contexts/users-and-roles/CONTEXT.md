@@ -6,7 +6,7 @@ Manage who can access the Jordan Devs Platform and what they can do.
 ## Glossary
 
 ### User
-A person with a Clerk account who can log into the website and dashboard. A User may or may not be a Discord community member.
+A person with a Discord identity and/or Clerk account. At least one of `discordUserId` or `clerkUserId` must be set. In the Discord-only phase, Users are created on first bot interaction keyed to `discordUserId`. When Clerk hosting arrives, existing Users can be linked to a `clerkUserId` retroactively. A User may or may not be a community Member.
 
 ### Member
 A User who has completed verification and has been granted access to the Discord server and/or system features. Every Member is a User, but not every User is a Member.
