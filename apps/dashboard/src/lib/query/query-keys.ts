@@ -17,6 +17,17 @@ export const queryKeys = {
     permissions: {
       list: () => [...queryKeys.admin.root, 'permissions', 'list'] as const,
     },
+    guildConfig: {
+      detail: (guildId: string) =>
+        [...queryKeys.admin.root, 'guild-config', guildId] as const,
+    },
+    applications: {
+      root: () => [...queryKeys.admin.root, 'applications'] as const,
+      list: (guildId: string) =>
+        [...queryKeys.admin.applications.root(), 'list', guildId] as const,
+      detail: (id: string) =>
+        [...queryKeys.admin.applications.root(), 'detail', id] as const,
+    },
   },
   dashboard: {
     root: ['dashboard'] as const,

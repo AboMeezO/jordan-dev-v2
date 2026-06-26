@@ -1,7 +1,9 @@
 import {
   Bot,
+  ClipboardCheck,
   Database,
   LayoutDashboard,
+  Settings,
   ShieldCheck,
   ShieldHalf,
   Users,
@@ -29,6 +31,12 @@ export const sidebarItems: Array<DashboardSidebarItem> = [
 ]
 
 export const adminSidebarItems: Array<DashboardSidebarItem> = [
+  {
+    id: 'admin-applications',
+    label: 'Applications',
+    icon: ClipboardCheck,
+    to: '/admin/applications',
+  },
   { id: 'admin-users', label: 'Users', icon: Users, to: '/admin/users' },
   { id: 'admin-roles', label: 'Roles', icon: ShieldHalf, to: '/admin/roles' },
   {
@@ -36,6 +44,12 @@ export const adminSidebarItems: Array<DashboardSidebarItem> = [
     label: 'Permissions',
     icon: KeyRound,
     to: '/admin/permissions',
+  },
+  {
+    id: 'admin-guild-config',
+    label: 'Guild Config',
+    icon: Settings,
+    to: '/admin/guild-config',
   },
 ]
 

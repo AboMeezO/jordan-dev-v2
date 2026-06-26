@@ -101,6 +101,16 @@ export const applicationListSchema = z.object({
 	limit: z.number().int().positive(),
 });
 
+export const applicationDetailResponseSchema = z.object({
+	success: z.literal(true),
+	data: applicationDetailSchema,
+});
+
+export const applicationListResponseSchema = z.object({
+	success: z.literal(true),
+	data: applicationListSchema,
+});
+
 export type ApplicationStatus = z.infer<typeof applicationStatusSchema>;
 export type ReferralSource = z.infer<typeof referralSourceSchema>;
 export type ExperienceLevel = z.infer<typeof experienceLevelSchema>;

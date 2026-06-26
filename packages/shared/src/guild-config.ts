@@ -10,5 +10,10 @@ export const guildConfigSchema = z.object({
 
 export const updateGuildConfigSchema = guildConfigSchema.partial();
 
+export const guildConfigResponseSchema = z.object({
+	success: z.literal(true),
+	data: guildConfigSchema,
+});
+
 export type GuildConfig = z.infer<typeof guildConfigSchema>;
 export type UpdateGuildConfig = z.infer<typeof updateGuildConfigSchema>;

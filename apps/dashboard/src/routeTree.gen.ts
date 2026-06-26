@@ -15,8 +15,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminPermissionsRouteImport } from './routes/admin.permissions'
+import { Route as AdminGuildConfigRouteImport } from './routes/admin.guild-config'
+import { Route as AdminApplicationsRouteImport } from './routes/admin.applications'
 import { Route as AdminUsersIdRouteImport } from './routes/admin.users.$id'
 import { Route as AdminRolesIdRouteImport } from './routes/admin.roles.$id'
+import { Route as AdminApplicationsIdRouteImport } from './routes/admin.applications.$id'
 
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
@@ -48,6 +51,16 @@ const AdminPermissionsRoute = AdminPermissionsRouteImport.update({
   path: '/permissions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminGuildConfigRoute = AdminGuildConfigRouteImport.update({
+  id: '/guild-config',
+  path: '/guild-config',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApplicationsRoute = AdminApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminUsersIdRoute = AdminUsersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -58,14 +71,22 @@ const AdminRolesIdRoute = AdminRolesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AdminRolesRoute,
 } as any)
+const AdminApplicationsIdRoute = AdminApplicationsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminApplicationsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/mcp': typeof McpRoute
+  '/admin/applications': typeof AdminApplicationsRouteWithChildren
+  '/admin/guild-config': typeof AdminGuildConfigRoute
   '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/roles': typeof AdminRolesRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/admin/roles/$id': typeof AdminRolesIdRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
 }
@@ -73,9 +94,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/mcp': typeof McpRoute
+  '/admin/applications': typeof AdminApplicationsRouteWithChildren
+  '/admin/guild-config': typeof AdminGuildConfigRoute
   '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/roles': typeof AdminRolesRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/admin/roles/$id': typeof AdminRolesIdRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
 }
@@ -84,9 +108,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/mcp': typeof McpRoute
+  '/admin/applications': typeof AdminApplicationsRouteWithChildren
+  '/admin/guild-config': typeof AdminGuildConfigRoute
   '/admin/permissions': typeof AdminPermissionsRoute
   '/admin/roles': typeof AdminRolesRouteWithChildren
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/admin/applications/$id': typeof AdminApplicationsIdRoute
   '/admin/roles/$id': typeof AdminRolesIdRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
 }
@@ -96,9 +123,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/mcp'
+    | '/admin/applications'
+    | '/admin/guild-config'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/users'
+    | '/admin/applications/$id'
     | '/admin/roles/$id'
     | '/admin/users/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -106,9 +136,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/mcp'
+    | '/admin/applications'
+    | '/admin/guild-config'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/users'
+    | '/admin/applications/$id'
     | '/admin/roles/$id'
     | '/admin/users/$id'
   id:
@@ -116,9 +149,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/mcp'
+    | '/admin/applications'
+    | '/admin/guild-config'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/users'
+    | '/admin/applications/$id'
     | '/admin/roles/$id'
     | '/admin/users/$id'
   fileRoutesById: FileRoutesById
@@ -173,6 +209,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPermissionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/guild-config': {
+      id: '/admin/guild-config'
+      path: '/guild-config'
+      fullPath: '/admin/guild-config'
+      preLoaderRoute: typeof AdminGuildConfigRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/applications': {
+      id: '/admin/applications'
+      path: '/applications'
+      fullPath: '/admin/applications'
+      preLoaderRoute: typeof AdminApplicationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/users/$id': {
       id: '/admin/users/$id'
       path: '/$id'
@@ -187,8 +237,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRolesIdRouteImport
       parentRoute: typeof AdminRolesRoute
     }
+    '/admin/applications/$id': {
+      id: '/admin/applications/$id'
+      path: '/$id'
+      fullPath: '/admin/applications/$id'
+      preLoaderRoute: typeof AdminApplicationsIdRouteImport
+      parentRoute: typeof AdminApplicationsRoute
+    }
   }
 }
+
+interface AdminApplicationsRouteChildren {
+  AdminApplicationsIdRoute: typeof AdminApplicationsIdRoute
+}
+
+const AdminApplicationsRouteChildren: AdminApplicationsRouteChildren = {
+  AdminApplicationsIdRoute: AdminApplicationsIdRoute,
+}
+
+const AdminApplicationsRouteWithChildren =
+  AdminApplicationsRoute._addFileChildren(AdminApplicationsRouteChildren)
 
 interface AdminRolesRouteChildren {
   AdminRolesIdRoute: typeof AdminRolesIdRoute
@@ -215,12 +283,16 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminApplicationsRoute: typeof AdminApplicationsRouteWithChildren
+  AdminGuildConfigRoute: typeof AdminGuildConfigRoute
   AdminPermissionsRoute: typeof AdminPermissionsRoute
   AdminRolesRoute: typeof AdminRolesRouteWithChildren
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminApplicationsRoute: AdminApplicationsRouteWithChildren,
+  AdminGuildConfigRoute: AdminGuildConfigRoute,
   AdminPermissionsRoute: AdminPermissionsRoute,
   AdminRolesRoute: AdminRolesRouteWithChildren,
   AdminUsersRoute: AdminUsersRouteWithChildren,

@@ -1,8 +1,13 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 
+import type { GuildConfig } from "@jordan-devs/shared";
+import { permissions } from "@jordan-devs/shared";
+
+import { RequirePermissions } from "../../common/decorators/require-permissions.decorator.js";
 import { ZodValidationPipe } from "../../common/validation/zod-validation.pipe.js";
 import { BotAuthGuard } from "../auth/bot-auth.guard.js";
 import { GuildConfigService } from "./guild-config.service.js";
+import { guildConfigUpsertSchema } from "./guild-config.schema.js";
 
 @Controller("guild-configs")
 export class GuildConfigController {
@@ -13,7 +18,7 @@ export class GuildConfigController {
 	@Post()
 	@UseGuards(BotAuthGuard)
 	public async upsert(
-		@Body()
+		@Body(new ZodValidationPipe(guildConfigUpsertSchema))
 		request: {
 			guildId: string;
 			unverifiedRoleId: string;
@@ -31,5 +36,30 @@ export class GuildConfigController {
 		@Param("guildId") guildId: string,
 	) {
 		return this.configs.findByGuildId(guildId);
+	}
+
+	// --- Dashboard endpoints ---
+
+	@Get("dashboard/:guildId")
+	@RequirePermissions(permissions.guildRead)
+	public async findByGuildIdDashboard(
+		@Param("guildId") guildId: string,
+	): Promise<GuildConfig> {
+		return this.configs.findByGuildId(guildId);
+	}
+
+	@Post("dashboard/upsert")
+	@RequirePermissions(permissions.guildUpdate)
+	public async upsertDashboard(
+		@Body(new ZodValidationPipe(guildConfigUpsertSchema))
+		request: {
+			guildId: string;
+			unverifiedRoleId: string;
+			verifiedRoleId: string;
+			reviewerRoleId: string;
+			verificationChannelId: string;
+		},
+	): Promise<GuildConfig> {
+		return this.configs.upsert(request);
 	}
 }
