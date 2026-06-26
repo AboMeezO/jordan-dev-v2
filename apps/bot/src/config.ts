@@ -33,6 +33,10 @@ export const botConfig = {
 		driver: cfg.get<string>("database.driver"),
 		url: cfg.get<string>("database.url"),
 	},
+	backend: {
+		baseUrl: cfg.get<string>("backend.baseUrl"),
+		token: cfg.get<string | undefined>("backend.token"),
+	},
 	suspiciousTlds: [
 		"xyz", "top", "gq", "ml", "cf", "ga", "tk",
 		"work", "win", "bid", "loan", "date", "men",

@@ -72,6 +72,7 @@ export const applicationSummarySchema = z.object({
 export const applicationDetailSchema = z.object({
 	id: z.string().min(1),
 	userId: z.string().min(1),
+	discordUserId: z.string().nullable(),
 	guildId: z.string().min(1),
 	status: applicationStatusSchema,
 	displayName: z.string().min(1),

@@ -7,6 +7,7 @@ import type {
 	CreateApplicationRequest,
 } from "@jordan-devs/shared";
 import { DatabaseService } from "../../database/database.service.js";
+import { UserService } from "../users/user.service.js";
 import { MembershipApplicationRepository } from "./membership-application.repository.js";
 
 @Injectable()
@@ -14,6 +15,7 @@ export class MembershipApplicationService {
 	public constructor(
 		private readonly database: DatabaseService,
 		private readonly applications: MembershipApplicationRepository,
+		private readonly users: UserService,
 	) {}
 
 	public async create(
@@ -35,7 +37,7 @@ export class MembershipApplicationService {
 			userId,
 		});
 
-		return this.toDetail(application);
+		return await this.toDetail(application);
 	}
 
 	public async update(
@@ -57,7 +59,7 @@ export class MembershipApplicationService {
 		}
 
 		const updated = await this.applications.updateFields(applicationId, request);
-		return this.toDetail(updated);
+		return await this.toDetail(updated);
 	}
 
 	public async submit(
@@ -81,7 +83,7 @@ export class MembershipApplicationService {
 			applicationId,
 			"SUBMITTED",
 		);
-		return this.toDetail(updated);
+		return await this.toDetail(updated);
 	}
 
 	public async getDetail(
@@ -91,7 +93,7 @@ export class MembershipApplicationService {
 		if (!application) {
 			throw new NotFoundException("Application not found");
 		}
-		return this.toDetail(application);
+		return await this.toDetail(application);
 	}
 
 	public async claimReview(
@@ -112,7 +114,7 @@ export class MembershipApplicationService {
 			applicationId,
 			"UNDER_REVIEW",
 		);
-		return this.toDetail(updated);
+		return await this.toDetail(updated);
 	}
 
 	public async approve(
@@ -190,7 +192,7 @@ export class MembershipApplicationService {
 				update: { lastError: null },
 			});
 
-			return this.toDetail(updated);
+			return await this.toDetail(updated);
 		});
 	}
 
@@ -214,7 +216,7 @@ export class MembershipApplicationService {
 			reviewerUserId,
 			reason,
 		);
-		return this.toDetail(updated);
+		return await this.toDetail(updated);
 	}
 
 	public async listSubmitted(
@@ -259,7 +261,7 @@ export class MembershipApplicationService {
 		};
 	}
 
-	private toDetail(
+	private async toDetail(
 		application: {
 			id: string;
 			userId: string;
@@ -283,10 +285,12 @@ export class MembershipApplicationService {
 			createdAt: Date;
 			updatedAt: Date;
 		},
-	): ApplicationDetail {
+	): Promise<ApplicationDetail> {
+		const user = await this.users.findById(application.userId);
 		return {
 			id: application.id,
 			userId: application.userId,
+			discordUserId: user?.discordUserId ?? null,
 			guildId: application.guildId,
 			status: application.status as ApplicationDetail["status"],
 			displayName: application.displayName,
