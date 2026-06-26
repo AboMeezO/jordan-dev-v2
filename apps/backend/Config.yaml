@@ -3,4 +3,6 @@ server:
   nodeEnv: development
 clerk:
   authorizedParties: "http://localhost:3000"
-
+bot:
+  token: ""
+initialAdminClerkUserId: user_3FHjdAGHHJCVbpPS7nClVJfChrz

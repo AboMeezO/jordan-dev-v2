@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { BackendConfigModule } from "../../config/config.module.js";
 import { DatabaseModule } from "../../database/database.module.js";
 import { AuthModule } from "../auth/auth.module.js";
 import { AuthorizationModule } from "../authorization/authorization.module.js";
@@ -10,7 +11,7 @@ import { MembershipApplicationService } from "./membership-application.service.j
 
 @Module({
 	controllers: [MembershipApplicationController],
-	imports: [AuthModule, AuthorizationModule, DatabaseModule, UserModule],
+	imports: [AuthModule, AuthorizationModule, BackendConfigModule, DatabaseModule, UserModule],
 	providers: [MembershipApplicationRepository, MembershipApplicationService],
 	exports: [MembershipApplicationService, MembershipApplicationRepository],
 })

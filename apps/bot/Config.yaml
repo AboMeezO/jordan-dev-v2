@@ -10,3 +10,5 @@ scanning:
 database:
   driver: sqlite
   url: file:data/bot.sqlite
+backend:
+  baseUrl: http://localhost:3001
