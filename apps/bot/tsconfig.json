@@ -10,17 +10,15 @@
 		"skipLibCheck": true,
 		"outDir": "./dist",
 		"rootDir": ".",
-		"ignoreDeprecations": "5.0",
-		"baseUrl": ".",
 		"paths": {
-			"#Database": ["src/Database/index.ts"],
-			"#ChatCommands": ["src/ChatCommands/index.ts"],
-			"#Config": ["src/config.ts"],
-			"#AuditLog": ["src/audit-log.ts"],
-			"#Logger": ["src/Logger/index.ts"],
-			"#ComponentsV2": ["src/ComponentsV2/index.ts"],
-			"#EmojiRegistry": ["src/EmojiRegistry/index.ts"],
-			"#Assets": ["Assets/"]
+			"#Database": ["./src/Database/index.ts"],
+			"#ChatCommands": ["./src/ChatCommands/index.ts"],
+			"#Config": ["./src/config.ts"],
+			"#AuditLog": ["./src/audit-log.ts"],
+			"#Logger": ["./src/Logger/index.ts"],
+			"#ComponentsV2": ["./src/ComponentsV2/index.ts"],
+			"#EmojiRegistry": ["./src/EmojiRegistry/index.ts"],
+			"#Assets": ["./Assets/"]
 		}
 	},
 	"include": ["src", "index.ts"]
