@@ -5,3 +5,9 @@ export type ClerkUserIdentity = {
 	avatarUrl?: string | null;
 };
 
+export type DiscordUserIdentity = {
+	discordUserId: string;
+	displayName?: string | null;
+	avatarUrl?: string | null;
+};
+

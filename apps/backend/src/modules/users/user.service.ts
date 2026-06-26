@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 
 import type { DatabaseTransactionClient } from "../../database/database.service.js";
 import { UserRepository } from "./user.repository.js";
-import type { ClerkUserIdentity } from "./user.types.js";
+import type { ClerkUserIdentity, DiscordUserIdentity } from "./user.types.js";
 
 @Injectable()
 export class UserService {
@@ -14,6 +14,14 @@ export class UserService {
 
 	findByClerkUserId(clerkUserId: string) {
 		return this.users.findByClerkUserId(clerkUserId);
+	}
+
+	findByDiscordUserId(discordUserId: string) {
+		return this.users.findByDiscordUserId(discordUserId);
+	}
+
+	upsertFromDiscordIdentity(identity: DiscordUserIdentity) {
+		return this.users.upsertFromDiscordIdentity(identity);
 	}
 
 	upsertFromClerkIdentity(

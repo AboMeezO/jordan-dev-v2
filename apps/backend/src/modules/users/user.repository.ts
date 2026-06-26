@@ -5,7 +5,7 @@ import {
 	DatabaseService,
 	type DatabaseTransactionClient,
 } from "../../database/database.service.js";
-import type { ClerkUserIdentity } from "./user.types.js";
+import type { ClerkUserIdentity, DiscordUserIdentity } from "./user.types.js";
 
 type DatabaseClient = DatabaseService | DatabaseTransactionClient;
 
@@ -22,6 +22,30 @@ export class UserRepository {
 		client: DatabaseClient = this.database,
 	): Promise<User | null> {
 		return client.user.findUnique({ where: { clerkUserId } });
+	}
+
+	findByDiscordUserId(
+		discordUserId: string,
+		client: DatabaseClient = this.database,
+	): Promise<User | null> {
+		return client.user.findUnique({ where: { discordUserId } });
+	}
+
+	upsertFromDiscordIdentity(
+		identity: DiscordUserIdentity,
+		client: DatabaseClient = this.database,
+	): Promise<User> {
+		const data = {
+			discordUserId: identity.discordUserId,
+			displayName: identity.displayName ?? null,
+			avatarUrl: identity.avatarUrl ?? null,
+		};
+
+		return client.user.upsert({
+			where: { discordUserId: identity.discordUserId },
+			create: data,
+			update: data,
+		});
 	}
 
 	upsertFromClerkIdentity(

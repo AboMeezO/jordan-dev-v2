@@ -51,6 +51,10 @@ export class BackendConfigService {
 		return this.config.get<string | undefined>("initialAdminClerkUserId");
 	}
 
+	public get botToken(): string | undefined {
+		return this.config.get<string | undefined>("bot.token");
+	}
+
 	public assertLoaded(): void {
 		this.config.validate();
 	}

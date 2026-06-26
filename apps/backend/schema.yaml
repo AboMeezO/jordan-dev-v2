@@ -35,3 +35,9 @@ initialAdminClerkUserId:
   type: string
   optional: true
   description: Clerk user ID to auto-assign admin role on bootstrap
+
+bot:
+  token:
+    type: string
+    optional: true
+    description: Shared secret for bot-to-backend API authentication
