@@ -5,6 +5,7 @@ import { DatabaseModule } from "./database/database.module.js";
 import { AuthModule } from "./modules/auth/auth.module.js";
 import { AuthorizationModule } from "./modules/authorization/authorization.module.js";
 import { DashboardModule } from "./modules/dashboard/dashboard.module.js";
+import { GuildConfigModule } from "./modules/guild-config/guild-config.module.js";
 import { HealthModule } from "./modules/health/health.module.js";
 import { MembershipApplicationModule } from "./modules/membership-application/membership-application.module.js";
 import { RolesModule } from "./modules/roles/roles.module.js";
@@ -19,6 +20,7 @@ import { VerificationModule } from "./modules/verification/verification.module.j
 		AuthorizationModule,
 		DatabaseModule,
 		DashboardModule,
+		GuildConfigModule,
 		HealthModule,
 		MembershipApplicationModule,
 		RolesModule,
