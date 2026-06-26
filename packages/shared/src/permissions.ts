@@ -13,6 +13,7 @@ const permissionValues = [
 	"settings:update",
 	"moderation:read",
 	"moderation:manage",
+	"verification:review",
 ] as const;
 
 export const permissionSchema = z.enum(permissionValues);
@@ -30,6 +31,7 @@ export const permissions = {
 	settingsUpdate: "settings:update",
 	moderationRead: "moderation:read",
 	moderationManage: "moderation:manage",
+	verificationReview: "verification:review",
 } as const;
 
 export type Permission = (typeof permissions)[keyof typeof permissions];
@@ -47,6 +49,7 @@ export const permissionDescriptions: Record<Permission, string> = {
 	"settings:update": "Update system settings",
 	"moderation:read": "View moderation data",
 	"moderation:manage": "Perform moderation actions",
+	"verification:review": "Review and approve/reject membership applications",
 };
 
 export const permissionItemSchema = z.object({

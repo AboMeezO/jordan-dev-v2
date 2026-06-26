@@ -6,6 +6,7 @@ import { AuthModule } from "./modules/auth/auth.module.js";
 import { AuthorizationModule } from "./modules/authorization/authorization.module.js";
 import { DashboardModule } from "./modules/dashboard/dashboard.module.js";
 import { HealthModule } from "./modules/health/health.module.js";
+import { MembershipApplicationModule } from "./modules/membership-application/membership-application.module.js";
 import { RolesModule } from "./modules/roles/roles.module.js";
 import { SessionModule } from "./modules/session/session.module.js";
 import { UserModule } from "./modules/users/user.module.js";
@@ -19,6 +20,7 @@ import { VerificationModule } from "./modules/verification/verification.module.j
 		DatabaseModule,
 		DashboardModule,
 		HealthModule,
+		MembershipApplicationModule,
 		RolesModule,
 		SessionModule,
 		UserModule,
