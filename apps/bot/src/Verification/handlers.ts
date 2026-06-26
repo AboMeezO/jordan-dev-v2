@@ -4,6 +4,15 @@ import type {
 	ModalSubmitInteraction,
 	TextChannel,
 } from "discord.js";
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	EmbedBuilder,
+	ModalBuilder,
+	TextInputBuilder,
+	TextInputStyle,
+} from "discord.js";
 
 import { Logger } from "#Logger";
 
@@ -26,8 +35,6 @@ async function sendSectionModal(
 	section: FormSection,
 	data: Record<string, string>,
 ): Promise<void> {
-	const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = await import("discord.js");
-
 	const modal = new ModalBuilder()
 		.setCustomId(`verify_section:${section.key}`)
 		.setTitle(section.title);
@@ -54,12 +61,12 @@ async function sendSectionModal(
 		);
 	}
 
-	await interaction.showModal(modal);
+	if (interaction.isButton()) {
+		await interaction.showModal(modal);
+	}
 }
 
 async function sendVerifyButton(channel: TextChannel, config: api.GuildConfig): Promise<void> {
-	const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = await import("discord.js");
-
 	const embed = new EmbedBuilder()
 		.setTitle("Welcome to Jordan Devs!")
 		.setDescription(
@@ -143,9 +150,7 @@ async function handleVerifyStart(
 	await interaction.deferReply({ ephemeral: true });
 
 	const dmChannel = await interaction.user.createDM();
-	const firstSection = SECTIONS[0];
-
-	const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import("discord.js");
+	const firstSection = SECTIONS[0]!;
 
 	const embed = createSectionEmbed(firstSection, 0);
 
@@ -162,8 +167,7 @@ async function handleVerifyStart(
 	});
 }
 
-function createSectionEmbed(section: FormSection, index: number): import("discord.js").EmbedBuilder {
-	const { EmbedBuilder } = require("discord.js") as typeof import("discord.js");
+function createSectionEmbed(section: FormSection, index: number): EmbedBuilder {
 	return new EmbedBuilder()
 		.setTitle(`${section.title} (${index + 1}/${SECTIONS.length})`)
 		.setDescription(section.description)
@@ -172,7 +176,8 @@ function createSectionEmbed(section: FormSection, index: number): import("discor
 }
 
 async function handleNextSection(interaction: ButtonInteraction): Promise<void> {
-	const sectionKey = interaction.customId.split(":")[2];
+	const parts = interaction.customId.split(":");
+	const sectionKey = parts[2] ?? "";
 	const section = SECTIONS[getSectionIndex(sectionKey)];
 	if (!section) return;
 
@@ -181,13 +186,12 @@ async function handleNextSection(interaction: ButtonInteraction): Promise<void> 
 }
 
 async function handlePrevSection(interaction: ButtonInteraction): Promise<void> {
-	const sectionKey = interaction.customId.split(":")[2];
+	const parts = interaction.customId.split(":");
+	const sectionKey = parts[2] ?? "";
 	const prevSection = getPreviousSection(sectionKey);
 	if (!prevSection) return;
 
 	const data = getAppData(interaction.user.id);
-
-	const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import("discord.js");
 
 	const embed = createSectionEmbed(prevSection, getSectionIndex(prevSection.key));
 
@@ -214,7 +218,8 @@ export async function handleModalSubmit(
 
 	if (!interaction.customId.startsWith("verify_section:")) return;
 
-	const sectionKey = interaction.customId.split(":")[1];
+	const parts = interaction.customId.split(":");
+	const sectionKey = parts[1] ?? "";
 	const sectionIndex = getSectionIndex(sectionKey);
 	const section = SECTIONS[sectionIndex];
 	if (!section) return;
@@ -229,8 +234,6 @@ export async function handleModalSubmit(
 	}
 
 	const nextSection = getNextSection(sectionKey);
-	const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import("discord.js");
-
 	if (nextSection) {
 		const embed = createSectionEmbed(nextSection, getSectionIndex(nextSection.key));
 
@@ -281,15 +284,31 @@ async function handleSubmit(interaction: ButtonInteraction): Promise<void> {
 		return;
 	}
 
+	function buildPayload() {
+		return {
+			discordUserId: interaction.user.id,
+			guildId: interaction.guildId!,
+			displayName: data.displayName ?? "",
+			githubHandle: data.githubHandle ?? "",
+			strongestProject: data.strongestProject ?? "",
+			projectExplanation: data.projectExplanation ?? "",
+			techStack: data.techStack ?? "",
+			experienceLevel: data.experienceLevel ?? "",
+			purposeOfJoining: data.purposeOfJoining ?? "",
+			selfIntroduction: data.selfIntroduction ?? "",
+			linkedInUrl: data.linkedInUrl ?? null,
+			portfolioUrl: data.portfolioUrl ?? null,
+			referralSource: data.referralSource ?? "",
+			referralOtherText: data.referralOtherText ?? null,
+		};
+	}
+
 	await interaction.deferReply({ ephemeral: true });
 
 	try {
 		const existingApp = await api.getApplicationByUser(interaction.user.id);
 		if (existingApp && existingApp.status === "DRAFTING") {
-			await api.updateApplication(existingApp.id, {
-				...data,
-				discordUserId: interaction.user.id,
-			});
+			await api.updateApplication(existingApp.id, buildPayload() as unknown as Record<string, unknown>);
 			const submitted = await api.submitApplication(existingApp.id, interaction.user.id);
 
 			await notifyAdmins(interaction, submitted, interaction.client);
@@ -299,11 +318,7 @@ async function handleSubmit(interaction: ButtonInteraction): Promise<void> {
 			return;
 		}
 
-		const app = await api.createApplication({
-			...data,
-			discordUserId: interaction.user.id,
-			guildId: interaction.guildId!,
-		});
+		const app = await api.createApplication(buildPayload());
 
 		const submitted = await api.submitApplication(app.id, interaction.user.id);
 
@@ -335,7 +350,7 @@ async function notifyAdmins(
 		const channel = guild.channels.cache.get(config.verificationChannelId) as import("discord.js").TextChannel | undefined;
 		if (!channel) return;
 
-		const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = await import("discord.js");
+
 
 		const embed = new EmbedBuilder()
 			.setTitle("New Application Submitted")
@@ -363,11 +378,12 @@ async function notifyAdmins(
 }
 
 async function handleAdminInspect(interaction: ButtonInteraction): Promise<void> {
-	const applicationId = interaction.customId.split(":")[2];
+	const parts = interaction.customId.split(":");
+	const applicationId = parts[2]!;
 
 	try {
 		const app = await api.getApplicationDetail(applicationId);
-		const { EmbedBuilder } = await import("discord.js");
+
 
 		const embed = new EmbedBuilder()
 			.setTitle(`Application: ${app.displayName}`)
@@ -387,9 +403,7 @@ async function handleAdminInspect(interaction: ButtonInteraction): Promise<void>
 		if (app.linkedInUrl) embed.addFields({ name: "LinkedIn", value: app.linkedInUrl, inline: true });
 		if (app.portfolioUrl) embed.addFields({ name: "Portfolio", value: app.portfolioUrl, inline: true });
 
-		const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import("discord.js");
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId(`admin:claim:${applicationId}`)
 				.setLabel("Claim Review")
@@ -407,7 +421,8 @@ async function handleAdminApprove(
 	interaction: ButtonInteraction,
 	client: Client,
 ): Promise<void> {
-	const applicationId = interaction.customId.split(":")[2];
+	const parts = interaction.customId.split(":");
+	const applicationId = parts[2]!;
 
 	await interaction.deferReply({ ephemeral: true });
 
@@ -435,7 +450,7 @@ async function handleAdminApprove(
 		await interaction.editReply({ content: "Application approved and roles granted." });
 
 		if (interaction.message) {
-			const { EmbedBuilder } = await import("discord.js");
+	
 			const updatedEmbed = new EmbedBuilder()
 				.setTitle("Application Approved")
 				.setDescription(`✅ **${app.displayName}** was approved by <@${interaction.user.id}>`)
@@ -449,7 +464,8 @@ async function handleAdminApprove(
 }
 
 async function handleRejectConfirm(interaction: ModalSubmitInteraction): Promise<void> {
-	const applicationId = interaction.customId.split(":")[1];
+	const parts = interaction.customId.split(":");
+	const applicationId = parts[1]!;
 	const reason = interaction.fields.getTextInputValue("rejectionReason");
 
 	await interaction.deferReply({ ephemeral: true });
@@ -474,7 +490,7 @@ async function handleRejectConfirm(interaction: ModalSubmitInteraction): Promise
 		await interaction.editReply({ content: "Application rejected. The user has been notified." });
 
 		if (interaction.message) {
-			const { EmbedBuilder } = await import("discord.js");
+	
 			const updatedEmbed = new EmbedBuilder()
 				.setTitle("Application Rejected")
 				.setDescription(`❌ **${app.displayName}** was rejected by <@${interaction.user.id}>`)
@@ -489,9 +505,8 @@ async function handleRejectConfirm(interaction: ModalSubmitInteraction): Promise
 }
 
 async function handleAdminRejectStart(interaction: ButtonInteraction): Promise<void> {
-	const applicationId = interaction.customId.split(":")[2];
-	const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = await import("discord.js");
-
+	const parts = interaction.customId.split(":");
+	const applicationId = parts[2]!;
 	const modal = new ModalBuilder()
 		.setCustomId(`verify_reject:${applicationId}`)
 		.setTitle("Reject Application");
@@ -515,15 +530,14 @@ async function handleAdminClaim(
 	interaction: ButtonInteraction,
 	client: Client,
 ): Promise<void> {
-	const applicationId = interaction.customId.split(":")[2];
+	const parts = interaction.customId.split(":");
+	const applicationId = parts[2]!;
 
 	await interaction.deferReply({ ephemeral: true });
 
 	try {
 		const app = await api.claimReview(applicationId, interaction.user.id);
-		const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import("discord.js");
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId(`admin:approve:${applicationId}`)
 				.setLabel("Approve")
@@ -544,4 +558,4 @@ async function handleAdminClaim(
 	}
 }
 
-export { handleRejectConfirm };
+export { handleRejectConfirm, sendVerifyButton };

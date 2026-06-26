@@ -15,11 +15,15 @@ async function request<T>(
 		headers["Authorization"] = `Bot ${TOKEN}`;
 	}
 
-	const response = await fetch(`${BASE_URL}${path}`, {
+	const requestInit: RequestInit = {
 		method,
 		headers,
-		body: body ? JSON.stringify(body) : undefined,
-	});
+	};
+	if (body) {
+		requestInit.body = JSON.stringify(body);
+	}
+
+	const response = await fetch(`${BASE_URL}${path}`, requestInit);
 
 	if (!response.ok) {
 		const text = await response.text();

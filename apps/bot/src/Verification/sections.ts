@@ -166,11 +166,11 @@ export function getSectionIndex(key: string): number {
 export function getNextSection(currentKey: string): FormSection | null {
 	const index = getSectionIndex(currentKey);
 	if (index === -1 || index >= SECTIONS.length - 1) return null;
-	return SECTIONS[index + 1];
+	return SECTIONS[index + 1] ?? null;
 }
 
 export function getPreviousSection(currentKey: string): FormSection | null {
 	const index = getSectionIndex(currentKey);
 	if (index <= 0) return null;
-	return SECTIONS[index - 1];
+	return SECTIONS[index - 1] ?? null;
 }
