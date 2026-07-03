@@ -1,14 +1,21 @@
 discord:
   prefix: "!"
-owners: {}
-github: {}
+  token: null
+  devGuildId: null
+owners:
+  ids: null
+  devIds: null
+github:
+  token: null
 scanning:
   cacheTtlMs: 300000
   rateLimit: 10
   timeoutMs: 10000
   maxRedirects: 10
+  virustotalApiKey: null
 database:
   driver: sqlite
   url: file:data/bot.sqlite
 backend:
   baseUrl: http://localhost:3001
+  token: null
