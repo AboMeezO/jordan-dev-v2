@@ -22,29 +22,20 @@ export const data = new SlashCommandBuilder()
 			)
 			.addChoices(
 				{
-					name: "DeepSeek V4 Flash (default)",
-					value: "deepseek/deepseek-v4-flash",
+					name: "DeepSeek V4 Flash Free (default)",
+					value: "opencode/deepseek-v4-flash-free",
 				},
 				{
-					name: "Claude Sonnet 4.5",
-					value: "anthropic/claude-sonnet-4-5-20250929",
+					name: "Nemotron 3 Ultra Free",
+					value: "opencode/nemotron-3-ultra-free",
 				},
 				{
-					name: "Claude Haiku 4.5",
-					value: "anthropic/claude-haiku-4-5-20251001",
+					name: "Mimo V2.5 Free",
+					value: "opencode/mimo-v2.5-free",
 				},
 				{
-					name: "Claude Opus 4.5",
-					value: "anthropic/claude-opus-4-5-20251101",
-				},
-				{ name: "GPT-4o", value: "openai/gpt-4o" },
-				{
-					name: "Gemini 2.5 Flash",
-					value: "google/gemini-2.5-flash",
-				},
-				{
-					name: "Gemini 2.5 Pro",
-					value: "google/gemini-2.5-pro",
+					name: "North Mini Code Free",
+					value: "opencode/north-mini-code-free",
 				},
 			),
 	)
@@ -73,7 +64,7 @@ export async function run({
 	);
 	const modelId =
 		interaction.options.getString("model") ??
-		"deepseek/deepseek-v4-flash";
+		"opencode/deepseek-v4-flash-free";
 	const agent =
 		interaction.options.getString("agent") ?? "general";
 

@@ -17,7 +17,7 @@ function getHandler(): (message: Message) => Promise<void> {
 		configureAI({
 			selectAiModel: async (_ctx, message) => {
 				const model = opencode(
-					"deepseek/deepseek-v4-flash",
+					"opencode/deepseek-v4-flash-free",
 					{
 						systemPrompt:
 							`You are a helpful Discord bot in the server "${message.guild?.name ?? "DMs"}". ` +
