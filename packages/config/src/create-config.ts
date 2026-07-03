@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 
 import { parse as parseDotenv } from "dotenv";
 
-import { autoSync } from "./auto-sync.js";
-import { envToNestedObject } from "./dotenv-loader.js";
+import { autoSync, syncConfigWithSchema } from "./auto-sync.js";
+import { envToNestedObject, syncEnvFile } from "./dotenv-loader.js";
 import { compileSchema } from "./schema.js";
 import { yamlFileExists, loadYamlFile } from "./yaml-utils.js";
 import type { CompiledSchema } from "./schema.js";
@@ -65,10 +65,14 @@ export function createConfig(options: CreateConfigOptions): Config {
 	}
 
 	if (options.autoSyncEnabled && options.configPath && compiledSchema) {
-		merged = autoSync(options.configPath, compiledSchema.defaults);
+		merged = syncConfigWithSchema(options.configPath, compiledSchema.flatKeys);
 	} else if (options.configPath && yamlFileExists(options.configPath)) {
 		const configData = loadYamlFile(options.configPath);
 		merged = deepMerge(merged, configData);
+	}
+
+	if (options.autoSyncEnabled && options.envFilePath && compiledSchema) {
+		syncEnvFile(options.envFilePath, compiledSchema.flatKeys);
 	}
 
 	const envObj: Record<string, string> = {};

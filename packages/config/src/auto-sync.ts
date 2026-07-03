@@ -67,3 +67,53 @@ export function autoSync(
 
 	return merged;
 }
+
+function deepSet(obj: Record<string, unknown>, path: readonly string[], value: unknown): void {
+	let current = obj;
+	for (let i = 0; i < path.length - 1; i++) {
+		const segment = path[i]!;
+		if (!(segment in current) || typeof current[segment] !== "object" || current[segment] === null) {
+			current[segment] = {};
+		}
+		current = current[segment] as Record<string, unknown>;
+	}
+	current[path[path.length - 1]!] = value;
+}
+
+function deepHas(obj: Record<string, unknown>, path: readonly string[]): boolean {
+	let current: unknown = obj;
+	for (const segment of path) {
+		if (typeof current !== "object" || current === null) return false;
+		current = (current as Record<string, unknown>)[segment];
+		if (current === undefined) return false;
+	}
+	return true;
+}
+
+export function syncConfigWithSchema(
+	configPath: string,
+	flatKeys: Map<string, { type: string; required: boolean; default?: unknown }>,
+): Record<string, unknown> {
+	let config: Record<string, unknown> = {};
+	if (yamlFileExists(configPath)) {
+		config = loadYamlFile(configPath);
+	}
+
+	const result: Record<string, unknown> = JSON.parse(JSON.stringify(config));
+	const added: string[] = [];
+
+	for (const [flatPath, info] of flatKeys) {
+		const parts = flatPath.split(".");
+		if (!deepHas(result, parts)) {
+			const value = info.default !== undefined ? info.default : null;
+			deepSet(result, parts, value);
+			added.push(flatPath);
+		}
+	}
+
+	if (added.length > 0) {
+		writeYamlFile(configPath, result);
+	}
+
+	return result;
+}

@@ -1,3 +1,5 @@
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+
 export function parseEnvFile(content: string): Record<string, string> {
 	const vars: Record<string, string> = {};
 	for (const line of content.split("\n")) {
@@ -42,4 +44,41 @@ export function envToNestedObject(
 		}
 	}
 	return result;
+}
+
+export function syncEnvFile(
+	envFilePath: string,
+	flatKeys: Map<string, { type: string; required: boolean; default?: unknown }>,
+): void {
+	const existingKeys = new Set<string>();
+	let existingContent = "";
+
+	if (existsSync(envFilePath)) {
+		existingContent = readFileSync(envFilePath, "utf-8");
+		const parsed = parseEnvFile(existingContent);
+		for (const key of Object.keys(parsed)) {
+			existingKeys.add(key);
+		}
+	}
+
+	const linesToAdd: string[] = [];
+	for (const [flatPath, info] of flatKeys) {
+		if (!existingKeys.has(flatPath)) {
+			const value = info.default !== undefined ? String(info.default) : "";
+			linesToAdd.push(`${flatPath}=${value}`);
+		}
+	}
+
+	if (linesToAdd.length === 0) return;
+
+	let content = existingContent;
+	if (content.length > 0 && !content.endsWith("\n")) {
+		content += "\n";
+	}
+	if (content.length > 0) {
+		content += "\n";
+	}
+	content += linesToAdd.join("\n") + "\n";
+
+	writeFileSync(envFilePath, content, "utf-8");
 }
