@@ -101,6 +101,12 @@ importers:
 
   apps/bot:
     dependencies:
+      '@ai-sdk/google':
+        specifier: ^2.0.19
+        version: 2.0.78(zod@4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c))
+      '@jordan-devs/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@jordan-devs/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -466,11 +472,27 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/google@2.0.78':
+    resolution: {integrity: sha512-21AeBlmeXcFVzujaW6I6bWSENYAVpaEYZ767Pv4LJeuSt7F6TR3/SutbLhi6n9XBiT+F5kWOtJnt/VPLHHb7XA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider-utils@3.0.28':
+    resolution: {integrity: sha512-bXlX1WX7E50a2N+AJW+1a/x63m52aPhm+6xYe5THxWrx9vW9NR7E2Ay+1G1ndlCdMdYKo2Fnsd7kBhuyQPaphw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider-utils@4.0.35':
     resolution: {integrity: sha512-bjYld/2KGPLt78kpqbya+fD4LYS7BqVQJyUjE3qAHrYB0FR2Q90BaWEVIBZaguTWXf/A8L6uG1zO1v9TxVlGWg==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/provider@2.0.3':
+    resolution: {integrity: sha512-h88OPkavHTiN9tMn2l5awAznGB0lXzjcLhgR1/rvjB2zlLprsNxbM2tt6OJsHUxduLC3klq0/eqaSf6fX5XVww==}
+    engines: {node: '>=18'}
 
   '@ai-sdk/provider@3.0.13':
     resolution: {integrity: sha512-ZPtVYt5QIJzOta1kdUiDuCx4HhFkvNPv/rvmZ2b1iXwybYjJsCnNYR4PAw4kW7rgVfDARvHXcU64efWuqNp6bw==}
@@ -7042,12 +7064,29 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c)
 
+  '@ai-sdk/google@2.0.78(zod@4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c))':
+    dependencies:
+      '@ai-sdk/provider': 2.0.3
+      '@ai-sdk/provider-utils': 3.0.28(zod@4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c))
+      zod: 4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c)
+
+  '@ai-sdk/provider-utils@3.0.28(zod@4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c))':
+    dependencies:
+      '@ai-sdk/provider': 2.0.3
+      '@standard-schema/spec': 1.1.0
+      eventsource-parser: 3.1.0
+      zod: 4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c)
+
   '@ai-sdk/provider-utils@4.0.35(zod@4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c))':
     dependencies:
       '@ai-sdk/provider': 3.0.13
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.1.0
       zod: 4.4.3(patch_hash=df6d79a9827b430e6619f643078c457bd0de922ad474c30699dd21c9f283fe4c)
+
+  '@ai-sdk/provider@2.0.3':
+    dependencies:
+      json-schema: 0.4.0
 
   '@ai-sdk/provider@3.0.13':
     dependencies:
