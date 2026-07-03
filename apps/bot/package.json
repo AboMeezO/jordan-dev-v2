@@ -23,6 +23,8 @@
 		"@jordan-devs/ai": "workspace:*",
 		"@jordan-devs/config": "workspace:*",
 		"@octokit/rest": "^22.0.1",
+		"ai": "^6.0.105",
+		"ai-sdk-provider-opencode-sdk": "^3.0.6",
 		"chalk": "^5.6.2",
 		"change-case": "^5.4.4",
 		"colord": "^2.9.3",

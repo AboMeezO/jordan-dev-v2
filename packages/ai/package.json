@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"ai": "^6.0.105",
+		"ai-sdk-provider-opencode-sdk": "^3.0.6",
 		"zod": "^4.4.3"
 	},
 	"peerDependencies": {
