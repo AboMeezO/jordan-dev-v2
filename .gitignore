@@ -39,5 +39,6 @@ tools/
 
 # But allow the bot's chat command tools directory
 !apps/bot/src/ChatCommands/commands/tools/
+!apps/bot/src/ai/tools/
 
 apps/bot/data/
