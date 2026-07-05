@@ -2,6 +2,9 @@
 
 Monorepo for the JordanDevs ecosystem — a Discord bot, API backend, web app, and server dashboard.
 
+## Status
+[![CI Status](https://github.com/AboMeezO/jordan-dev-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/AboMeezO/jordan-dev-v2/actions/workflows/ci.yml)
+
 ## Monorepo Map
 
 | Package | Description | Stack |
