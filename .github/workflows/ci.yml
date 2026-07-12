@@ -40,6 +40,20 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
+      # --- VALE PROSE LINTER ADDITION ---
+      - name: Run Vale Prose Linter
+        uses: errata-ai/vale-action@v2
+        with:
+          # Points to your root config; checks files automatically
+          config: .vale.ini
+          # Only report issues found inside a specific directory (e.g., docs/ or README.md)
+          # If your files live elsewhere, adjust the files parameter accordingly.
+          files: |
+            README.md
+            docs/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test:
     name: Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
