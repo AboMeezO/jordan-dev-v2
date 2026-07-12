@@ -42,3 +42,5 @@ tools/
 !apps/bot/src/ai/tools/
 
 apps/bot/data/
+# ignoring the microsoft styles from github remote
+.github/styles/
