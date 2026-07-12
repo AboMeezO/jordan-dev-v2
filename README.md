@@ -61,3 +61,18 @@ The backend is deployable on Render via `render.yaml`. Other apps can be deploye
 - **Runtime:** Node 22, TypeScript 6, pnpm 10
 - **Linting:** ESLint 10 with typescript-eslint, Prettier 3
 - **Testing:** Vitest (web), tsx (bot tests)
+
+
+## Verification
+
+This project uses [Cosign](https://github.com/sigstore/cosign) to cryptographically sign release artifacts via keyless signing. You can verify the integrity and authenticity of downloaded binaries using the signature (`.sig`) and certificate (`.pem`) provided in the release assets.
+
+### Prerequisites
+
+Install the Cosign CLI tool:
+```bash
+# Using Homebrew (macOS/Linux)
+brew install cosign
+
+# Using Go
+go install [github.com/sigstore/cosign/v2/cmd/cosign@latest](https://github.com/sigstore/cosign/v2/cmd/cosign@latest)
