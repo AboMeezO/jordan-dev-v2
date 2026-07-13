@@ -60,21 +60,6 @@ function AdminUsersPage() {
   const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(new Set())
   const [rolesError, setRolesError] = useState<string | null>(null)
 
-  const openEdit = (user: {
-    id: string
-    displayName: string | null
-    email: string | null
-  }) => {
-    setEditUser({
-      id: user.id,
-      displayName: user.displayName ?? '',
-      email: user.email ?? '',
-    })
-    setEditDisplayName(user.displayName ?? '')
-    setEditEmail(user.email ?? '')
-    setEditError(null)
-  }
-
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editUser) return
