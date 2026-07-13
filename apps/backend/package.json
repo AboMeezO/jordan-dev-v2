@@ -27,7 +27,7 @@
 		"zod": "^4.2.0"
 	},
 	"devDependencies": {
-		"@nestjs/cli": "11.0.23",
+		"@nestjs/cli": "11.0.24",
 		"prisma": "6.16.3",
 		"vitest": "4.1.9"
 	}
