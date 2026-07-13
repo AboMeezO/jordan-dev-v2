@@ -28,7 +28,7 @@ export function validateSchema<T>(
 
   return {
     data: undefined,
-    fieldErrors: result.error.flatten().fieldErrors,
+    fieldErrors: result.error.flatten().fieldErrors as Record<string, string[]>,
     success: false,
   }
 }
