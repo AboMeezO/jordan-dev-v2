@@ -44,7 +44,7 @@ export async function apiRequest<T>(
     const apiError: ApiError = {
       code: 'invalid_response',
       message: 'The API returned an unexpected response.',
-      fieldErrors: parsed.error.flatten().fieldErrors,
+      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
     }
 
     throw new ApiClientError(apiError, response.status)
