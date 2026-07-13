@@ -5,9 +5,7 @@ import type {
 	DatabaseDriver,
 } from "./types.js";
 
-export function loadDatabaseConfig(
-	_env?: NodeJS.ProcessEnv,
-): DatabaseConfig {
+export function loadDatabaseConfig(): DatabaseConfig {
 	const driver = parseDriver(botConfig.database.driver);
 	const url = botConfig.database.url;
 
