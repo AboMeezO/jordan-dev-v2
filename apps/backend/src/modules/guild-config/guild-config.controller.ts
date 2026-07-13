@@ -1,6 +1,13 @@
 import type { GuildConfig } from "@jordan-devs/shared";
 import { permissions } from "@jordan-devs/shared";
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Get,
+	Param,
+	Post,
+	UseGuards,
+} from "@nestjs/common";
 
 import { RequirePermissions } from "../../common/decorators/require-permissions.decorator.js";
 import { ZodValidationPipe } from "../../common/validation/zod-validation.pipe.js";

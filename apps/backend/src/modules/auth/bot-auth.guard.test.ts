@@ -9,7 +9,10 @@ import { BotAuthGuard } from "./bot-auth.guard.js";
 describe("BotAuthGuard", () => {
 	const createContext = (
 		authorization: string | undefined,
-	): { context: ExecutionContext; request: Partial<BotAuthenticatedRequest> } => {
+	): {
+		context: ExecutionContext;
+		request: Partial<BotAuthenticatedRequest>;
+	} => {
 		const request: Partial<BotAuthenticatedRequest> = {
 			headers: { authorization },
 		};
@@ -25,7 +28,9 @@ describe("BotAuthGuard", () => {
 
 	describe("extractBotToken branches (via canActivate)", () => {
 		it("throws when authorization header is undefined", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext(undefined);
 
@@ -35,7 +40,9 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("throws when authorization header is an empty string", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("");
 
@@ -45,9 +52,13 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("throws when scheme is not 'bot'", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
-			const { context } = createContext("Bearer expected-token");
+			const { context } = createContext(
+				"Bearer expected-token",
+			);
 
 			expect(() => guard.canActivate(context)).toThrow(
 				new UnauthorizedException("Missing Bot token."),
@@ -55,7 +66,9 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("throws when scheme is 'bot' but token part is missing", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot");
 
@@ -65,7 +78,9 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("throws when scheme is 'bot' but token is an empty string", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot ");
 
@@ -75,9 +90,13 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("accepts scheme case-insensitively (e.g. 'BOT')", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
-			const { context, request } = createContext("BOT expected-token");
+			const { context, request } = createContext(
+				"BOT expected-token",
+			);
 
 			const result = guard.canActivate(context);
 
@@ -100,7 +119,9 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("throws when config.botToken is an empty string", () => {
-			const config = { botToken: "" } as BackendConfigService;
+			const config = {
+				botToken: "",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot some-token");
 
@@ -110,7 +131,9 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("throws when provided token does not match expected token", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot wrong-token");
 
@@ -120,9 +143,13 @@ describe("BotAuthGuard", () => {
 		});
 
 		it("returns true and sets isBot=true when token matches expected token", () => {
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
-			const { context, request } = createContext("Bot expected-token");
+			const { context, request } = createContext(
+				"Bot expected-token",
+			);
 
 			const result = guard.canActivate(context);
 

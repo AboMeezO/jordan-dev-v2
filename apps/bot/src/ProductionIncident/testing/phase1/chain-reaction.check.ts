@@ -1,8 +1,6 @@
 import { strict as assert } from "node:assert";
 
-import {
-	ChainReactionSystem,
-} from "../../engine/application/gameplay/systems/index.js";
+import { ChainReactionSystem } from "../../engine/application/gameplay/systems/index.js";
 import {
 	type GameSession,
 	type IncidentId,
@@ -57,7 +55,11 @@ const result1 = chain1.maybeSchedule(
 	"incident-1" as IncidentId,
 	makeSession(50),
 );
-assert.equal(result1, undefined, "should not schedule on inactive session");
+assert.equal(
+	result1,
+	undefined,
+	"should not schedule on inactive session",
+);
 
 // 2. maybeSchedule returns event when session is active and random passes
 const clock2 = new TestClock();
@@ -80,7 +82,11 @@ const result2 = chain2.maybeSchedule(
 	"incident-1" as IncidentId,
 	makeSession(0),
 );
-assert.notEqual(result2, undefined, "should schedule chain reaction");
+assert.notEqual(
+	result2,
+	undefined,
+	"should schedule chain reaction",
+);
 assert.equal(result2!.type, "chainReaction.scheduled");
 assert.equal(result2!.depth, 1);
 assert.equal(result2!.delayMs, 5_000);
@@ -125,7 +131,11 @@ const result3 = chain3.maybeSchedule(
 	"inc-4" as IncidentId,
 	makeSession(0),
 );
-assert.equal(result3, undefined, "should not schedule at max depth (3)");
+assert.equal(
+	result3,
+	undefined,
+	"should not schedule at max depth (3)",
+);
 
 assert.equal(sched3.activeTasks.length, 3);
 
@@ -136,7 +146,11 @@ const afterClear = chain3.maybeSchedule(
 	"inc-5" as IncidentId,
 	makeSession(0),
 );
-assert.notEqual(afterClear, undefined, "should schedule after clear");
+assert.notEqual(
+	afterClear,
+	undefined,
+	"should schedule after clear",
+);
 assert.equal(sched3.activeTasks.length, 4);
 
 console.log("chain-reaction.check.ts passed");
