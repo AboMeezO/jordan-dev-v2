@@ -62,14 +62,21 @@ export const rolePermissionAssignmentSchema = z.object({
 	permissionIds: z.array(permissionSchema),
 });
 
-export const rolePermissionAssignmentResponseSchema = z.object({
-	success: z.literal(true),
-	data: roleDetailSchema,
-});
+export const rolePermissionAssignmentResponseSchema =
+	z.object({
+		success: z.literal(true),
+		data: roleDetailSchema,
+	});
 
-export type RoleListItem = z.infer<typeof roleListItemSchema>;
-export type RoleListResponse = z.infer<typeof roleListResponseSchema>;
+export type RoleListItem = z.infer<
+	typeof roleListItemSchema
+>;
+export type RoleListResponse = z.infer<
+	typeof roleListResponseSchema
+>;
 export type RoleDetail = z.infer<typeof roleDetailSchema>;
 export type CreateRole = z.infer<typeof createRoleSchema>;
 export type UpdateRole = z.infer<typeof updateRoleSchema>;
-export type RolePermissionAssignment = z.infer<typeof rolePermissionAssignmentSchema>;
+export type RolePermissionAssignment = z.infer<
+	typeof rolePermissionAssignmentSchema
+>;

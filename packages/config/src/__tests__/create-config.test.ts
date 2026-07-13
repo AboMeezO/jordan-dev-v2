@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { randomUUID } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
@@ -31,7 +32,10 @@ database:
 `;
 
 function withTempDir(fn: (dir: string) => void): void {
-	const dir = join(tmpdir(), `jd-config-test-${Date.now()}`);
+	const dir = join(
+		tmpdir(),
+		`jd-config-test-${randomUUID()}`,
+	);
 	mkdirSync(dir, { recursive: true });
 	fn(dir);
 }
@@ -39,8 +43,16 @@ function withTempDir(fn: (dir: string) => void): void {
 describe("createConfig", () => {
 	it("loads schema defaults and merges config.yaml", () => {
 		withTempDir((dir) => {
-			writeFileSync(join(dir, "schema.yaml"), schemaYaml, "utf-8");
-			writeFileSync(join(dir, "Config.yaml"), configYaml, "utf-8");
+			writeFileSync(
+				join(dir, "schema.yaml"),
+				schemaYaml,
+				"utf-8",
+			);
+			writeFileSync(
+				join(dir, "Config.yaml"),
+				configYaml,
+				"utf-8",
+			);
 
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
@@ -48,28 +60,46 @@ describe("createConfig", () => {
 			});
 
 			expect(cfg.get<number>("server.port")).toBe(4000);
-			expect(cfg.get<string>("server.host")).toBe("localhost");
-			expect(cfg.get<string>("database.url")).toBe("postgres://localhost/db");
+			expect(cfg.get<string>("server.host")).toBe(
+				"localhost",
+			);
+			expect(cfg.get<string>("database.url")).toBe(
+				"postgres://localhost/db",
+			);
 		});
 	});
 
 	it("returns defaults when no config.yaml exists", () => {
 		withTempDir((dir) => {
-			writeFileSync(join(dir, "schema.yaml"), schemaYaml, "utf-8");
+			writeFileSync(
+				join(dir, "schema.yaml"),
+				schemaYaml,
+				"utf-8",
+			);
 
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
 			});
 
 			expect(cfg.get<number>("server.port")).toBe(3000);
-			expect(cfg.get<string>("server.host")).toBe("0.0.0.0");
+			expect(cfg.get<string>("server.host")).toBe(
+				"0.0.0.0",
+			);
 		});
 	});
 
 	it("merges env vars with path notation (exact case match)", () => {
 		withTempDir((dir) => {
-			writeFileSync(join(dir, "schema.yaml"), schemaYaml, "utf-8");
-			writeFileSync(join(dir, "Config.yaml"), configYaml, "utf-8");
+			writeFileSync(
+				join(dir, "schema.yaml"),
+				schemaYaml,
+				"utf-8",
+			);
+			writeFileSync(
+				join(dir, "Config.yaml"),
+				configYaml,
+				"utf-8",
+			);
 
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
@@ -83,13 +113,19 @@ describe("createConfig", () => {
 
 	it("validates config and throws on missing required fields", () => {
 		withTempDir((dir) => {
-			writeFileSync(join(dir, "schema.yaml"), schemaYaml, "utf-8");
+			writeFileSync(
+				join(dir, "schema.yaml"),
+				schemaYaml,
+				"utf-8",
+			);
 
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
 			});
 
-			expect(() => cfg.validate()).toThrow("Config validation failed");
+			expect(() => cfg.validate()).toThrow(
+				"Config validation failed",
+			);
 		});
 	});
 
@@ -104,7 +140,11 @@ describe("createConfig", () => {
 
 	it("getAll returns the full merged config", () => {
 		withTempDir((dir) => {
-			writeFileSync(join(dir, "schema.yaml"), schemaYaml, "utf-8");
+			writeFileSync(
+				join(dir, "schema.yaml"),
+				schemaYaml,
+				"utf-8",
+			);
 
 			const cfg = createConfig({
 				schemaPath: join(dir, "schema.yaml"),
@@ -113,7 +153,9 @@ describe("createConfig", () => {
 
 			const all = cfg.getAll();
 			expect(all.server).toBeDefined();
-			expect((all.server as Record<string, unknown>).port).toBe("5000");
+			expect(
+				(all.server as Record<string, unknown>).port,
+			).toBe("5000");
 		});
 	});
 });

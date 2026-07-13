@@ -58,7 +58,9 @@ export const snowflakeCommand = subcommand({
 
 		const result = deconstructSnowflake(id);
 		if (!result) {
-			await message.reply(`Invalid snowflake ID: \`${id}\``);
+			await message.reply(
+				`Invalid snowflake ID: \`${id}\``,
+			);
 			return;
 		}
 

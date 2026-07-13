@@ -6,28 +6,28 @@ Load fonts via Google Fonts `<link>` or `@import`. Use CSS custom properties, `r
 
 ```css
 :root {
-  --black: #000000;
-  --surface: #111111;
-  --surface-raised: #1A1A1A;
-  --border: #222222;
-  --border-visible: #333333;
-  --text-disabled: #666666;
-  --text-secondary: #999999;
-  --text-primary: #E8E8E8;
-  --text-display: #FFFFFF;
-  --accent: #D71921;
-  --accent-subtle: rgba(215,25,33,0.15);
-  --success: #4A9E5C;
-  --warning: #D4A843;
-  --interactive: #5B9BF6;
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  --space-3xl: 64px;
-  --space-4xl: 96px;
+	--black: #000000;
+	--surface: #111111;
+	--surface-raised: #1a1a1a;
+	--border: #222222;
+	--border-visible: #333333;
+	--text-disabled: #666666;
+	--text-secondary: #999999;
+	--text-primary: #e8e8e8;
+	--text-display: #ffffff;
+	--accent: #d71921;
+	--accent-subtle: rgba(215, 25, 33, 0.15);
+	--success: #4a9e5c;
+	--warning: #d4a843;
+	--interactive: #5b9bf6;
+	--space-xs: 4px;
+	--space-sm: 8px;
+	--space-md: 16px;
+	--space-lg: 24px;
+	--space-xl: 32px;
+	--space-2xl: 48px;
+	--space-3xl: 64px;
+	--space-4xl: 96px;
 }
 ```
 

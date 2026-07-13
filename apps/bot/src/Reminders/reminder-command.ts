@@ -5,7 +5,10 @@ import {
 	type ReminderRecord,
 } from "./reminder-service.js";
 import { getReminderService } from "./reminder-store.js";
-import { parseReminderTime, UNIT_MS } from "./reminder-time.js";
+import {
+	parseReminderTime,
+	UNIT_MS,
+} from "./reminder-time.js";
 
 export interface ReminderCommandInput {
 	readonly client: Client;
@@ -239,10 +242,9 @@ function isRelativeDurationPart(value: string): boolean {
 }
 
 function isRelativeDurationUnit(value: string): boolean {
-	return new RegExp(
-		`^(?:${UNIT_PATTERN})$`,
-		"i",
-	).test(value);
+	return new RegExp(`^(?:${UNIT_PATTERN})$`, "i").test(
+		value,
+	);
 }
 
 function isPositiveInteger(value: string): boolean {

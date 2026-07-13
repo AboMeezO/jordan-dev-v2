@@ -280,8 +280,11 @@ function AdminUsersPage() {
                     <th className="px-4 py-3 font-normal">Email</th>
                     <th className="px-4 py-3 font-normal">Roles</th>
                     <th className="px-4 py-3 font-normal">Joined</th>
-                  <th className="px-4 py-3 font-normal" aria-label="Actions" />
-                </tr>
+                    <th
+                      className="px-4 py-3 font-normal"
+                      aria-label="Actions"
+                    />
+                  </tr>
                 </thead>
                 <tbody>
                   {usersQuery.data.users.map((user) => (

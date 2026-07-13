@@ -1,9 +1,14 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import {
+	Injectable,
+	OnModuleDestroy,
+	OnModuleInit,
+} from "@nestjs/common";
 import { Prisma, PrismaClient } from "@prisma/client";
 
 import { BackendConfigService } from "../config/app.config.js";
 
-export type DatabaseTransactionClient = Prisma.TransactionClient;
+export type DatabaseTransactionClient =
+	Prisma.TransactionClient;
 
 @Injectable()
 export class DatabaseService

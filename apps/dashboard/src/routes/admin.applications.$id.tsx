@@ -86,10 +86,7 @@ function AdminApplicationDetailPage() {
         </div>
 
         {applicationQuery.isPending ? (
-          <LoadingState
-            description="Fetching application..."
-            title="Loading"
-          />
+          <LoadingState description="Fetching application..." title="Loading" />
         ) : applicationQuery.isError ? (
           <InlineError
             error={applicationQuery.error}
@@ -125,11 +122,17 @@ function AdminApplicationDetailPage() {
                 </h2>
                 <div className="grid grid-cols-[160px_1fr] gap-2 font-mono text-xs">
                   <span className="text-(--nd-text-muted)">Display Name</span>
-                  <span className="text-(--nd-text-primary)">{app.displayName}</span>
+                  <span className="text-(--nd-text-primary)">
+                    {app.displayName}
+                  </span>
                   <span className="text-(--nd-text-muted)">GitHub</span>
-                  <span className="text-(--nd-text-primary)">{app.githubHandle}</span>
+                  <span className="text-(--nd-text-primary)">
+                    {app.githubHandle}
+                  </span>
                   <span className="text-(--nd-text-muted)">Experience</span>
-                  <span className="text-(--nd-text-primary)">{app.experienceLevel}</span>
+                  <span className="text-(--nd-text-primary)">
+                    {app.experienceLevel}
+                  </span>
                   <span className="text-(--nd-text-muted)">Referral</span>
                   <span className="text-(--nd-text-primary)">
                     {app.referralSource}
@@ -223,7 +226,9 @@ function AdminApplicationDetailPage() {
 
                 <div className="flex items-center gap-3">
                   <Button
-                    disabled={approveMutation.isPending || app.status !== 'UNDER_REVIEW'}
+                    disabled={
+                      approveMutation.isPending || app.status !== 'UNDER_REVIEW'
+                    }
                     onClick={handleApprove}
                     size="sm"
                   >
@@ -242,10 +247,7 @@ function AdminApplicationDetailPage() {
                 </div>
 
                 {showRejectForm && (
-                  <form
-                    className="max-w-md space-y-4"
-                    onSubmit={handleReject}
-                  >
+                  <form className="max-w-md space-y-4" onSubmit={handleReject}>
                     <div className="space-y-2">
                       <Label htmlFor="reject-reason">Rejection Reason</Label>
                       <Textarea
@@ -258,7 +260,9 @@ function AdminApplicationDetailPage() {
                       />
                     </div>
                     <Button
-                      disabled={rejectMutation.isPending || !rejectReason.trim()}
+                      disabled={
+                        rejectMutation.isPending || !rejectReason.trim()
+                      }
                       size="sm"
                       type="submit"
                       variant="destructive"

@@ -24,7 +24,10 @@ function cacheKey(url: string, scanner: string): string {
 	return `${scanner}:${url}`;
 }
 
-function getCached(url: string, scanner: string): ScanResult | undefined {
+function getCached(
+	url: string,
+	scanner: string,
+): ScanResult | undefined {
 	const key = cacheKey(url, scanner);
 	const entry = scanCache.get(key);
 	if (entry && entry.expiresAt > Date.now()) {
@@ -34,7 +37,11 @@ function getCached(url: string, scanner: string): ScanResult | undefined {
 	return undefined;
 }
 
-function setCache(url: string, scanner: string, result: ScanResult): void {
+function setCache(
+	url: string,
+	scanner: string,
+	result: ScanResult,
+): void {
 	const key = cacheKey(url, scanner);
 	scanCache.set(key, {
 		result,
@@ -46,7 +53,9 @@ const SUSPICIOUS_TLD_SET = new Set(
 	botConfig.suspiciousTlds.map((t) => t.toLowerCase()),
 );
 
-function checkSuspiciousTld(hostname: string): string | undefined {
+function checkSuspiciousTld(
+	hostname: string,
+): string | undefined {
 	const parts = hostname.split(".");
 	if (parts.length < 2) return undefined;
 	const tld = parts[parts.length - 1]?.toLowerCase();
@@ -72,7 +81,10 @@ export async function scanUrl(
 		if (cached) return { ...cached, cached: true };
 
 		try {
-			const vtResult = await scanWithVirusTotal(normalized, vtKey);
+			const vtResult = await scanWithVirusTotal(
+				normalized,
+				vtKey,
+			);
 			if (vtResult) {
 				setCache(normalized, "virustotal", vtResult);
 				return vtResult;
@@ -103,15 +115,19 @@ async function scanWithVirusTotal(
 				"content-type": "application/x-www-form-urlencoded",
 			},
 			body: `url=${encodeURIComponent(url)}`,
-			signal: AbortSignal.timeout(botConfig.scanning.timeoutMs),
+			signal: AbortSignal.timeout(
+				botConfig.scanning.timeoutMs,
+			),
 		},
 	);
 
 	if (!submitResponse.ok) {
-		throw new Error(`VirusTotal submit failed: ${submitResponse.status}`);
+		throw new Error(
+			`VirusTotal submit failed: ${submitResponse.status}`,
+		);
 	}
 
-	const submitJson = await submitResponse.json() as {
+	const submitJson = (await submitResponse.json()) as {
 		data?: { id?: string };
 	};
 
@@ -126,15 +142,19 @@ async function scanWithVirusTotal(
 		`https://www.virustotal.com/api/v3/analyses/${analysisId}`,
 		{
 			headers: { "x-apikey": apiKey },
-			signal: AbortSignal.timeout(botConfig.scanning.timeoutMs),
+			signal: AbortSignal.timeout(
+				botConfig.scanning.timeoutMs,
+			),
 		},
 	);
 
 	if (!analysisResponse.ok) {
-		throw new Error(`VirusTotal analysis failed: ${analysisResponse.status}`);
+		throw new Error(
+			`VirusTotal analysis failed: ${analysisResponse.status}`,
+		);
 	}
 
-	const analysisJson = await analysisResponse.json() as {
+	const analysisJson = (await analysisResponse.json()) as {
 		data?: {
 			attributes?: {
 				status?: string;
@@ -153,7 +173,9 @@ async function scanWithVirusTotal(
 	const stats = attributes?.stats;
 
 	if (!stats) {
-		throw new Error("VirusTotal: no stats in analysis response");
+		throw new Error(
+			"VirusTotal: no stats in analysis response",
+		);
 	}
 
 	const malicious = stats.malicious ?? 0;
@@ -191,7 +213,9 @@ async function scanWithLocalHeuristics(
 		const hostname = parsed.hostname;
 		const httpsEnforced = checkHttpsEnforced(url);
 
-		details.push(`protocol=${parsed.protocol.replace(":", "")}`);
+		details.push(
+			`protocol=${parsed.protocol.replace(":", "")}`,
+		);
 
 		if (!httpsEnforced) {
 			details.push("warning=no_https");
@@ -199,20 +223,32 @@ async function scanWithLocalHeuristics(
 
 		const suspiciousTld = checkSuspiciousTld(hostname);
 		if (suspiciousTld) {
-			details.push(`warning=suspicious_tld=${suspiciousTld}`);
+			details.push(
+				`warning=suspicious_tld=${suspiciousTld}`,
+			);
 		}
 
 		const response = await safeFetch(url);
 		httpResult = response;
 
 		details.push(`status=${response.status}`);
-		details.push(`status_text=${response.statusText || "OK"}`);
-		details.push(`timing=${response.durationMs.toFixed(0)}ms`);
-		details.push(`content_type=${response.headers["content-type"] ?? "(unknown)"}`);
-		details.push(`server=${response.headers.server ?? "(unknown)"}`);
+		details.push(
+			`status_text=${response.statusText || "OK"}`,
+		);
+		details.push(
+			`timing=${response.durationMs.toFixed(0)}ms`,
+		);
+		details.push(
+			`content_type=${response.headers["content-type"] ?? "(unknown)"}`,
+		);
+		details.push(
+			`server=${response.headers.server ?? "(unknown)"}`,
+		);
 
 		if (response.finalUrl !== url) {
-			details.push(`redirect_chain=${response.redirectChain.concat(response.finalUrl).join(" -> ")}`);
+			details.push(
+				`redirect_chain=${response.redirectChain.concat(response.finalUrl).join(" -> ")}`,
+			);
 		}
 
 		if (response.headers["strict-transport-security"]) {
@@ -220,7 +256,9 @@ async function scanWithLocalHeuristics(
 		}
 
 		if (response.headers["x-frame-options"]) {
-			details.push(`x_frame_options=${response.headers["x-frame-options"]}`);
+			details.push(
+				`x_frame_options=${response.headers["x-frame-options"]}`,
+			);
 		}
 
 		if (response.status >= 400) {
@@ -234,7 +272,11 @@ async function scanWithLocalHeuristics(
 		const err = error as Error;
 		const msg = err.message;
 
-		if (msg.includes("blocked") || msg.includes("private") || msg.includes("loopback")) {
+		if (
+			msg.includes("blocked") ||
+			msg.includes("private") ||
+			msg.includes("loopback")
+		) {
 			details.push("blocked=private_or_internal_network");
 			safeDetermination = false;
 		} else if (msg.includes("ENOTFOUND")) {

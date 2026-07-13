@@ -1,5 +1,6 @@
-import { subcommand } from "#ChatCommands";
 import { colord } from "colord";
+
+import { subcommand } from "#ChatCommands";
 
 export const colorCommand = subcommand({
 	description: "Parse, convert, and manipulate colors.",
@@ -7,7 +8,8 @@ export const colorCommand = subcommand({
 	usage: {
 		arguments: [
 			{
-				description: "Color value in any format (hex, rgb, hsl, etc.).",
+				description:
+					"Color value in any format (hex, rgb, hsl, etc.).",
 				name: "value",
 				required: true,
 			},
@@ -30,13 +32,17 @@ export const colorCommand = subcommand({
 	async execute({ invocation, message }) {
 		const value = invocation.positionalArgs.join(" ");
 		if (!value) {
-			await message.reply("Usage: `tools color <color-value>`");
+			await message.reply(
+				"Usage: `tools color <color-value>`",
+			);
 			return;
 		}
 
 		const c = colord(value);
 		if (!c.isValid()) {
-			await message.reply(`Invalid color value: \`${value}\``);
+			await message.reply(
+				`Invalid color value: \`${value}\``,
+			);
 			return;
 		}
 

@@ -1,4 +1,8 @@
-import { channelPath, commandTree, shellOutput } from "#ChatCommands";
+import {
+	channelPath,
+	commandTree,
+	shellOutput,
+} from "#ChatCommands";
 
 export const pwdCommand = commandTree({
 	allowPrefixless: true,

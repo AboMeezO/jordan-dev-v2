@@ -1,5 +1,6 @@
-import { subcommand } from "#ChatCommands";
 import slugify from "slugify";
+
+import { subcommand } from "#ChatCommands";
 
 export const slugCommand = subcommand({
 	description: "Generate a URL-friendly slug from text.",
@@ -19,9 +20,7 @@ export const slugCommand = subcommand({
 			},
 		],
 		formats: ["tools slug <text>"],
-		useCases: [
-			"Create consistent URL slugs.",
-		],
+		useCases: ["Create consistent URL slugs."],
 	},
 	async execute({ invocation, message }) {
 		const text = invocation.positionalArgs.join(" ");
@@ -29,7 +28,10 @@ export const slugCommand = subcommand({
 			await message.reply("Usage: `tools slug <text>`");
 			return;
 		}
-		const slug = slugify(text, { lower: true, strict: true });
+		const slug = slugify(text, {
+			lower: true,
+			strict: true,
+		});
 		await message.reply(`\`\`\`\n${slug}\n\`\`\``);
 	},
 });

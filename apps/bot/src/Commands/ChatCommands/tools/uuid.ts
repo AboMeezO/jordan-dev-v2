@@ -13,9 +13,7 @@ export const uuidCommand = subcommand({
 			},
 		],
 		formats: ["tools uuid"],
-		useCases: [
-			"Generate UUIDs for testing or reference.",
-		],
+		useCases: ["Generate UUIDs for testing or reference."],
 	},
 	async execute({ message }) {
 		await message.reply(`\`\`\`\n${randomUUID()}\n\`\`\``);

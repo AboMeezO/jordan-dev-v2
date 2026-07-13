@@ -1,4 +1,8 @@
-import { writeFileSync, existsSync, mkdirSync } from "node:fs";
+import {
+	writeFileSync,
+	existsSync,
+	mkdirSync,
+} from "node:fs";
 import { resolve } from "node:path";
 
 import { stringify } from "yaml";
@@ -44,16 +48,25 @@ const defaultEnvExample = `# Environment overrides for @jd/config
 `;
 
 export function runInit(options: InitOptions): void {
-	const dir = options.dir ? resolve(options.dir) : process.cwd();
-	const configPath = options.configPath ?? resolve(dir, "Config.yaml");
-	const schemaPath = options.schemaPath ?? resolve(dir, "schema.yaml");
-	const envExamplePath = options.envExamplePath ?? resolve(dir, ".env.example");
+	const dir = options.dir
+		? resolve(options.dir)
+		: process.cwd();
+	const configPath =
+		options.configPath ?? resolve(dir, "Config.yaml");
+	const schemaPath =
+		options.schemaPath ?? resolve(dir, "schema.yaml");
+	const envExamplePath =
+		options.envExamplePath ?? resolve(dir, ".env.example");
 
 	if (!existsSync(dir)) {
 		mkdirSync(dir, { recursive: true });
 	}
 
-	const filesToCreate: Array<{ path: string; content: string; label: string }> = [
+	const filesToCreate: Array<{
+		path: string;
+		content: string;
+		label: string;
+	}> = [
 		{
 			path: schemaPath,
 			content: stringify(defaultSchema, { lineWidth: 120 }),
@@ -73,7 +86,9 @@ export function runInit(options: InitOptions): void {
 
 	for (const file of filesToCreate) {
 		if (existsSync(file.path) && !options.force) {
-			console.log(`  SKIP  ${file.label} — already exists (use --force to overwrite)`);
+			console.log(
+				`  SKIP  ${file.label} — already exists (use --force to overwrite)`,
+			);
 			continue;
 		}
 		writeFileSync(file.path, file.content, "utf-8");

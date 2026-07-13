@@ -3,11 +3,11 @@ import {
 	opencode as defaultOpencodeInstance,
 } from "ai-sdk-provider-opencode-sdk";
 
-export { OpencodeModels } from "ai-sdk-provider-opencode-sdk";
 export type {
-	OpencodeSettings,
 	OpencodeProvider,
+	OpencodeSettings,
 } from "ai-sdk-provider-opencode-sdk";
+export { OpencodeModels } from "ai-sdk-provider-opencode-sdk";
 
 type OpencodeConfig = {
 	autoStartServer?: boolean;
@@ -15,14 +15,18 @@ type OpencodeConfig = {
 	defaultAgent?: string;
 };
 
-let instance: ReturnType<typeof createOpencodeProvider> | null = null;
+let instance: ReturnType<
+	typeof createOpencodeProvider
+> | null = null;
 
 export function getOpencode(config?: OpencodeConfig) {
 	if (!instance) {
 		instance = createOpencodeProvider({
 			autoStartServer: config?.autoStartServer ?? true,
 			serverTimeout: config?.serverTimeout ?? 10_000,
-			...(config?.defaultAgent && { defaultSettings: { agent: config.defaultAgent } }),
+			...(config?.defaultAgent && {
+				defaultSettings: { agent: config.defaultAgent },
+			}),
 		});
 	}
 	return instance;

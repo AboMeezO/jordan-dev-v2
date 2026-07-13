@@ -6,7 +6,8 @@ export const timestampCommand = subcommand({
 	usage: {
 		arguments: [
 			{
-				description: "Unix timestamp in seconds (optional, defaults to now).",
+				description:
+					"Unix timestamp in seconds (optional, defaults to now).",
 				name: "timestamp",
 				required: false,
 			},
@@ -14,7 +15,8 @@ export const timestampCommand = subcommand({
 		examples: [
 			{
 				command: "tools timestamp",
-				description: "Show current time in various formats.",
+				description:
+					"Show current time in various formats.",
 			},
 			{
 				command: "tools timestamp 1735689600",

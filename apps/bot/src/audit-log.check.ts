@@ -13,7 +13,9 @@ interface CommandAuditEntry {
 	args: string;
 }
 
-function createAuditEntry(overrides?: Partial<CommandAuditEntry>): CommandAuditEntry {
+function createAuditEntry(
+	overrides?: Partial<CommandAuditEntry>,
+): CommandAuditEntry {
 	return {
 		command: "test-command",
 		userId: "123456789012345678",
@@ -44,7 +46,10 @@ const sudoEntry = createAuditEntry({
 });
 assert.equal(sudoEntry.sudo, true);
 assert.equal(sudoEntry.elevated, true);
-assert.equal(sudoEntry.command, "sudo jd tools moderation ban @user");
+assert.equal(
+	sudoEntry.command,
+	"sudo jd tools moderation ban @user",
+);
 
 // Test elevated command detection
 const isElevated = (permission: string): boolean =>

@@ -8,7 +8,8 @@ export const guildConfigSchema = z.object({
 	verificationChannelId: z.string().min(1),
 });
 
-export const updateGuildConfigSchema = guildConfigSchema.partial();
+export const updateGuildConfigSchema =
+	guildConfigSchema.partial();
 
 export const guildConfigResponseSchema = z.object({
 	success: z.literal(true),
@@ -16,4 +17,6 @@ export const guildConfigResponseSchema = z.object({
 });
 
 export type GuildConfig = z.infer<typeof guildConfigSchema>;
-export type UpdateGuildConfig = z.infer<typeof updateGuildConfigSchema>;
+export type UpdateGuildConfig = z.infer<
+	typeof updateGuildConfigSchema
+>;

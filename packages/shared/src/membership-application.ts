@@ -33,13 +33,28 @@ export const createApplicationSchema = z.object({
 	experienceLevel: experienceLevelSchema,
 	purposeOfJoining: z.string().min(1).max(1000),
 	selfIntroduction: z.string().min(1).max(2000),
-	linkedInUrl: z.string().url().max(500).nullable().optional(),
-	portfolioUrl: z.string().url().max(500).nullable().optional(),
+	linkedInUrl: z
+		.string()
+		.url()
+		.max(500)
+		.nullable()
+		.optional(),
+	portfolioUrl: z
+		.string()
+		.url()
+		.max(500)
+		.nullable()
+		.optional(),
 	referralSource: referralSourceSchema,
-	referralOtherText: z.string().max(500).nullable().optional(),
+	referralOtherText: z
+		.string()
+		.max(500)
+		.nullable()
+		.optional(),
 });
 
-export const updateApplicationSchema = createApplicationSchema.partial();
+export const updateApplicationSchema =
+	createApplicationSchema.partial();
 
 export const submitApplicationSchema = z.object({
 	applicationId: z.string().min(1),
@@ -111,11 +126,27 @@ export const applicationListResponseSchema = z.object({
 	data: applicationListSchema,
 });
 
-export type ApplicationStatus = z.infer<typeof applicationStatusSchema>;
-export type ReferralSource = z.infer<typeof referralSourceSchema>;
-export type ExperienceLevel = z.infer<typeof experienceLevelSchema>;
-export type CreateApplicationRequest = z.infer<typeof createApplicationSchema>;
-export type UpdateApplicationRequest = z.infer<typeof updateApplicationSchema>;
-export type ApplicationSummary = z.infer<typeof applicationSummarySchema>;
-export type ApplicationDetail = z.infer<typeof applicationDetailSchema>;
-export type ApplicationList = z.infer<typeof applicationListSchema>;
+export type ApplicationStatus = z.infer<
+	typeof applicationStatusSchema
+>;
+export type ReferralSource = z.infer<
+	typeof referralSourceSchema
+>;
+export type ExperienceLevel = z.infer<
+	typeof experienceLevelSchema
+>;
+export type CreateApplicationRequest = z.infer<
+	typeof createApplicationSchema
+>;
+export type UpdateApplicationRequest = z.infer<
+	typeof updateApplicationSchema
+>;
+export type ApplicationSummary = z.infer<
+	typeof applicationSummarySchema
+>;
+export type ApplicationDetail = z.infer<
+	typeof applicationDetailSchema
+>;
+export type ApplicationList = z.infer<
+	typeof applicationListSchema
+>;

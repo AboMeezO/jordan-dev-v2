@@ -1,8 +1,9 @@
-import type { Client, Message } from "discord.js";
 import {
-	createAIMessageHandler,
 	configureAI,
+	createAIMessageHandler,
 } from "@jordan-devs/ai";
+import type { Client, Message } from "discord.js";
+
 import { getOpencode } from "../../ai/providers/opencode.js";
 
 let handler: ((message: Message) => Promise<void>) | null =
@@ -15,7 +16,7 @@ function getHandler(): (message: Message) => Promise<void> {
 		});
 
 		configureAI({
-			selectAiModel: async (_ctx, message) => {
+			selectAiModel: (_ctx, message) => {
 				const model = opencode(
 					"opencode/deepseek-v4-flash-free",
 					{
@@ -24,11 +25,13 @@ function getHandler(): (message: Message) => Promise<void> {
 							`Reply conversationally and keep responses under 2000 characters.`,
 					},
 				);
-				return { model };
+				return Promise.resolve({ model });
 			},
-			messageFilter: async (_ctx, message) => {
-				return message.mentions.users.has(
-					message.client.user.id,
+			messageFilter: (_ctx, message) => {
+				return Promise.resolve(
+					message.mentions.users.has(
+						message.client.user.id,
+					),
 				);
 			},
 		});
@@ -40,7 +43,7 @@ function getHandler(): (message: Message) => Promise<void> {
 
 export default async function (
 	message: Message,
-	_client: Client,
+	_client?: Client,
 ): Promise<void> {
 	await getHandler()(message);
 }

@@ -4,20 +4,24 @@ import { pathToFileURL } from "node:url";
 
 import { Logger } from "#Logger";
 
+import { renderCommandTree } from "./output/usage-guide.js";
 import { toTreeNode } from "./registry/index.js";
 import type { ChatCommandDefinition } from "./types.js";
-import { renderCommandTree } from "./output/usage-guide.js";
 
 const log = new Logger("loader");
 
-function isCommandShape(value: unknown): value is ChatCommandDefinition {
+function isCommandShape(
+	value: unknown,
+): value is ChatCommandDefinition {
 	return (
 		typeof value === "object" &&
 		value !== null &&
 		"name" in value &&
 		"description" in value &&
-		typeof (value as Record<string, unknown>).name === "string" &&
-		typeof (value as Record<string, unknown>).description === "string"
+		typeof (value as Record<string, unknown>).name ===
+			"string" &&
+		typeof (value as Record<string, unknown>)
+			.description === "string"
 	);
 }
 
@@ -43,7 +47,9 @@ async function scanDirectory(
 	dirPath: string,
 ): Promise<ChatCommandDefinition[]> {
 	const results: ChatCommandDefinition[] = [];
-	const entries = await readdir(dirPath, { withFileTypes: true });
+	const entries = await readdir(dirPath, {
+		withFileTypes: true,
+	});
 
 	for (const entry of entries) {
 		const fullPath = resolve(dirPath, entry.name);
@@ -54,30 +60,45 @@ async function scanDirectory(
 			continue;
 		}
 
-		if (!entry.name.endsWith(".ts") && !entry.name.endsWith(".js")) {
+		if (
+			!entry.name.endsWith(".ts") &&
+			!entry.name.endsWith(".js")
+		) {
 			continue;
 		}
 
-		if (entry.name.endsWith(".test.ts") || entry.name.endsWith(".spec.ts")) {
+		if (
+			entry.name.endsWith(".test.ts") ||
+			entry.name.endsWith(".spec.ts")
+		) {
 			continue;
 		}
 
-		if (entry.name === "index.ts" || entry.name === "index.js") {
+		if (
+			entry.name === "index.ts" ||
+			entry.name === "index.js"
+		) {
 			continue;
 		}
 
-		if (entry.name === "root.ts" || entry.name === "root.js") {
+		if (
+			entry.name === "root.ts" ||
+			entry.name === "root.js"
+		) {
 			continue;
 		}
 
 		try {
-			const mod = await import(pathToFileURL(fullPath).href) as Record<string, unknown>;
+			const mod = (await import(
+				pathToFileURL(fullPath).href
+			)) as Record<string, unknown>;
 
 			for (const key of Object.keys(mod)) {
 				const exported = mod[key];
 				if (!exported) continue;
 
-				const commands = extractCommandDefinitions(exported);
+				const commands =
+					extractCommandDefinitions(exported);
 				results.push(...commands);
 			}
 		} catch (error) {

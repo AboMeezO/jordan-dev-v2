@@ -18,9 +18,7 @@ export const urlCommand = subcommand({
 			},
 		],
 		formats: ["tools url <url>"],
-		useCases: [
-			"Inspect URL components.",
-		],
+		useCases: ["Inspect URL components."],
 	},
 	async execute({ invocation, message }) {
 		const input = invocation.positionalArgs.join(" ");

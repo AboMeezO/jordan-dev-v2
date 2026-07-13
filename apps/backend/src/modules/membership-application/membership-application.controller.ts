@@ -1,11 +1,30 @@
-import type { ApplicationDetail, ApplicationList, ApplicationSummary, CreateApplicationRequest } from "@jordan-devs/shared";
-import { approveApplicationSchema, claimReviewSchema, createApplicationSchema, rejectApplicationSchema, submitApplicationSchema, updateApplicationSchema } from "@jordan-devs/shared";
+import type {
+	ApplicationDetail,
+	ApplicationList,
+	ApplicationSummary,
+	CreateApplicationRequest,
+} from "@jordan-devs/shared";
+import {
+	claimReviewSchema,
+	createApplicationSchema,
+	rejectApplicationSchema,
+	submitApplicationSchema,
+	updateApplicationSchema,
+} from "@jordan-devs/shared";
 import { permissions } from "@jordan-devs/shared";
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Get,
+	NotFoundException,
+	Param,
+	Patch,
+	Post,
+	UseGuards,
+} from "@nestjs/common";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator.js";
 import { RequirePermissions } from "../../common/decorators/require-permissions.decorator.js";
-import type { BotAuthenticatedRequest } from "../../common/types/bot-request.js";
 import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
 import { ZodValidationPipe } from "../../common/validation/zod-validation.pipe.js";
 import { BotAuthGuard } from "../auth/bot-auth.guard.js";
@@ -23,12 +42,16 @@ export class MembershipApplicationController {
 	@UseGuards(BotAuthGuard)
 	public async create(
 		@Body(new ZodValidationPipe(createApplicationSchema))
-		request: CreateApplicationRequest & { discordUserId: string },
+		request: CreateApplicationRequest & {
+			discordUserId: string;
+		},
 	): Promise<ApplicationDetail> {
-		const user = await this.users.upsertFromDiscordIdentity({
-			discordUserId: request.discordUserId,
-			displayName: request.displayName,
-		});
+		const user = await this.users.upsertFromDiscordIdentity(
+			{
+				discordUserId: request.discordUserId,
+				displayName: request.displayName,
+			},
+		);
 		return this.applications.create(user.id, request);
 	}
 
@@ -37,9 +60,13 @@ export class MembershipApplicationController {
 	public async update(
 		@Param("id") id: string,
 		@Body(new ZodValidationPipe(updateApplicationSchema))
-		request: Partial<CreateApplicationRequest> & { discordUserId: string },
+		request: Partial<CreateApplicationRequest> & {
+			discordUserId: string;
+		},
 	): Promise<ApplicationDetail> {
-		const user = await this.users.findByDiscordUserId(request.discordUserId);
+		const user = await this.users.findByDiscordUserId(
+			request.discordUserId,
+		);
 		if (!user) {
 			throw new NotFoundException("User not found");
 		}
@@ -51,9 +78,14 @@ export class MembershipApplicationController {
 	public async submit(
 		@Param("id") id: string,
 		@Body(new ZodValidationPipe(submitApplicationSchema))
-		request: { applicationId: string; discordUserId: string },
+		request: {
+			applicationId: string;
+			discordUserId: string;
+		},
 	): Promise<ApplicationDetail> {
-		const user = await this.users.findByDiscordUserId(request.discordUserId);
+		const user = await this.users.findByDiscordUserId(
+			request.discordUserId,
+		);
 		if (!user) {
 			throw new NotFoundException("User not found");
 		}
@@ -73,7 +105,8 @@ export class MembershipApplicationController {
 	public async findByUser(
 		@Param("discordUserId") discordUserId: string,
 	): Promise<ApplicationSummary | null> {
-		const user = await this.users.findByDiscordUserId(discordUserId);
+		const user =
+			await this.users.findByDiscordUserId(discordUserId);
 		if (!user) {
 			return null;
 		}
@@ -85,11 +118,15 @@ export class MembershipApplicationController {
 	public async claim(
 		@Param("id") id: string,
 		@Body(new ZodValidationPipe(claimReviewSchema))
-		request: { applicationId: string; reviewerDiscordUserId: string },
+		request: {
+			applicationId: string;
+			reviewerDiscordUserId: string;
+		},
 	): Promise<ApplicationDetail> {
-		const reviewer = await this.users.upsertFromDiscordIdentity({
-			discordUserId: request.reviewerDiscordUserId,
-		});
+		const reviewer =
+			await this.users.upsertFromDiscordIdentity({
+				discordUserId: request.reviewerDiscordUserId,
+			});
 		return this.applications.claimReview(id, reviewer.id);
 	}
 
@@ -100,9 +137,10 @@ export class MembershipApplicationController {
 		@Body()
 		request: { reviewerDiscordUserId: string },
 	): Promise<ApplicationDetail> {
-		const reviewer = await this.users.upsertFromDiscordIdentity({
-			discordUserId: request.reviewerDiscordUserId,
-		});
+		const reviewer =
+			await this.users.upsertFromDiscordIdentity({
+				discordUserId: request.reviewerDiscordUserId,
+			});
 		return this.applications.approve(id, reviewer.id);
 	}
 
@@ -111,12 +149,20 @@ export class MembershipApplicationController {
 	public async reject(
 		@Param("id") id: string,
 		@Body()
-		request: { reviewerDiscordUserId: string; reason: string },
+		request: {
+			reviewerDiscordUserId: string;
+			reason: string;
+		},
 	): Promise<ApplicationDetail> {
-		const reviewer = await this.users.upsertFromDiscordIdentity({
-			discordUserId: request.reviewerDiscordUserId,
-		});
-		return this.applications.reject(id, reviewer.id, request.reason);
+		const reviewer =
+			await this.users.upsertFromDiscordIdentity({
+				discordUserId: request.reviewerDiscordUserId,
+			});
+		return this.applications.reject(
+			id,
+			reviewer.id,
+			request.reason,
+		);
 	}
 
 	@Get("guild/:guildId/submitted")
@@ -160,6 +206,10 @@ export class MembershipApplicationController {
 		@Body(new ZodValidationPipe(rejectApplicationSchema))
 		request: { applicationId: string; reason: string },
 	): Promise<ApplicationDetail> {
-		return this.applications.reject(id, user.localUserId, request.reason);
+		return this.applications.reject(
+			id,
+			user.localUserId,
+			request.reason,
+		);
 	}
 }

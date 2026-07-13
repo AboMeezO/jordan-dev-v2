@@ -14,6 +14,7 @@ Required environment variables (see `apps/bot/.env.example`):
 - `DEV_GUILD_ID` — Dev guild for slash command registration
 
 Optional:
+
 - `PREFIX` — Chat command prefix (default `!`)
 - `OWNER_IDS` — Comma-separated Discord user IDs
 - `DEV_IDS` — Comma-separated dev user IDs

@@ -12,4 +12,3 @@ export type AuthenticatedUser = {
 export type AuthenticatedRequest = FastifyRequest & {
 	user?: AuthenticatedUser;
 };
-

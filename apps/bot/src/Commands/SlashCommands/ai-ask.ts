@@ -1,8 +1,9 @@
+import { generateText } from "ai";
 import {
 	type ChatInputCommandInteraction,
 	SlashCommandBuilder,
 } from "discord.js";
-import { generateText } from "ai";
+
 import { getOpencode } from "../../ai/providers/opencode.js";
 
 export const data = new SlashCommandBuilder()

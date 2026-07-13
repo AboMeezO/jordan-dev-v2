@@ -40,20 +40,23 @@ describe("HealthController", () => {
 });
 
 function mockConfig(): BackendConfigService {
-	const config: Pick<BackendConfigService, "assertLoaded"> = {
-		assertLoaded: vi.fn(),
-	};
+	const config: Pick<BackendConfigService, "assertLoaded"> =
+		{
+			assertLoaded: vi.fn(),
+		};
 
 	return config as BackendConfigService;
 }
 
 function mockDatabase(error?: Error): DatabaseService {
-	const database: Pick<DatabaseService, "checkConnection"> = {
-		checkConnection: vi.fn(() =>
-			error === undefined ? Promise.resolve() : Promise.reject(error),
-		),
-	};
+	const database: Pick<DatabaseService, "checkConnection"> =
+		{
+			checkConnection: vi.fn(() =>
+				error === undefined
+					? Promise.resolve()
+					: Promise.reject(error),
+			),
+		};
 
 	return database as DatabaseService;
 }
-

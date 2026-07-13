@@ -10,4 +10,3 @@ export type DiscordUserIdentity = {
 	displayName?: string | null;
 	avatarUrl?: string | null;
 };
-

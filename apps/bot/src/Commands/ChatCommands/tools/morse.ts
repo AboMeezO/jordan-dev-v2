@@ -104,15 +104,15 @@ export const morseCommand = subcommand({
 			},
 		],
 		formats: ["tools morse <encode|decode> <input>"],
-		useCases: [
-			"Encode or decode Morse code messages.",
-		],
+		useCases: ["Encode or decode Morse code messages."],
 	},
 	async execute({ invocation, message }) {
 		const [action, ...rest] = invocation.positionalArgs;
 		const input = rest.join(" ");
 		if (!action || !input) {
-			await message.reply("Usage: `tools morse <encode|decode> <input>`");
+			await message.reply(
+				"Usage: `tools morse <encode|decode> <input>`",
+			);
 			return;
 		}
 
@@ -125,7 +125,9 @@ export const morseCommand = subcommand({
 						: null;
 
 			if (result === null) {
-				await message.reply("Action must be `encode` or `decode`.");
+				await message.reply(
+					"Action must be `encode` or `decode`.",
+				);
 				return;
 			}
 

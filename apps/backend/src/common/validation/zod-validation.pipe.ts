@@ -6,9 +6,9 @@ import type { z } from "zod";
 
 import { createApiError } from "../errors/api-error.js";
 
-export class ZodValidationPipe<TSchema extends z.ZodType>
-	implements PipeTransform<unknown, z.output<TSchema>>
-{
+export class ZodValidationPipe<
+	TSchema extends z.ZodType,
+> implements PipeTransform<unknown, z.output<TSchema>> {
 	constructor(private readonly schema: TSchema) {}
 
 	transform(value: unknown): z.output<TSchema> {
@@ -44,4 +44,3 @@ export function normalizeZodFieldErrors(
 
 	return fieldErrors;
 }
-

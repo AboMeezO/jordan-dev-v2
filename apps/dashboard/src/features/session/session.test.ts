@@ -46,7 +46,7 @@ describe('fetchSessionBootstrap', () => {
     })
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:3001/me',
+      '/me',
       expect.objectContaining({
         method: 'GET',
       }),

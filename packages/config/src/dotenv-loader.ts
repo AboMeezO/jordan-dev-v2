@@ -1,6 +1,12 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	readFileSync,
+	writeFileSync,
+} from "node:fs";
 
-export function parseEnvFile(content: string): Record<string, string> {
+export function parseEnvFile(
+	content: string,
+): Record<string, string> {
 	const vars: Record<string, string> = {};
 	for (const line of content.split("\n")) {
 		const trimmed = line.trim();
@@ -10,7 +16,10 @@ export function parseEnvFile(content: string): Record<string, string> {
 		const key = trimmed.slice(0, eqIndex).trim();
 		let value = trimmed.slice(eqIndex + 1).trim();
 		if (!key) continue;
-		if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+		if (
+			(value.startsWith('"') && value.endsWith('"')) ||
+			(value.startsWith("'") && value.endsWith("'"))
+		) {
 			value = value.slice(1, -1);
 		}
 		vars[key] = value;
@@ -18,11 +27,19 @@ export function parseEnvFile(content: string): Record<string, string> {
 	return vars;
 }
 
-function setNested(obj: Record<string, unknown>, path: readonly string[], value: string): void {
+function setNested(
+	obj: Record<string, unknown>,
+	path: readonly string[],
+	value: string,
+): void {
 	let current = obj;
 	for (let i = 0; i < path.length - 1; i++) {
 		const segment = path[i]!;
-		if (!(segment in current) || typeof current[segment] !== "object" || current[segment] === null) {
+		if (
+			!(segment in current) ||
+			typeof current[segment] !== "object" ||
+			current[segment] === null
+		) {
 			current[segment] = {};
 		}
 		current = current[segment] as Record<string, unknown>;
@@ -48,7 +65,10 @@ export function envToNestedObject(
 
 export function syncEnvFile(
 	envFilePath: string,
-	flatKeys: Map<string, { type: string; required: boolean; default?: unknown }>,
+	flatKeys: Map<
+		string,
+		{ type: string; required: boolean; default?: unknown }
+	>,
 ): void {
 	const existingKeys = new Set<string>();
 	let existingContent = "";
@@ -64,7 +84,10 @@ export function syncEnvFile(
 	const linesToAdd: string[] = [];
 	for (const [flatPath, info] of flatKeys) {
 		if (!existingKeys.has(flatPath)) {
-			const value = info.default !== undefined ? String(info.default) : "";
+			const value =
+				info.default !== undefined
+					? String(info.default)
+					: "";
 			linesToAdd.push(`${flatPath}=${value}`);
 		}
 	}

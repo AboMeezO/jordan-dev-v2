@@ -79,7 +79,7 @@ describe('fetchDashboardOverview', () => {
     expect(result.system.databaseReady).toBe(true)
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:3001/admin/dashboard/overview',
+      '/admin/dashboard/overview',
       expect.objectContaining({
         method: 'GET',
       }),

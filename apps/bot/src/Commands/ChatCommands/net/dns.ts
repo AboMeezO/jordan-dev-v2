@@ -90,7 +90,9 @@ function formatCaaRecord(record: CaaRecord): string {
 	return `${record.critical} ${tag} "${value}"`;
 }
 
-function getCaaTagValue(record: CaaRecord): [string, string] {
+function getCaaTagValue(
+	record: CaaRecord,
+): [string, string] {
 	if (record.issue !== undefined) {
 		return ["issue", record.issue];
 	}
@@ -158,8 +160,7 @@ export const dnsCommand = subcommand({
 			.join(" ")
 			.trim();
 
-		const resolvedType =
-			typeRaw?.toUpperCase() ?? ("A");
+		const resolvedType = typeRaw?.toUpperCase() ?? "A";
 		const parsed = dnsSchema.safeParse({
 			domain,
 			type: resolvedType,
@@ -178,7 +179,10 @@ export const dnsCommand = subcommand({
 
 		const domainKey = hostname.toLowerCase();
 		const lastQuery = domainCooldowns.get(domainKey);
-		if (lastQuery && Date.now() - lastQuery < DOMAIN_COOLDOWN_MS) {
+		if (
+			lastQuery &&
+			Date.now() - lastQuery < DOMAIN_COOLDOWN_MS
+		) {
 			await message.reply(
 				`Domain "${hostname}" was queried recently. Please wait before querying it again.`,
 			);

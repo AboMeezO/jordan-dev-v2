@@ -1,6 +1,11 @@
 import type { Client, Message } from "discord.js";
 
-export class AiContext<T extends Record<string, unknown> = Record<string, unknown>> {
+export class AiContext<
+	T extends Record<string, unknown> = Record<
+		string,
+		unknown
+	>,
+> {
 	public params!: T;
 	public message!: Message;
 	public client!: Client;

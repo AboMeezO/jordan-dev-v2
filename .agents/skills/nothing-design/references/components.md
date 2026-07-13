@@ -10,12 +10,12 @@
 
 ## 2. BUTTONS
 
-| Variant | Background | Border | Text | Radius |
-|---------|-----------|--------|------|--------|
-| Primary | `--text-display` (#FFF) | none | `--black` | 999px (pill) |
-| Secondary | transparent | `1px solid --border-visible` | `--text-primary` | 999px |
-| Ghost | transparent | none | `--text-secondary` | 0 |
-| Destructive | transparent | `1px solid --accent` | `--accent` | 999px |
+| Variant     | Background              | Border                       | Text               | Radius       |
+| ----------- | ----------------------- | ---------------------------- | ------------------ | ------------ |
+| Primary     | `--text-display` (#FFF) | none                         | `--black`          | 999px (pill) |
+| Secondary   | transparent             | `1px solid --border-visible` | `--text-primary`   | 999px        |
+| Ghost       | transparent             | none                         | `--text-secondary` | 0            |
+| Destructive | transparent             | `1px solid --accent`         | `--accent`         | 999px        |
 
 All buttons: `Space Mono`, 13px, ALL CAPS, letter-spacing 0.06em, padding 12px 24px. Min height 44px.
 
@@ -99,12 +99,12 @@ The signature data visualization. Discrete blocks — mechanical, instrument-lik
 
 **Segments:** Square-ended blocks, no border-radius. Filled = solid status color. Empty = `--border` (dark) / `#E0E0E0` (light).
 
-| State | Fill | When |
-|-------|------|------|
-| Neutral | `--text-display` | Within normal range |
-| Over limit | `--accent` | Exceeds target |
-| Good | `--success` | Healthy range |
-| Moderate | `--warning` | Caution zone |
+| State      | Fill             | When                |
+| ---------- | ---------------- | ------------------- |
+| Neutral    | `--text-display` | Within normal range |
+| Over limit | `--accent`       | Exceeds target      |
+| Good       | `--success`      | Healthy range       |
+| Moderate   | `--warning`      | Caution zone        |
 
 **Overflow:** Filled segments continue past "full" mark in status color (typically red).
 

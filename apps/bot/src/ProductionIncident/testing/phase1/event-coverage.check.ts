@@ -1,5 +1,6 @@
 import { strict as assert } from "node:assert";
 
+import { EngineDiscordBridge } from "../../discord/index.js";
 import {
 	type EventId,
 	type GameEvent,
@@ -7,7 +8,6 @@ import {
 	type SessionId,
 	type UnixMillis,
 } from "../../engine/index.js";
-import { EngineDiscordBridge } from "../../discord/index.js";
 
 const bus = new InMemoryEventBus();
 
@@ -19,7 +19,12 @@ bus.subscribe("session.created", (e) => {
 
 await bus.publish({
 	eventId: "event-1" as EventId,
-	initialStats: { developerSanity: 100, infrastructureCost: 0, serverStability: 100, userHappiness: 100 },
+	initialStats: {
+		developerSanity: 100,
+		infrastructureCost: 0,
+		serverStability: 100,
+		userHappiness: 100,
+	},
 	occurredAt: 1_000 as UnixMillis,
 	sessionId: "session-bus" as SessionId,
 	type: "session.created",
@@ -38,7 +43,12 @@ bus.subscribe("session.created", () => {
 
 await bus.publish({
 	eventId: "event-2" as EventId,
-	initialStats: { developerSanity: 100, infrastructureCost: 0, serverStability: 100, userHappiness: 100 },
+	initialStats: {
+		developerSanity: 100,
+		infrastructureCost: 0,
+		serverStability: 100,
+		userHappiness: 100,
+	},
 	occurredAt: 2_000 as UnixMillis,
 	sessionId: "session-bus" as SessionId,
 	type: "session.created",
@@ -54,7 +64,12 @@ const bridge = new EngineDiscordBridge(
 );
 const result = bridge.mapEventToRenderAction({
 	eventId: "event-bridge" as EventId,
-	initialStats: { developerSanity: 100, infrastructureCost: 0, serverStability: 100, userHappiness: 100 },
+	initialStats: {
+		developerSanity: 100,
+		infrastructureCost: 0,
+		serverStability: 100,
+		userHappiness: 100,
+	},
 	occurredAt: 3_000 as UnixMillis,
 	sessionId: "session-bridge" as SessionId,
 	type: "session.created",

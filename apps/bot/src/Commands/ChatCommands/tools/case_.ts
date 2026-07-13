@@ -1,4 +1,3 @@
-import { subcommand } from "#ChatCommands";
 import {
 	camelCase,
 	capitalCase,
@@ -11,6 +10,8 @@ import {
 	sentenceCase,
 	snakeCase,
 } from "change-case";
+
+import { subcommand } from "#ChatCommands";
 
 export const caseCommand = subcommand({
 	description: "Convert text between string cases.",

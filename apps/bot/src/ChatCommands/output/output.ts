@@ -121,7 +121,10 @@ export function formatErrorBoundary(
 		return "An unexpected error occurred. Please try again later.";
 	}
 
-	if (error instanceof Error && error.name === "AssertionError") {
+	if (
+		error instanceof Error &&
+		error.name === "AssertionError"
+	) {
 		return "An unexpected error occurred. Please try again later.";
 	}
 

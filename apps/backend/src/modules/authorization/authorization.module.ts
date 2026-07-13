@@ -25,4 +25,3 @@ import { PermissionsController } from "./permissions.controller.js";
 	],
 })
 export class AuthorizationModule {}
-

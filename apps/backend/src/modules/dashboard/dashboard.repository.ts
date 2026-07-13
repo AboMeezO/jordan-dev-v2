@@ -5,7 +5,9 @@ import { DatabaseService } from "../../database/database.service.js";
 
 @Injectable()
 export class DashboardRepository {
-	public constructor(private readonly database: DatabaseService) {}
+	public constructor(
+		private readonly database: DatabaseService,
+	) {}
 
 	public countUsers(): Promise<number> {
 		return this.database.user.count();

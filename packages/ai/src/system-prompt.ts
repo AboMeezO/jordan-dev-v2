@@ -26,7 +26,9 @@ function humanReadable(ms: number): string {
 	return `${ms} milliseconds`;
 }
 
-export function createSystemPrompt(message: Message): string {
+export function createSystemPrompt(
+	message: Message,
+): string {
 	const channelInfo =
 		"name" in message.channel
 			? message.channel.name

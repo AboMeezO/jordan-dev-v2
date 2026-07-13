@@ -18,18 +18,16 @@ export const jsonCommand = subcommand({
 		],
 		examples: [
 			{
-				command: 'tools json format \'{"a":1}\'',
+				command: "tools json format '{\"a\":1}'",
 				description: "Format JSON with indentation.",
 			},
 			{
-				command: 'tools json validate \'{"a":1}\'',
+				command: "tools json validate '{\"a\":1}'",
 				description: "Validate a JSON string.",
 			},
 		],
 		formats: ["tools json <format|validate|minify> <json>"],
-		useCases: [
-			"Format JSON for readability.",
-		],
+		useCases: ["Format JSON for readability."],
 	},
 	async execute({ invocation, message }) {
 		const [action, ...rest] = invocation.positionalArgs;
@@ -42,10 +40,12 @@ export const jsonCommand = subcommand({
 		}
 
 		try {
-			const parsed = JSON.parse(input);
+			const parsed: unknown = JSON.parse(input);
 			switch (action) {
 				case "format": {
-					await message.reply(`\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``);
+					await message.reply(
+						`\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``,
+					);
 					return;
 				}
 				case "validate": {
@@ -53,7 +53,9 @@ export const jsonCommand = subcommand({
 					return;
 				}
 				case "minify": {
-					await message.reply(`\`\`\`\n${JSON.stringify(parsed)}\n\`\`\``);
+					await message.reply(
+						`\`\`\`\n${JSON.stringify(parsed)}\n\`\`\``,
+					);
 					return;
 				}
 				default: {

@@ -3,14 +3,14 @@ name: Cut and Sign Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # Required to create the GitHub Release and upload assets
-      id-token: write    # Required for Cosign keyless identity federation
+      contents: write # Required to create the GitHub Release and upload assets
+      id-token: write # Required for Cosign keyless identity federation
 
     steps:
       - name: Checkout Code
@@ -25,8 +25,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-line: '22' # Adjust to match your preferred Node version
-          cache: 'pnpm'
+          node-line: "22" # Adjust to match your preferred Node version
+          cache: "pnpm"
 
       # --- Install Dependencies and Build Workspace ---
       - name: Install Dependencies

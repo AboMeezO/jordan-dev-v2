@@ -2,8 +2,10 @@ import type {
 	ButtonInteraction,
 	ChatInputCommandInteraction,
 	Client,
-	ContainerBuilder,	Message,
-	TextBasedChannel} from "discord.js";
+	ContainerBuilder,
+	Message,
+	TextBasedChannel,
+} from "discord.js";
 import {
 	ActionRowBuilder,
 	ButtonBuilder,

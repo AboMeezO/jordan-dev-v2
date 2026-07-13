@@ -11,19 +11,29 @@ const cfg: Config = createConfig({
 
 export const botConfig = {
 	discord: {
-		get token() { return cfg.get<string>("discord.token"); },
+		get token() {
+			return cfg.get<string>("discord.token");
+		},
 		prefix: cfg.get<string>("discord.prefix"),
-		devGuildId: cfg.get<string | undefined>("discord.devGuildId"),
+		devGuildId: cfg.get<string | undefined>(
+			"discord.devGuildId",
+		),
 	},
 	owners: {
-		ids: commaSplit(cfg.get<string | undefined>("owners.ids")),
-		devIds: commaSplit(cfg.get<string | undefined>("owners.devIds")),
+		ids: commaSplit(
+			cfg.get<string | undefined>("owners.ids"),
+		),
+		devIds: commaSplit(
+			cfg.get<string | undefined>("owners.devIds"),
+		),
 	},
 	github: {
 		token: cfg.get<string | undefined>("github.token"),
 	},
 	scanning: {
-		virustotalApiKey: cfg.get<string | undefined>("scanning.virustotalApiKey"),
+		virustotalApiKey: cfg.get<string | undefined>(
+			"scanning.virustotalApiKey",
+		),
 		cacheTtlMs: cfg.get<number>("scanning.cacheTtlMs"),
 		rateLimitPerUser: cfg.get<number>("scanning.rateLimit"),
 		timeoutMs: cfg.get<number>("scanning.timeoutMs"),
@@ -38,9 +48,23 @@ export const botConfig = {
 		token: cfg.get<string | undefined>("backend.token"),
 	},
 	suspiciousTlds: [
-		"xyz", "top", "gq", "ml", "cf", "ga", "tk",
-		"work", "win", "bid", "loan", "date", "men",
-		"click", "download", "review", "stream",
+		"xyz",
+		"top",
+		"gq",
+		"ml",
+		"cf",
+		"ga",
+		"tk",
+		"work",
+		"win",
+		"bid",
+		"loan",
+		"date",
+		"men",
+		"click",
+		"download",
+		"review",
+		"stream",
 	] as readonly string[],
 };
 
@@ -62,11 +86,18 @@ export function getPrivilegedIds(): ReadonlySet<string> {
 
 export function validateConfig(): void {
 	if (!botConfig.scanning.virustotalApiKey) {
-		console.warn("[config] VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only");
+		console.warn(
+			"[config] VIRUSTOTAL_API_KEY not set — url-scan will use local heuristics only",
+		);
 	}
 }
 
-function commaSplit(value: string | undefined): readonly string[] {
+function commaSplit(
+	value: string | undefined,
+): readonly string[] {
 	if (!value) return [];
-	return value.split(",").map((s) => s.trim()).filter(Boolean);
+	return value
+		.split(",")
+		.map((s) => s.trim())
+		.filter(Boolean);
 }

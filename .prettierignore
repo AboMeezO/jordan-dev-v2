@@ -11,3 +11,4 @@ pnpm-lock.yaml
 .env
 .env.local
 .env.*.local
+.pnpm-store

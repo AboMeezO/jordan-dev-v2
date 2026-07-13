@@ -26,23 +26,23 @@ The root registry file should define registry metadata and either `items` or
 
 ```json
 {
-  "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "acme",
-  "homepage": "https://acme.com",
-  "items": [
-    {
-      "name": "absolute-url",
-      "type": "registry:lib",
-      "title": "Absolute URL",
-      "description": "A utility to turn any path into an absolute URL.",
-      "files": [
-        {
-          "path": "lib/absolute-url.ts",
-          "type": "registry:lib"
-        }
-      ]
-    }
-  ]
+	"$schema": "https://ui.shadcn.com/schema/registry.json",
+	"name": "acme",
+	"homepage": "https://acme.com",
+	"items": [
+		{
+			"name": "absolute-url",
+			"type": "registry:lib",
+			"title": "Absolute URL",
+			"description": "A utility to turn any path into an absolute URL.",
+			"files": [
+				{
+					"path": "lib/absolute-url.ts",
+					"type": "registry:lib"
+				}
+			]
+		}
+	]
 }
 ```
 
@@ -59,10 +59,13 @@ Use `include` to keep large registries modular.
 
 ```json
 {
-  "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "acme",
-  "homepage": "https://acme.com",
-  "include": ["registry/ui/registry.json", "registry/blocks/registry.json"]
+	"$schema": "https://ui.shadcn.com/schema/registry.json",
+	"name": "acme",
+	"homepage": "https://acme.com",
+	"include": [
+		"registry/ui/registry.json",
+		"registry/blocks/registry.json"
+	]
 }
 ```
 
@@ -78,18 +81,18 @@ Example included file:
 
 ```json
 {
-  "items": [
-    {
-      "name": "button",
-      "type": "registry:ui",
-      "files": [
-        {
-          "path": "button.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    }
-  ]
+	"items": [
+		{
+			"name": "button",
+			"type": "registry:ui",
+			"files": [
+				{
+					"path": "button.tsx",
+					"type": "registry:ui"
+				}
+			]
+		}
+	]
 }
 ```
 
@@ -103,26 +106,26 @@ Common item fields:
 
 ```json
 {
-  "name": "login-form",
-  "type": "registry:block",
-  "title": "Login Form",
-  "description": "A login form with email and password fields.",
-  "dependencies": ["zod"],
-  "registryDependencies": ["button", "input", "label"],
-  "files": [
-    {
-      "path": "blocks/login-form.tsx",
-      "type": "registry:block"
-    }
-  ],
-  "cssVars": {
-    "light": {
-      "brand": "oklch(0.62 0.18 250)"
-    },
-    "dark": {
-      "brand": "oklch(0.72 0.16 250)"
-    }
-  }
+	"name": "login-form",
+	"type": "registry:block",
+	"title": "Login Form",
+	"description": "A login form with email and password fields.",
+	"dependencies": ["zod"],
+	"registryDependencies": ["button", "input", "label"],
+	"files": [
+		{
+			"path": "blocks/login-form.tsx",
+			"type": "registry:block"
+		}
+	],
+	"cssVars": {
+		"light": {
+			"brand": "oklch(0.62 0.18 250)"
+		},
+		"dark": {
+			"brand": "oklch(0.72 0.16 250)"
+		}
+	}
 }
 ```
 
@@ -153,15 +156,19 @@ File rules:
 
 ```json
 {
-  "name": "login-form",
-  "type": "registry:block",
-  "registryDependencies": ["button", "@acme/input", "acme/ui/card#v1.2.0"],
-  "files": [
-    {
-      "path": "blocks/login-form.tsx",
-      "type": "registry:block"
-    }
-  ]
+	"name": "login-form",
+	"type": "registry:block",
+	"registryDependencies": [
+		"button",
+		"@acme/input",
+		"acme/ui/card#v1.2.0"
+	],
+	"files": [
+		{
+			"path": "blocks/login-form.tsx",
+			"type": "registry:block"
+		}
+	]
 }
 ```
 

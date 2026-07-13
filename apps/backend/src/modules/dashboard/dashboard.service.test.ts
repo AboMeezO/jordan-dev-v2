@@ -35,9 +35,9 @@ describe("DashboardService", () => {
 		expect(result.recentUsers[0]?.createdAt).toBe(
 			"2026-01-01T00:00:00.000Z",
 		);
-		expect(result.recentVerificationEvents[0]?.createdAt).toBe(
-			"2026-01-02T00:00:00.000Z",
-		);
+		expect(
+			result.recentVerificationEvents[0]?.createdAt,
+		).toBe("2026-01-02T00:00:00.000Z");
 		expect(result.system.databaseReady).toBe(true);
 		expect(() =>
 			dashboardOverviewSchema.parse(result),
@@ -46,9 +46,10 @@ describe("DashboardService", () => {
 });
 
 function mockDatabase(): DatabaseService {
-	const database: Pick<DatabaseService, "checkConnection"> = {
-		checkConnection: vi.fn(() => Promise.resolve()),
-	};
+	const database: Pick<DatabaseService, "checkConnection"> =
+		{
+			checkConnection: vi.fn(() => Promise.resolve()),
+		};
 
 	return database as DatabaseService;
 }
@@ -136,9 +137,7 @@ function mockDashboardRepository(): DashboardRepository {
 						email: "user@example.com",
 						displayName: "User",
 						avatarUrl: "https://example.com/avatar.png",
-						createdAt: new Date(
-							"2026-01-01T00:00:00.000Z",
-						),
+						createdAt: new Date("2026-01-01T00:00:00.000Z"),
 					},
 				},
 			]),

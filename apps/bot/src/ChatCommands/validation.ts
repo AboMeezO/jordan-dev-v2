@@ -124,7 +124,7 @@ export function extractOptionString(
 ): string | undefined {
 	const value = options[name];
 	if (Array.isArray(value)) {
-		return value[0];
+		return value[0] as string;
 	}
 	return undefined;
 }

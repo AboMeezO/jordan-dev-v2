@@ -1,8 +1,14 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+	Injectable,
+	NotFoundException,
+} from "@nestjs/common";
 
 import type { DatabaseTransactionClient } from "../../database/database.service.js";
 import { UserRepository } from "./user.repository.js";
-import type { ClerkUserIdentity, DiscordUserIdentity } from "./user.types.js";
+import type {
+	ClerkUserIdentity,
+	DiscordUserIdentity,
+} from "./user.types.js";
 
 @Injectable()
 export class UserService {
@@ -28,10 +34,18 @@ export class UserService {
 		identity: ClerkUserIdentity,
 		transaction?: DatabaseTransactionClient,
 	) {
-		return this.users.upsertFromClerkIdentity(identity, transaction);
+		return this.users.upsertFromClerkIdentity(
+			identity,
+			transaction,
+		);
 	}
 
-	async list(query: { page: number; limit: number; search: string | undefined; roleId: string | undefined }) {
+	async list(query: {
+		page: number;
+		limit: number;
+		search: string | undefined;
+		roleId: string | undefined;
+	}) {
 		return this.users.findMany(query);
 	}
 
@@ -43,7 +57,13 @@ export class UserService {
 		return user;
 	}
 
-	async update(id: string, data: { displayName: string | undefined; email: string | undefined }) {
+	async update(
+		id: string,
+		data: {
+			displayName: string | undefined;
+			email: string | undefined;
+		},
+	) {
 		const user = await this.users.updateUser(id, data);
 		if (!user) {
 			throw new NotFoundException("User not found");
@@ -51,7 +71,10 @@ export class UserService {
 		return user;
 	}
 
-	async assignRoles(id: string, roleIds: readonly string[]) {
+	async assignRoles(
+		id: string,
+		roleIds: readonly string[],
+	) {
 		const user = await this.users.findById(id);
 		if (!user) {
 			throw new NotFoundException("User not found");
@@ -59,4 +82,3 @@ export class UserService {
 		return this.users.setUserRoles(id, roleIds);
 	}
 }
-

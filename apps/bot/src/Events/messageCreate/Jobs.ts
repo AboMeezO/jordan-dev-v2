@@ -1,4 +1,4 @@
-import type { Client, Message } from "discord.js";
+import type { Message } from "discord.js";
 
 import { safeFetch } from "#ChatCommands";
 
@@ -63,7 +63,10 @@ async function isWorkingLink(
 			timeout: 7000,
 		});
 
-		if (headResult.status >= 200 && headResult.status < 400) {
+		if (
+			headResult.status >= 200 &&
+			headResult.status < 400
+		) {
 			return true;
 		}
 
@@ -72,7 +75,9 @@ async function isWorkingLink(
 			timeout: 7000,
 		});
 
-		return getResult.status >= 200 && getResult.status < 400;
+		return (
+			getResult.status >= 200 && getResult.status < 400
+		);
 	} catch {
 		return false;
 	}

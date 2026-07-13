@@ -1,33 +1,48 @@
 import type { Message, TextChannel } from "discord.js";
-import type { ConfigureAI, AIGenerateResult } from "./types.js";
+import type {
+	ConfigureAI,
+	AIGenerateResult,
+} from "./types.js";
 import { AiContext } from "./context.js";
 import { createSystemPrompt } from "./system-prompt.js";
 import type { AiMessage } from "./types.js";
 
-const INTERNAL_STOP_TYPING = "<<{{[[((jdInternalStopTyping))]]}}>>";
+const INTERNAL_STOP_TYPING =
+	"<<{{[[((jdInternalStopTyping))]]}}>>";
 
 const AIConfig: Required<ConfigureAI> = {
 	disableBuiltInTools: false,
 
 	messageFilter: async (_ctx, message) => {
-		return message.mentions.users.has(message.client.user.id);
+		return message.mentions.users.has(
+			message.client.user.id,
+		);
 	},
 
-	prepareSystemPrompt: async (_ctx, message) => createSystemPrompt(message),
+	prepareSystemPrompt: async (_ctx, message) =>
+		createSystemPrompt(message),
 
 	preparePrompt: async (_ctx, message) => {
-		const recentMessages = await message.channel.messages.fetch({
-			limit: 10,
-			before: message.id,
-		});
+		const recentMessages =
+			await message.channel.messages.fetch({
+				limit: 10,
+				before: message.id,
+			});
 
-		const isMe = (id: string) => id === message.client.user.id;
+		const isMe = (id: string) =>
+			id === message.client.user.id;
 
 		const conversation: AiMessage = recentMessages
-			.filter((msg) => msg.content && (isMe(msg.author.id) || !msg.author.bot))
+			.filter(
+				(msg) =>
+					msg.content &&
+					(isMe(msg.author.id) || !msg.author.bot),
+			)
 			.reverse()
 			.map((msg) => ({
-				role: isMe(msg.author.id) ? "assistant" as const : "user" as const,
+				role: isMe(msg.author.id)
+					? ("assistant" as const)
+					: ("user" as const),
 				content: msg.content,
 			}));
 
@@ -58,7 +73,9 @@ const AIConfig: Required<ConfigureAI> = {
 			const run = async () => {
 				if (stopped) return clearInterval(interval);
 				if (message.channel.isSendable()) {
-					await message.channel.sendTyping().catch(() => {});
+					await message.channel
+						.sendTyping()
+						.catch(() => {});
 				}
 			};
 			const interval = setInterval(run, 3000).unref();
@@ -71,7 +88,9 @@ const AIConfig: Required<ConfigureAI> = {
 	},
 
 	onProcessingFinish: async (ctx) => {
-		const stop = ctx.store.get(INTERNAL_STOP_TYPING) as (() => void) | undefined;
+		const stop = ctx.store.get(INTERNAL_STOP_TYPING) as
+			| (() => void)
+			| undefined;
 		if (stop) {
 			stop();
 			ctx.store.delete(INTERNAL_STOP_TYPING);
@@ -92,7 +111,8 @@ const AIConfig: Required<ConfigureAI> = {
 		if (channel.isSendable()) {
 			await message
 				.reply({
-					content: "An error occurred while processing your request.",
+					content:
+						"An error occurred while processing your request.",
 					allowedMentions: { parse: [] },
 				})
 				.catch(() => {});

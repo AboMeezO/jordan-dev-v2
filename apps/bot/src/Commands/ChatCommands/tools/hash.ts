@@ -2,7 +2,12 @@ import { createHash } from "node:crypto";
 
 import { subcommand } from "#ChatCommands";
 
-const supportedAlgorithms = ["md5", "sha1", "sha256", "sha512"] as const;
+const supportedAlgorithms = [
+	"md5",
+	"sha1",
+	"sha256",
+	"sha512",
+] as const;
 
 export const hashCommand = subcommand({
 	description: "Compute a hash of input text.",
@@ -10,7 +15,8 @@ export const hashCommand = subcommand({
 	usage: {
 		arguments: [
 			{
-				description: "Hash algorithm (md5, sha1, sha256, sha512).",
+				description:
+					"Hash algorithm (md5, sha1, sha256, sha512).",
 				name: "algorithm",
 				required: true,
 			},
@@ -46,14 +52,20 @@ export const hashCommand = subcommand({
 		}
 
 		const algorithm = algo.toLowerCase();
-		if (!(supportedAlgorithms as readonly string[]).includes(algorithm)) {
+		if (
+			!(supportedAlgorithms as readonly string[]).includes(
+				algorithm,
+			)
+		) {
 			await message.reply(
 				`Unsupported algorithm \`${algorithm}\`. Supported: ${supportedAlgorithms.join(", ")}.`,
 			);
 			return;
 		}
 
-		const hash = createHash(algorithm).update(text).digest("hex");
+		const hash = createHash(algorithm)
+			.update(text)
+			.digest("hex");
 		await message.reply(`\`\`\`\n${hash}\n\`\`\``);
 	},
 });

@@ -65,15 +65,18 @@ export const whoisCommand = subcommand({
 		}
 
 		const domain = parsed.data.domain;
-	const domainKey = domain.toLowerCase();
+		const domainKey = domain.toLowerCase();
 
-	const lastQuery = domainCooldowns.get(domainKey);
-	if (lastQuery && Date.now() - lastQuery < DOMAIN_COOLDOWN_MS) {
-		await message.reply(
-			`WHOIS for "${domain}" was queried recently. Please wait before querying it again.`,
-		);
-		return;
-	}
+		const lastQuery = domainCooldowns.get(domainKey);
+		if (
+			lastQuery &&
+			Date.now() - lastQuery < DOMAIN_COOLDOWN_MS
+		) {
+			await message.reply(
+				`WHOIS for "${domain}" was queried recently. Please wait before querying it again.`,
+			);
+			return;
+		}
 
 		try {
 			domainCooldowns.set(domainKey, Date.now());
@@ -94,13 +97,22 @@ export const whoisCommand = subcommand({
 						if (value === null || value === undefined) {
 							continue;
 						}
-						const str = typeof value === "object" && value !== null
-						? JSON.stringify(value).slice(0, 200)
-						: String(value).slice(0, 200);
+						let str: string;
+						if (
+							typeof value === "object" &&
+							value !== null
+						) {
+							str = JSON.stringify(value).slice(0, 200);
+						} else {
+							// eslint-disable-next-line @typescript-eslint/no-base-to-string -- narrowed by typeof check above
+							str = String(value).slice(0, 200);
+						}
 						const lower = str.toLowerCase();
 						if (
 							!hasPrivacy &&
-							PRIVACY_KEYWORDS.some((kw) => lower.includes(kw))
+							PRIVACY_KEYWORDS.some((kw) =>
+								lower.includes(kw),
+							)
 						) {
 							hasPrivacy = true;
 						}
@@ -120,7 +132,9 @@ export const whoisCommand = subcommand({
 
 			const truncated = flat.slice(0, 15);
 			if (flat.length > 15) {
-				truncated.push(`... and ${flat.length - 15} more fields (use attachment for full data)`);
+				truncated.push(
+					`... and ${flat.length - 15} more fields (use attachment for full data)`,
+				);
 			}
 
 			const output = safeOutput(truncated.join("\n"));

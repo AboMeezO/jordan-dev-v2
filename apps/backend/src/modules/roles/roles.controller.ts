@@ -47,7 +47,10 @@ export class RolesController {
 
 	@Patch(":id")
 	@RequirePermissions(permissions.rolesUpdate)
-	async update(@Param("id") id: string, @Body() dto: unknown) {
+	async update(
+		@Param("id") id: string,
+		@Body() dto: unknown,
+	) {
 		const data = updateRoleSchema.parse(dto);
 		return this.roles.update(id, {
 			name: data.name ?? undefined,
@@ -64,8 +67,12 @@ export class RolesController {
 
 	@Put(":id/permissions")
 	@RequirePermissions(permissions.rolesUpdate)
-	async setPermissions(@Param("id") id: string, @Body() dto: unknown) {
-		const { permissionIds } = rolePermissionAssignmentSchema.parse(dto);
+	async setPermissions(
+		@Param("id") id: string,
+		@Body() dto: unknown,
+	) {
+		const { permissionIds } =
+			rolePermissionAssignmentSchema.parse(dto);
 		return this.roles.setPermissions(id, permissionIds);
 	}
 }

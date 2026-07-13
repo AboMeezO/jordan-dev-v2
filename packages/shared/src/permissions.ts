@@ -34,9 +34,13 @@ export const permissions = {
 	verificationReview: "verification:review",
 } as const;
 
-export type Permission = (typeof permissions)[keyof typeof permissions];
+export type Permission =
+	(typeof permissions)[keyof typeof permissions];
 
-export const permissionDescriptions: Record<Permission, string> = {
+export const permissionDescriptions: Record<
+	Permission,
+	string
+> = {
 	"dashboard:read": "View the dashboard overview",
 	"guild:read": "View guild information",
 	"guild:update": "Update guild settings",
@@ -49,7 +53,8 @@ export const permissionDescriptions: Record<Permission, string> = {
 	"settings:update": "Update system settings",
 	"moderation:read": "View moderation data",
 	"moderation:manage": "Perform moderation actions",
-	"verification:review": "Review and approve/reject membership applications",
+	"verification:review":
+		"Review and approve/reject membership applications",
 };
 
 export const permissionItemSchema = z.object({
@@ -62,8 +67,12 @@ export const permissionsListResponseSchema = z.object({
 	data: z.array(permissionItemSchema),
 });
 
-export type PermissionItem = z.infer<typeof permissionItemSchema>;
-export type PermissionsListResponse = z.infer<typeof permissionsListResponseSchema>;
+export type PermissionItem = z.infer<
+	typeof permissionItemSchema
+>;
+export type PermissionsListResponse = z.infer<
+	typeof permissionsListResponseSchema
+>;
 
 export type PermissionClaims = {
 	metadata?: {
@@ -77,11 +86,18 @@ export type PermissionClaims = {
 
 const permissionSet = new Set(Object.values(permissions));
 
-export function isPermission(value: unknown): value is Permission {
-	return typeof value === "string" && permissionSet.has(value as Permission);
+export function isPermission(
+	value: unknown,
+): value is Permission {
+	return (
+		typeof value === "string" &&
+		permissionSet.has(value as Permission)
+	);
 }
 
-export function normalizePermissions(value: unknown): readonly Permission[] {
+export function normalizePermissions(
+	value: unknown,
+): readonly Permission[] {
 	if (!Array.isArray(value)) {
 		return [];
 	}
@@ -97,7 +113,9 @@ export function normalizePermissions(value: unknown): readonly Permission[] {
 	return [...normalized];
 }
 
-export function parsePermissionClaims(claims: unknown): readonly Permission[] {
+export function parsePermissionClaims(
+	claims: unknown,
+): readonly Permission[] {
 	if (!claims || typeof claims !== "object") {
 		return [];
 	}
@@ -106,8 +124,12 @@ export function parsePermissionClaims(claims: unknown): readonly Permission[] {
 
 	return normalizePermissions([
 		...normalizePermissions(permissionClaims.permissions),
-		...normalizePermissions(permissionClaims.metadata?.permissions),
-		...normalizePermissions(permissionClaims.publicMetadata?.permissions),
+		...normalizePermissions(
+			permissionClaims.metadata?.permissions,
+		),
+		...normalizePermissions(
+			permissionClaims.publicMetadata?.permissions,
+		),
 	]);
 }
 
@@ -119,18 +141,28 @@ export function can(
 		return true;
 	}
 
-	return new Set(normalizePermissions(userPermissions)).has(permission);
+	return new Set(normalizePermissions(userPermissions)).has(
+		permission,
+	);
 }
 
 export function canAll(
 	userPermissions: unknown,
-	requiredPermissions: readonly Permission[] | undefined | null,
+	requiredPermissions:
+		| readonly Permission[]
+		| undefined
+		| null,
 ): boolean {
-	if (!requiredPermissions || requiredPermissions.length === 0) {
+	if (
+		!requiredPermissions ||
+		requiredPermissions.length === 0
+	) {
 		return true;
 	}
 
-	const grantedPermissions = new Set(normalizePermissions(userPermissions));
+	const grantedPermissions = new Set(
+		normalizePermissions(userPermissions),
+	);
 
 	return requiredPermissions.every((permission) =>
 		grantedPermissions.has(permission),
@@ -139,13 +171,21 @@ export function canAll(
 
 export function canAny(
 	userPermissions: unknown,
-	requiredPermissions: readonly Permission[] | undefined | null,
+	requiredPermissions:
+		| readonly Permission[]
+		| undefined
+		| null,
 ): boolean {
-	if (!requiredPermissions || requiredPermissions.length === 0) {
+	if (
+		!requiredPermissions ||
+		requiredPermissions.length === 0
+	) {
 		return true;
 	}
 
-	const grantedPermissions = new Set(normalizePermissions(userPermissions));
+	const grantedPermissions = new Set(
+		normalizePermissions(userPermissions),
+	);
 
 	return requiredPermissions.some((permission) =>
 		grantedPermissions.has(permission),

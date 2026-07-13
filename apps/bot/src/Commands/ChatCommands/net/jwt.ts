@@ -40,7 +40,9 @@ function decodeJWT(token: string): Record<string, unknown> {
 	const [headerRaw, payloadRaw] = parts;
 
 	try {
-		const header = JSON.parse(base64UrlDecode(headerRaw!)) as Record<string, unknown>;
+		const header = JSON.parse(
+			base64UrlDecode(headerRaw!),
+		) as Record<string, unknown>;
 		const payload = JSON.parse(
 			base64UrlDecode(payloadRaw!),
 		) as Record<string, unknown>;
@@ -140,8 +142,12 @@ export const jwtCommand = subcommand({
 
 			const lines: string[] = [];
 
-			lines.push("! WARNING: This token is visible to everyone in this channel.");
-			lines.push("! Do NOT paste real session or access tokens.");
+			lines.push(
+				"! WARNING: This token is visible to everyone in this channel.",
+			);
+			lines.push(
+				"! Do NOT paste real session or access tokens.",
+			);
 			lines.push("");
 
 			lines.push("--- Header ---");
