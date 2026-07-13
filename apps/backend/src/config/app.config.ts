@@ -1,7 +1,6 @@
-import { Inject, Injectable } from "@nestjs/common";
-
-import { JD_CONFIG } from "@jordan-devs/config/nest";
 import type { Config } from "@jordan-devs/config";
+import { JD_CONFIG } from "@jordan-devs/config/nest";
+import { Inject, Injectable } from "@nestjs/common";
 
 @Injectable()
 export class BackendConfigService {

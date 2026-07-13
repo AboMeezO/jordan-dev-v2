@@ -1,5 +1,5 @@
-import { createConfig } from "@jordan-devs/config";
 import type { Config } from "@jordan-devs/config";
+import { createConfig } from "@jordan-devs/config";
 
 const cfg: Config = createConfig({
 	configPath: "Config.yaml",

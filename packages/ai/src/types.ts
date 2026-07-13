@@ -3,6 +3,7 @@ import type { Message } from "discord.js";
 import type { z } from "zod";
 import type { z as z3 } from "zod/v3";
 import type { AiContext } from "./context.js";
+export type { AiContext } from "./context.js";
 
 export type AIGenerateResult = Awaited<ReturnType<typeof generateText>>;
 
