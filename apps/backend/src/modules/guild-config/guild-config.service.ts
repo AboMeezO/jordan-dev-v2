@@ -1,8 +1,5 @@
 import type { GuildConfig } from "@jordan-devs/shared";
-import {
-	Injectable,
-	NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 
 import type { GuildConfigInput } from "./guild-config.repository.js";
 import { GuildConfigRepository } from "./guild-config.repository.js";
@@ -13,18 +10,13 @@ export class GuildConfigService {
 		private readonly configs: GuildConfigRepository,
 	) {}
 
-	public async upsert(
-		input: GuildConfigInput,
-	): Promise<GuildConfig> {
+	public async upsert(input: GuildConfigInput): Promise<GuildConfig> {
 		const config = await this.configs.upsert(input);
 		return this.toDto(config);
 	}
 
-	public async findByGuildId(
-		guildId: string,
-	): Promise<GuildConfig> {
-		const config =
-			await this.configs.findByGuildId(guildId);
+	public async findByGuildId(guildId: string): Promise<GuildConfig> {
+		const config = await this.configs.findByGuildId(guildId);
 		if (!config) {
 			throw new NotFoundException(
 				`Guild config not found for guild: ${guildId}`,

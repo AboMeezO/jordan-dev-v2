@@ -1,6 +1,8 @@
 import { strict as assert } from "node:assert";
 
-import { ChainReactionSystem } from "../../engine/application/gameplay/systems/index.js";
+import {
+	ChainReactionSystem,
+} from "../../engine/application/gameplay/systems/index.js";
 import {
 	type GameSession,
 	type IncidentId,
@@ -41,17 +43,14 @@ const clock1 = new TestClock();
 const idGen1 = new TestIdGenerator();
 const rs1 = new SeededRandomSource("chain-test-1");
 const sched1 = new RecordingScheduler();
-let _inactiveCalled = false;
+let inactiveCalled = false;
 
 const chain1 = new ChainReactionSystem(
 	clock1,
 	idGen1,
 	rs1,
 	sched1,
-	// eslint-disable-next-line @typescript-eslint/require-await -- type contract requires Promise<void>
-	async () => {
-		_inactiveCalled = true;
-	},
+	async () => { inactiveCalled = true; },
 	() => false, // isSessionActive always false
 );
 
@@ -60,28 +59,21 @@ const result1 = chain1.maybeSchedule(
 	"incident-1" as IncidentId,
 	makeSession(50),
 );
-assert.equal(
-	result1,
-	undefined,
-	"should not schedule on inactive session",
-);
+assert.equal(result1, undefined, "should not schedule on inactive session");
 
 // 2. maybeSchedule returns event when session is active and random passes
 const clock2 = new TestClock();
 const idGen2 = new TestIdGenerator();
 const rs2 = new SeededRandomSource("chain-test-2");
 const sched2 = new RecordingScheduler();
-let _chainGenerated = false;
+let chainGenerated = false;
 
 const chain2 = new ChainReactionSystem(
 	clock2,
 	idGen2,
 	rs2,
 	sched2,
-	// eslint-disable-next-line @typescript-eslint/require-await -- type contract requires Promise<void>
-	async () => {
-		_chainGenerated = true;
-	},
+	async () => { chainGenerated = true; },
 	() => true, // isSessionActive always true
 );
 
@@ -92,11 +84,7 @@ const result2 = chain2.maybeSchedule(
 	"incident-1" as IncidentId,
 	makeSession(0),
 );
-assert.notEqual(
-	result2,
-	undefined,
-	"should schedule chain reaction",
-);
+assert.notEqual(result2, undefined, "should schedule chain reaction");
 assert.equal(result2!.type, "chainReaction.scheduled");
 assert.equal(result2!.depth, 1);
 assert.equal(result2!.delayMs, 5_000);
@@ -141,11 +129,7 @@ const result3 = chain3.maybeSchedule(
 	"inc-4" as IncidentId,
 	makeSession(0),
 );
-assert.equal(
-	result3,
-	undefined,
-	"should not schedule at max depth (3)",
-);
+assert.equal(result3, undefined, "should not schedule at max depth (3)");
 
 assert.equal(sched3.activeTasks.length, 3);
 
@@ -156,11 +140,7 @@ const afterClear = chain3.maybeSchedule(
 	"inc-5" as IncidentId,
 	makeSession(0),
 );
-assert.notEqual(
-	afterClear,
-	undefined,
-	"should schedule after clear",
-);
+assert.notEqual(afterClear, undefined, "should schedule after clear");
 assert.equal(sched3.activeTasks.length, 4);
 
 console.log("chain-reaction.check.ts passed");

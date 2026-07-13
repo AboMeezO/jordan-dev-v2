@@ -13,4 +13,6 @@ export {
 	handleModalSubmit,
 	handleRejectConfirm,
 } from "./handlers.js";
-export { sendVerifyButton } from "./handlers.js";
+export {
+	sendVerifyButton,
+} from "./handlers.js";

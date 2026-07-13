@@ -59,10 +59,7 @@ export {
 	parseChatCommandInput,
 	tokenizeShellLike,
 } from "./parser/index.js";
-export {
-	ChatCommandRegistry,
-	toTreeNode,
-} from "./registry/index.js";
+export { ChatCommandRegistry, toTreeNode } from "./registry/index.js";
 export type {
 	ChatCommandArgumentGuide,
 	ChatCommandAvailabilityScope,

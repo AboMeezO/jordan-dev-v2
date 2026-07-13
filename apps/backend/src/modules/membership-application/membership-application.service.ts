@@ -4,11 +4,7 @@ import type {
 	ApplicationSummary,
 	CreateApplicationRequest,
 } from "@jordan-devs/shared";
-import {
-	ConflictException,
-	Injectable,
-	NotFoundException,
-} from "@nestjs/common";
+import { ConflictException,Injectable, NotFoundException } from "@nestjs/common";
 
 import { DatabaseService } from "../../database/database.service.js";
 import { UserService } from "../users/user.service.js";
@@ -26,8 +22,7 @@ export class MembershipApplicationService {
 		userId: string,
 		request: CreateApplicationRequest,
 	): Promise<ApplicationDetail> {
-		const existing =
-			await this.applications.findLatestByUserId(userId);
+		const existing = await this.applications.findLatestByUserId(userId);
 		if (existing && existing.status === "DRAFTING") {
 			throw new ConflictException(
 				"You already have a draft application. Complete or cancel it first.",
@@ -50,8 +45,7 @@ export class MembershipApplicationService {
 		userId: string,
 		request: Partial<CreateApplicationRequest>,
 	): Promise<ApplicationDetail> {
-		const application =
-			await this.applications.findById(applicationId);
+		const application = await this.applications.findById(applicationId);
 		if (!application) {
 			throw new NotFoundException("Application not found");
 		}
@@ -64,10 +58,7 @@ export class MembershipApplicationService {
 			);
 		}
 
-		const updated = await this.applications.updateFields(
-			applicationId,
-			request,
-		);
+		const updated = await this.applications.updateFields(applicationId, request);
 		return await this.toDetail(updated);
 	}
 
@@ -75,8 +66,7 @@ export class MembershipApplicationService {
 		applicationId: string,
 		userId: string,
 	): Promise<ApplicationDetail> {
-		const application =
-			await this.applications.findById(applicationId);
+		const application = await this.applications.findById(applicationId);
 		if (!application) {
 			throw new NotFoundException("Application not found");
 		}
@@ -99,8 +89,7 @@ export class MembershipApplicationService {
 	public async getDetail(
 		applicationId: string,
 	): Promise<ApplicationDetail> {
-		const application =
-			await this.applications.findById(applicationId);
+		const application = await this.applications.findById(applicationId);
 		if (!application) {
 			throw new NotFoundException("Application not found");
 		}
@@ -109,10 +98,9 @@ export class MembershipApplicationService {
 
 	public async claimReview(
 		applicationId: string,
-		_reviewerUserId: string,
+		reviewerUserId: string,
 	): Promise<ApplicationDetail> {
-		const application =
-			await this.applications.findById(applicationId);
+		const application = await this.applications.findById(applicationId);
 		if (!application) {
 			throw new NotFoundException("Application not found");
 		}
@@ -139,9 +127,7 @@ export class MembershipApplicationService {
 				tx,
 			);
 			if (!application) {
-				throw new NotFoundException(
-					"Application not found",
-				);
+				throw new NotFoundException("Application not found");
 			}
 			if (application.status !== "UNDER_REVIEW") {
 				throw new ConflictException(
@@ -156,12 +142,7 @@ export class MembershipApplicationService {
 			);
 
 			await tx.verification.update({
-				where: {
-					userId_guildId: {
-						userId: application.userId,
-						guildId: application.guildId,
-					},
-				},
+				where: { userId_guildId: { userId: application.userId, guildId: application.guildId } },
 				data: { status: "ROLE_GRANT_PENDING" },
 			});
 
@@ -169,20 +150,14 @@ export class MembershipApplicationService {
 				data: {
 					verificationId: (
 						await tx.verification.findUniqueOrThrow({
-							where: {
-								userId_guildId: {
-									userId: application.userId,
-									guildId: application.guildId,
-								},
-							},
+							where: { userId_guildId: { userId: application.userId, guildId: application.guildId } },
 							select: { id: true },
 						})
 					).id,
 					userId: application.userId,
 					type: "ROLE_GRANT_PENDING",
 					status: "ROLE_GRANT_PENDING",
-					message:
-						"Application approved — role grant pending.",
+					message: "Application approved — role grant pending.",
 				},
 			});
 
@@ -191,12 +166,7 @@ export class MembershipApplicationService {
 					verificationId_status: {
 						verificationId: (
 							await tx.verification.findUniqueOrThrow({
-								where: {
-									userId_guildId: {
-										userId: application.userId,
-										guildId: application.guildId,
-									},
-								},
+								where: { userId_guildId: { userId: application.userId, guildId: application.guildId } },
 								select: { id: true },
 							})
 						).id,
@@ -206,12 +176,7 @@ export class MembershipApplicationService {
 				create: {
 					verificationId: (
 						await tx.verification.findUniqueOrThrow({
-							where: {
-								userId_guildId: {
-									userId: application.userId,
-									guildId: application.guildId,
-								},
-							},
+							where: { userId_guildId: { userId: application.userId, guildId: application.guildId } },
 							select: { id: true },
 						})
 					).id,
@@ -236,8 +201,7 @@ export class MembershipApplicationService {
 		reviewerUserId: string,
 		reason: string,
 	): Promise<ApplicationDetail> {
-		const application =
-			await this.applications.findById(applicationId);
+		const application = await this.applications.findById(applicationId);
 		if (!application) {
 			throw new NotFoundException("Application not found");
 		}
@@ -259,9 +223,7 @@ export class MembershipApplicationService {
 		guildId: string,
 	): Promise<ApplicationList> {
 		const applications =
-			await this.applications.findSubmittedByGuildId(
-				guildId,
-			);
+			await this.applications.findSubmittedByGuildId(guildId);
 		return {
 			applications: applications.map((app) => ({
 				id: app.id,
@@ -299,56 +261,52 @@ export class MembershipApplicationService {
 		};
 	}
 
-	private async toDetail(application: {
-		id: string;
-		userId: string;
-		guildId: string;
-		status: string;
-		displayName: string;
-		githubHandle: string;
-		strongestProject: string;
-		projectExplanation: string;
-		techStack: string;
-		experienceLevel: string;
-		purposeOfJoining: string;
-		selfIntroduction: string;
-		linkedInUrl: string | null;
-		portfolioUrl: string | null;
-		referralSource: string;
-		referralOtherText: string | null;
-		reviewedBy: string | null;
-		reviewedAt: Date | null;
-		rejectionReason: string | null;
-		createdAt: Date;
-		updatedAt: Date;
-	}): Promise<ApplicationDetail> {
-		const user = await this.users.findById(
-			application.userId,
-		);
+	private async toDetail(
+		application: {
+			id: string;
+			userId: string;
+			guildId: string;
+			status: string;
+			displayName: string;
+			githubHandle: string;
+			strongestProject: string;
+			projectExplanation: string;
+			techStack: string;
+			experienceLevel: string;
+			purposeOfJoining: string;
+			selfIntroduction: string;
+			linkedInUrl: string | null;
+			portfolioUrl: string | null;
+			referralSource: string;
+			referralOtherText: string | null;
+			reviewedBy: string | null;
+			reviewedAt: Date | null;
+			rejectionReason: string | null;
+			createdAt: Date;
+			updatedAt: Date;
+		},
+	): Promise<ApplicationDetail> {
+		const user = await this.users.findById(application.userId);
 		return {
 			id: application.id,
 			userId: application.userId,
 			discordUserId: user?.discordUserId ?? null,
 			guildId: application.guildId,
-			status:
-				application.status as ApplicationDetail["status"],
+			status: application.status as ApplicationDetail["status"],
 			displayName: application.displayName,
 			githubHandle: application.githubHandle,
 			strongestProject: application.strongestProject,
 			projectExplanation: application.projectExplanation,
 			techStack: application.techStack,
-			experienceLevel:
-				application.experienceLevel as ApplicationDetail["experienceLevel"],
+			experienceLevel: application.experienceLevel as ApplicationDetail["experienceLevel"],
 			purposeOfJoining: application.purposeOfJoining,
 			selfIntroduction: application.selfIntroduction,
 			linkedInUrl: application.linkedInUrl,
 			portfolioUrl: application.portfolioUrl,
-			referralSource:
-				application.referralSource as ApplicationDetail["referralSource"],
+			referralSource: application.referralSource as ApplicationDetail["referralSource"],
 			referralOtherText: application.referralOtherText,
 			reviewedBy: application.reviewedBy,
-			reviewedAt:
-				application.reviewedAt?.toISOString() ?? null,
+			reviewedAt: application.reviewedAt?.toISOString() ?? null,
 			rejectionReason: application.rejectionReason,
 			createdAt: application.createdAt.toISOString(),
 			updatedAt: application.updatedAt.toISOString(),

@@ -1,7 +1,6 @@
 import type {
 	ButtonInteraction,
 	Client,
-	GuildMember,
 	ModalSubmitInteraction,
 	TextChannel,
 } from "discord.js";
@@ -18,24 +17,13 @@ import {
 import { Logger } from "#Logger";
 
 import * as api from "./api.js";
-import {
-	type FormSection,
-	getNextSection,
-	getPreviousSection,
-	getSectionIndex,
-	SECTIONS,
-} from "./sections.js";
+import { type FormSection, getNextSection, getPreviousSection, getSectionIndex, SECTIONS } from "./sections.js";
 
 const log = new Logger("verification");
 
-const APPLICATION_DATA = new Map<
-	string,
-	Record<string, string>
->();
+const APPLICATION_DATA = new Map<string, Record<string, string>>();
 
-function getAppData(
-	discordUserId: string,
-): Record<string, string> {
+function getAppData(discordUserId: string): Record<string, string> {
 	if (!APPLICATION_DATA.has(discordUserId)) {
 		APPLICATION_DATA.set(discordUserId, {});
 	}
@@ -55,11 +43,7 @@ async function sendSectionModal(
 		const input = new TextInputBuilder()
 			.setCustomId(field.customId)
 			.setLabel(field.label)
-			.setStyle(
-				field.style === "paragraph"
-					? TextInputStyle.Paragraph
-					: TextInputStyle.Short,
-			)
+			.setStyle(field.style === "paragraph" ? TextInputStyle.Paragraph : TextInputStyle.Short)
 			.setRequired(field.required)
 			.setMaxLength(field.maxLength ?? 4000);
 
@@ -73,9 +57,7 @@ async function sendSectionModal(
 		}
 
 		modal.addComponents(
-			new ActionRowBuilder<TextInputBuilder>().addComponents(
-				input,
-			),
+			new ActionRowBuilder<TextInputBuilder>().addComponents(input),
 		);
 	}
 
@@ -84,49 +66,35 @@ async function sendSectionModal(
 	}
 }
 
-async function sendVerifyButton(
-	channel: TextChannel,
-	_config: api.GuildConfig,
-): Promise<void> {
+async function sendVerifyButton(channel: TextChannel, config: api.GuildConfig): Promise<void> {
 	const embed = new EmbedBuilder()
 		.setTitle("Welcome to Jordan Devs!")
 		.setDescription(
 			"To gain access to the community, please verify yourself by clicking the button below. " +
-				"You'll be guided through a short application process in DMs.",
+			"You'll be guided through a short application process in DMs.",
 		)
-		.setColor(0x5865f2);
+		.setColor(0x5865F2);
 
-	const row =
-		new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("verify:start")
-				.setLabel("Verify")
-				.setStyle(ButtonStyle.Primary),
-		);
+	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId("verify:start")
+			.setLabel("Verify")
+			.setStyle(ButtonStyle.Primary),
+	);
 
-	await channel.send({
-		embeds: [embed],
-		components: [row],
-	});
+	await channel.send({ embeds: [embed], components: [row] });
 }
 
 export async function handleGuildMemberAdd(
-	member: GuildMember,
-	_client: Client,
+	member: import("discord.js").GuildMember,
+	client: Client,
 ): Promise<void> {
 	try {
-		const config = await api.getGuildConfig(
-			member.guild.id,
-		);
+		const config = await api.getGuildConfig(member.guild.id);
 		await member.roles.add(config.unverifiedRoleId);
-		log.info(
-			`Assigned unverified role to ${member.user.tag} in ${member.guild.id}`,
-		);
+		log.info(`Assigned unverified role to ${member.user.tag} in ${member.guild.id}`);
 	} catch (error) {
-		log.error(
-			`Failed to assign unverified role to ${member.user.tag}:`,
-			error,
-		);
+		log.error(`Failed to assign unverified role to ${member.user.tag}:`, error);
 	}
 }
 
@@ -139,16 +107,12 @@ export async function handleButton(
 		return;
 	}
 
-	if (
-		interaction.customId.startsWith("verify:next_section:")
-	) {
+	if (interaction.customId.startsWith("verify:next_section:")) {
 		await handleNextSection(interaction);
 		return;
 	}
 
-	if (
-		interaction.customId.startsWith("verify:prev_section:")
-	) {
+	if (interaction.customId.startsWith("verify:prev_section:")) {
 		await handlePrevSection(interaction);
 		return;
 	}
@@ -181,7 +145,7 @@ export async function handleButton(
 
 async function handleVerifyStart(
 	interaction: ButtonInteraction,
-	_client: Client,
+	client: Client,
 ): Promise<void> {
 	await interaction.deferReply({ ephemeral: true });
 
@@ -190,44 +154,28 @@ async function handleVerifyStart(
 
 	const embed = createSectionEmbed(firstSection, 0);
 
-	const row =
-		new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId(
-					`verify:next_section:${firstSection.key}`,
-				)
-				.setLabel("Start")
-				.setStyle(ButtonStyle.Success),
-		);
+	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId(`verify:next_section:${firstSection.key}`)
+			.setLabel("Start")
+			.setStyle(ButtonStyle.Success),
+	);
 
-	await dmChannel.send({
-		embeds: [embed],
-		components: [row],
-	});
+	await dmChannel.send({ embeds: [embed], components: [row] });
 	await interaction.editReply({
-		content:
-			"I've sent you a DM with the verification steps. Please check your DMs!",
+		content: "I've sent you a DM with the verification steps. Please check your DMs!",
 	});
 }
 
-function createSectionEmbed(
-	section: FormSection,
-	index: number,
-): EmbedBuilder {
+function createSectionEmbed(section: FormSection, index: number): EmbedBuilder {
 	return new EmbedBuilder()
-		.setTitle(
-			`${section.title} (${index + 1}/${SECTIONS.length})`,
-		)
+		.setTitle(`${section.title} (${index + 1}/${SECTIONS.length})`)
 		.setDescription(section.description)
-		.setColor(0x5865f2)
-		.setFooter({
-			text: `Section ${index + 1} of ${SECTIONS.length}`,
-		});
+		.setColor(0x5865F2)
+		.setFooter({ text: `Section ${index + 1} of ${SECTIONS.length}` });
 }
 
-async function handleNextSection(
-	interaction: ButtonInteraction,
-): Promise<void> {
+async function handleNextSection(interaction: ButtonInteraction): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const sectionKey = parts[2] ?? "";
 	const section = SECTIONS[getSectionIndex(sectionKey)];
@@ -237,50 +185,38 @@ async function handleNextSection(
 	await sendSectionModal(interaction, section, data);
 }
 
-async function handlePrevSection(
-	interaction: ButtonInteraction,
-): Promise<void> {
+async function handlePrevSection(interaction: ButtonInteraction): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const sectionKey = parts[2] ?? "";
 	const prevSection = getPreviousSection(sectionKey);
 	if (!prevSection) return;
 
-	const _data = getAppData(interaction.user.id);
+	const data = getAppData(interaction.user.id);
 
-	const embed = createSectionEmbed(
-		prevSection,
-		getSectionIndex(prevSection.key),
+	const embed = createSectionEmbed(prevSection, getSectionIndex(prevSection.key));
+
+	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId(`verify:next_section:${prevSection.key}`)
+			.setLabel("Edit Section")
+			.setStyle(ButtonStyle.Primary),
 	);
 
-	const row =
-		new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId(
-					`verify:next_section:${prevSection.key}`,
-				)
-				.setLabel("Edit Section")
-				.setStyle(ButtonStyle.Primary),
-		);
-
 	if (interaction.isMessageComponent()) {
-		await interaction.update({
-			embeds: [embed],
-			components: [row],
-		});
+		await interaction.update({ embeds: [embed], components: [row] });
 	}
 }
 
 export async function handleModalSubmit(
 	interaction: ModalSubmitInteraction,
-	_client: Client,
+	client: Client,
 ): Promise<void> {
 	if (interaction.customId.startsWith("verify_reject:")) {
 		await handleRejectConfirm(interaction);
 		return;
 	}
 
-	if (!interaction.customId.startsWith("verify_section:"))
-		return;
+	if (!interaction.customId.startsWith("verify_section:")) return;
 
 	const parts = interaction.customId.split(":");
 	const sectionKey = parts[1] ?? "";
@@ -291,9 +227,7 @@ export async function handleModalSubmit(
 	const data = getAppData(interaction.user.id);
 
 	for (const field of section.fields) {
-		const value = interaction.fields.getTextInputValue(
-			field.customId,
-		);
+		const value = interaction.fields.getTextInputValue(field.customId);
 		if (value) {
 			data[field.customId] = value;
 		}
@@ -301,70 +235,45 @@ export async function handleModalSubmit(
 
 	const nextSection = getNextSection(sectionKey);
 	if (nextSection) {
-		const embed = createSectionEmbed(
-			nextSection,
-			getSectionIndex(nextSection.key),
+		const embed = createSectionEmbed(nextSection, getSectionIndex(nextSection.key));
+
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`verify:prev_section:${nextSection.key}`)
+				.setLabel("← Previous")
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId(`verify:next_section:${nextSection.key}`)
+				.setLabel("Fill Section")
+				.setStyle(ButtonStyle.Primary),
 		);
 
-		const row =
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId(
-						`verify:prev_section:${nextSection.key}`,
-					)
-					.setLabel("← Previous")
-					.setStyle(ButtonStyle.Secondary),
-				new ButtonBuilder()
-					.setCustomId(
-						`verify:next_section:${nextSection.key}`,
-					)
-					.setLabel("Fill Section")
-					.setStyle(ButtonStyle.Primary),
-			);
-
-		await interaction.reply({
-			embeds: [embed],
-			components: [row],
-			ephemeral: true,
-		});
+		await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
 	} else {
-		const row =
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId("verify:prev_section:links")
-					.setLabel("← Previous")
-					.setStyle(ButtonStyle.Secondary),
-				new ButtonBuilder()
-					.setCustomId("verify:submit")
-					.setLabel("Submit Application")
-					.setStyle(ButtonStyle.Success),
-			);
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId("verify:prev_section:links")
+				.setLabel("← Previous")
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId("verify:submit")
+				.setLabel("Submit Application")
+				.setStyle(ButtonStyle.Success),
+		);
 
 		await interaction.reply({
-			content:
-				"You've completed all sections! Review and submit your application.",
+			content: "You've completed all sections! Review and submit your application.",
 			components: [row],
 			ephemeral: true,
 		});
 	}
 }
 
-async function handleSubmit(
-	interaction: ButtonInteraction,
-): Promise<void> {
+async function handleSubmit(interaction: ButtonInteraction): Promise<void> {
 	const data = getAppData(interaction.user.id);
 
-	const requiredFields = [
-		"displayName",
-		"githubHandle",
-		"strongestProject",
-		"projectExplanation",
-		"techStack",
-		"experienceLevel",
-		"purposeOfJoining",
-		"selfIntroduction",
-		"referralSource",
-	];
+	const requiredFields = ["displayName", "githubHandle", "strongestProject", "projectExplanation",
+		"techStack", "experienceLevel", "purposeOfJoining", "selfIntroduction", "referralSource"];
 
 	const missing = requiredFields.filter((f) => !data[f]);
 	if (missing.length > 0) {
@@ -397,52 +306,30 @@ async function handleSubmit(
 	await interaction.deferReply({ ephemeral: true });
 
 	try {
-		const existingApp = await api.getApplicationByUser(
-			interaction.user.id,
-		);
+		const existingApp = await api.getApplicationByUser(interaction.user.id);
 		if (existingApp && existingApp.status === "DRAFTING") {
-			await api.updateApplication(
-				existingApp.id,
-				buildPayload(),
-			);
-			const submitted = await api.submitApplication(
-				existingApp.id,
-				interaction.user.id,
-			);
+			await api.updateApplication(existingApp.id, buildPayload());
+			const submitted = await api.submitApplication(existingApp.id, interaction.user.id);
 
-			await notifyAdmins(
-				interaction,
-				submitted,
-				interaction.client,
-			);
+			await notifyAdmins(interaction, submitted, interaction.client);
 			await interaction.editReply({
-				content:
-					"Your application has been submitted for review! An admin will review it shortly.",
+				content: "Your application has been submitted for review! An admin will review it shortly.",
 			});
 			return;
 		}
 
 		const app = await api.createApplication(buildPayload());
 
-		const submitted = await api.submitApplication(
-			app.id,
-			interaction.user.id,
-		);
+		const submitted = await api.submitApplication(app.id, interaction.user.id);
 
-		await notifyAdmins(
-			interaction,
-			submitted,
-			interaction.client,
-		);
+		await notifyAdmins(interaction, submitted, interaction.client);
 		await interaction.editReply({
-			content:
-				"Your application has been submitted for review! An admin will review it shortly.",
+			content: "Your application has been submitted for review! An admin will review it shortly.",
 		});
 	} catch (error) {
 		log.error("Submit failed:", error);
 		await interaction.editReply({
-			content:
-				"Something went wrong while submitting your application. Please try again later.",
+			content: "Something went wrong while submitting your application. Please try again later.",
 		});
 	}
 }
@@ -453,149 +340,80 @@ async function notifyAdmins(
 	client: Client,
 ): Promise<void> {
 	try {
-		const config = await api.getGuildConfig(
-			interaction.guildId!,
-		);
-		const guild = client.guilds.cache.get(
-			interaction.guildId!,
-		);
+		const config = await api.getGuildConfig(interaction.guildId!);
+		const guild = client.guilds.cache.get(interaction.guildId!);
 		if (!guild) return;
 
-		const reviewerRole = guild.roles.cache.get(
-			config.reviewerRoleId,
-		);
-		const mention = reviewerRole
-			? `<@&${config.reviewerRoleId}>`
-			: "@here";
+		const reviewerRole = guild.roles.cache.get(config.reviewerRoleId);
+		const mention = reviewerRole ? `<@&${config.reviewerRoleId}>` : "@here";
 
-		const channel = guild.channels.cache.get(
-			config.verificationChannelId,
-		) as TextChannel | undefined;
+		const channel = guild.channels.cache.get(config.verificationChannelId) as import("discord.js").TextChannel | undefined;
 		if (!channel) return;
+
+
 
 		const embed = new EmbedBuilder()
 			.setTitle("New Application Submitted")
-			.setDescription(
-				`**${application.displayName}** (${application.githubHandle})`,
-			)
+			.setDescription(`**${application.displayName}** (${application.githubHandle})`)
 			.addFields(
-				{
-					name: "Experience",
-					value: application.experienceLevel,
-					inline: true,
-				},
-				{
-					name: "Tech Stack",
-					value: application.techStack,
-					inline: true,
-				},
-				{
-					name: "Referral Source",
-					value: application.referralSource,
-					inline: true,
-				},
+				{ name: "Experience", value: application.experienceLevel, inline: true },
+				{ name: "Tech Stack", value: application.techStack, inline: true },
+				{ name: "Referral Source", value: application.referralSource, inline: true },
 			)
-			.setColor(0xfee75c)
-			.setFooter({
-				text: `Application ID: ${application.id}`,
-			})
+			.setColor(0xFEE75C)
+			.setFooter({ text: `Application ID: ${application.id}` })
 			.setTimestamp();
 
-		const row =
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId(`admin:inspect:${application.id}`)
-					.setLabel("Inspect Full Application")
-					.setStyle(ButtonStyle.Primary),
-			);
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`admin:inspect:${application.id}`)
+				.setLabel("Inspect Full Application")
+				.setStyle(ButtonStyle.Primary),
+		);
 
-		await channel.send({
-			content: `${mention} — New application to review!`,
-			embeds: [embed],
-			components: [row],
-		});
+		await channel.send({ content: `${mention} — New application to review!`, embeds: [embed], components: [row] });
 	} catch (error) {
 		log.error("Failed to notify admins:", error);
 	}
 }
 
-async function handleAdminInspect(
-	interaction: ButtonInteraction,
-): Promise<void> {
+async function handleAdminInspect(interaction: ButtonInteraction): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const applicationId = parts[2]!;
 
 	try {
-		const app =
-			await api.getApplicationDetail(applicationId);
+		const app = await api.getApplicationDetail(applicationId);
+
 
 		const embed = new EmbedBuilder()
 			.setTitle(`Application: ${app.displayName}`)
 			.setURL(`https://github.com/${app.githubHandle}`)
 			.addFields(
 				{ name: "Status", value: app.status, inline: true },
-				{
-					name: "Experience Level",
-					value: app.experienceLevel,
-					inline: true,
-				},
+				{ name: "Experience Level", value: app.experienceLevel, inline: true },
 				{ name: "Tech Stack", value: app.techStack },
-				{
-					name: "Strongest Project",
-					value: app.strongestProject,
-				},
-				{
-					name: "Project Explanation",
-					value: app.projectExplanation.substring(0, 1024),
-				},
-				{
-					name: "Purpose of Joining",
-					value: app.purposeOfJoining.substring(0, 1024),
-				},
-				{
-					name: "Self Introduction",
-					value: app.selfIntroduction.substring(0, 1024),
-				},
-				{
-					name: "Referral Source",
-					value: app.referralSource,
-					inline: true,
-				},
+				{ name: "Strongest Project", value: app.strongestProject },
+				{ name: "Project Explanation", value: app.projectExplanation.substring(0, 1024) },
+				{ name: "Purpose of Joining", value: app.purposeOfJoining.substring(0, 1024) },
+				{ name: "Self Introduction", value: app.selfIntroduction.substring(0, 1024) },
+				{ name: "Referral Source", value: app.referralSource, inline: true },
 			)
-			.setColor(0x5865f2);
+			.setColor(0x5865F2);
 
-		if (app.linkedInUrl)
-			embed.addFields({
-				name: "LinkedIn",
-				value: app.linkedInUrl,
-				inline: true,
-			});
-		if (app.portfolioUrl)
-			embed.addFields({
-				name: "Portfolio",
-				value: app.portfolioUrl,
-				inline: true,
-			});
+		if (app.linkedInUrl) embed.addFields({ name: "LinkedIn", value: app.linkedInUrl, inline: true });
+		if (app.portfolioUrl) embed.addFields({ name: "Portfolio", value: app.portfolioUrl, inline: true });
 
-		const row =
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId(`admin:claim:${applicationId}`)
-					.setLabel("Claim Review")
-					.setStyle(ButtonStyle.Primary),
-			);
+			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`admin:claim:${applicationId}`)
+				.setLabel("Claim Review")
+				.setStyle(ButtonStyle.Primary),
+		);
 
-		await interaction.reply({
-			embeds: [embed],
-			components: [row],
-			ephemeral: true,
-		});
+		await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
 	} catch (error) {
 		log.error("Failed to inspect application:", error);
-		await interaction.reply({
-			content: "Failed to load application details.",
-			ephemeral: true,
-		});
+		await interaction.reply({ content: "Failed to load application details.", ephemeral: true });
 	}
 }
 
@@ -609,83 +427,57 @@ async function handleAdminApprove(
 	await interaction.deferReply({ ephemeral: true });
 
 	try {
-		const app = await api.approveApplication(
-			applicationId,
-			interaction.user.id,
-		);
+		const app = await api.approveApplication(applicationId, interaction.user.id);
 		const config = await api.getGuildConfig(app.guildId);
 
 		const guild = client.guilds.cache.get(app.guildId);
 		if (guild) {
 			const userDiscordId = app.discordUserId;
 			if (userDiscordId) {
-				const member =
-					guild.members.cache.get(userDiscordId);
+				const member = guild.members.cache.get(userDiscordId);
 				if (member) {
-					await member.roles.remove(
-						config.unverifiedRoleId,
-					);
+					await member.roles.remove(config.unverifiedRoleId);
 					await member.roles.add(config.verifiedRoleId);
 
 					const dmChannel = await member.createDM();
 					await dmChannel.send({
-						content:
-							"🎉 Congratulations! Your application has been approved. Welcome to Jordan Devs!",
+						content: "🎉 Congratulations! Your application has been approved. Welcome to Jordan Devs!",
 					});
 				}
 			}
 		}
 
-		await interaction.editReply({
-			content: "Application approved and roles granted.",
-		});
+		await interaction.editReply({ content: "Application approved and roles granted." });
 
 		if (interaction.message) {
+	
 			const updatedEmbed = new EmbedBuilder()
 				.setTitle("Application Approved")
-				.setDescription(
-					`✅ **${app.displayName}** was approved by <@${interaction.user.id}>`,
-				)
-				.setColor(0x57f287);
-			await interaction.message.edit({
-				embeds: [updatedEmbed],
-				components: [],
-			});
+				.setDescription(`✅ **${app.displayName}** was approved by <@${interaction.user.id}>`)
+				.setColor(0x57F287);
+			await interaction.message.edit({ embeds: [updatedEmbed], components: [] });
 		}
 	} catch (error) {
 		log.error("Failed to approve application:", error);
-		await interaction.editReply({
-			content: "Failed to approve application.",
-		});
+		await interaction.editReply({ content: "Failed to approve application." });
 	}
 }
 
-async function handleRejectConfirm(
-	interaction: ModalSubmitInteraction,
-): Promise<void> {
+async function handleRejectConfirm(interaction: ModalSubmitInteraction): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const applicationId = parts[1]!;
-	const reason = interaction.fields.getTextInputValue(
-		"rejectionReason",
-	);
+	const reason = interaction.fields.getTextInputValue("rejectionReason");
 
 	await interaction.deferReply({ ephemeral: true });
 
 	try {
-		const app = await api.rejectApplication(
-			applicationId,
-			interaction.user.id,
-			reason,
-		);
+		const app = await api.rejectApplication(applicationId, interaction.user.id, reason);
 
-		const guild = interaction.client.guilds.cache.get(
-			app.guildId,
-		);
+		const guild = interaction.client.guilds.cache.get(app.guildId);
 		if (guild) {
 			const userDiscordId = app.discordUserId;
 			if (userDiscordId) {
-				const member =
-					guild.members.cache.get(userDiscordId);
+				const member = guild.members.cache.get(userDiscordId);
 				if (member) {
 					const dmChannel = await member.createDM();
 					await dmChannel.send({
@@ -695,35 +487,24 @@ async function handleRejectConfirm(
 			}
 		}
 
-		await interaction.editReply({
-			content:
-				"Application rejected. The user has been notified.",
-		});
+		await interaction.editReply({ content: "Application rejected. The user has been notified." });
 
 		if (interaction.message) {
+	
 			const updatedEmbed = new EmbedBuilder()
 				.setTitle("Application Rejected")
-				.setDescription(
-					`❌ **${app.displayName}** was rejected by <@${interaction.user.id}>`,
-				)
+				.setDescription(`❌ **${app.displayName}** was rejected by <@${interaction.user.id}>`)
 				.addFields({ name: "Reason", value: reason })
-				.setColor(0xed4245);
-			await interaction.message.edit({
-				embeds: [updatedEmbed],
-				components: [],
-			});
+				.setColor(0xED4245);
+			await interaction.message.edit({ embeds: [updatedEmbed], components: [] });
 		}
 	} catch (error) {
 		log.error("Failed to reject application:", error);
-		await interaction.editReply({
-			content: "Failed to reject application.",
-		});
+		await interaction.editReply({ content: "Failed to reject application." });
 	}
 }
 
-async function handleAdminRejectStart(
-	interaction: ButtonInteraction,
-): Promise<void> {
+async function handleAdminRejectStart(interaction: ButtonInteraction): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const applicationId = parts[2]!;
 	const modal = new ModalBuilder()
@@ -735,15 +516,11 @@ async function handleAdminRejectStart(
 		.setLabel("Rejection Reason")
 		.setStyle(TextInputStyle.Paragraph)
 		.setRequired(true)
-		.setPlaceholder(
-			"Explain why the application was rejected and what the user can improve",
-		)
+		.setPlaceholder("Explain why the application was rejected and what the user can improve")
 		.setMaxLength(1000);
 
 	modal.addComponents(
-		new ActionRowBuilder<TextInputBuilder>().addComponents(
-			reasonInput,
-		),
+		new ActionRowBuilder<TextInputBuilder>().addComponents(reasonInput),
 	);
 
 	await interaction.showModal(modal);
@@ -751,7 +528,7 @@ async function handleAdminRejectStart(
 
 async function handleAdminClaim(
 	interaction: ButtonInteraction,
-	_client: Client,
+	client: Client,
 ): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const applicationId = parts[2]!;
@@ -759,21 +536,17 @@ async function handleAdminClaim(
 	await interaction.deferReply({ ephemeral: true });
 
 	try {
-		const app = await api.claimReview(
-			applicationId,
-			interaction.user.id,
+		const app = await api.claimReview(applicationId, interaction.user.id);
+			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`admin:approve:${applicationId}`)
+				.setLabel("Approve")
+				.setStyle(ButtonStyle.Success),
+			new ButtonBuilder()
+				.setCustomId(`admin:reject:${applicationId}`)
+				.setLabel("Reject")
+				.setStyle(ButtonStyle.Danger),
 		);
-		const row =
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId(`admin:approve:${applicationId}`)
-					.setLabel("Approve")
-					.setStyle(ButtonStyle.Success),
-				new ButtonBuilder()
-					.setCustomId(`admin:reject:${applicationId}`)
-					.setLabel("Reject")
-					.setStyle(ButtonStyle.Danger),
-			);
 
 		await interaction.editReply({
 			content: `You claimed review of **${app.displayName}**'s application.`,
@@ -781,9 +554,7 @@ async function handleAdminClaim(
 		});
 	} catch (error) {
 		log.error("Failed to claim application:", error);
-		await interaction.editReply({
-			content: "Failed to claim application.",
-		});
+		await interaction.editReply({ content: "Failed to claim application." });
 	}
 }
 

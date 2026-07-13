@@ -1,4 +1,4 @@
-import { shellOutput, subcommand } from "#ChatCommands";
+import { shellOutput,subcommand } from "#ChatCommands";
 
 import {
 	ensureCanModerateMember,
