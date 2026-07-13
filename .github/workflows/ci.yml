@@ -1,59 +1,51 @@
 name: CI
-
 on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
-
 # Cancel superseded runs on the same branch/PR to save minutes
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 env:
   PNPM_VERSION: '10'
-
 jobs:
   lint:
     name: Lint & format check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       - name: Setup Node 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Lint
         run: pnpm lint
-
       - name: Format check
         run: pnpm format:check
-
-      # --- VALE PROSE LINTER ADDITION ---
+      # --- VALE PROSE LINTER ---
+      # NOTE: errata-ai/vale-action is unmaintained; the project moved to
+      # vale-cli/vale-action. You should migrate:
+      #   - uses: vale-cli/vale-action@v2.1.1
+      # and run: pnpm add -D vale-cli/vale-action or update accordingly.
+      # The SHA below pins the last known errata-ai release (v2.0.0).
+      # Strongly recommended to migrate before errata-ai goes fully stale.
       - name: Run Vale Prose Linter
-        uses: errata-ai/vale-action@v2
+        uses: errata-ai/vale-action@b91aa39b9f04fbb55dabb8cede17aaa7b4040f7d # v2.0.0
         with:
-          # Points to your root config; checks files automatically
           config: .vale.ini
-          # Only report issues found inside a specific directory (e.g., docs/ or README.md)
-          # If your files live elsewhere, adjust the files parameter accordingly.
           files: |
             README.md
             docs/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   test:
     name: Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
@@ -63,28 +55,22 @@ jobs:
         node-version: ['20', '22']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Build
         run: pnpm build
-
       # Runs `test` in every workspace package that defines one
       # (apps/web via Vitest, bot tests via tsx), skips the rest.
       - name: Test
         run: pnpm -r --if-present run test
-
   ci-success:
     name: CI success
     needs: [lint, test]
