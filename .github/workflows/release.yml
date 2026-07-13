@@ -1,65 +1,53 @@
 name: Cut and Sign Release
-
 on:
   push:
     tags:
       - 'v*'
-
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # Required to create the GitHub Release and upload assets
-      id-token: write    # Required for Cosign keyless identity federation
-
+      contents: write
+      id-token: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      # --- Setup Node.js & pnpm Environment ---
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
         with:
           version: 10.25.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-line: '22' # Adjust to match your preferred Node version
+          node-version: '22'
           cache: 'pnpm'
 
-      # --- Install Dependencies and Build Workspace ---
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Run Monorepo Build
         run: pnpm run build
 
-      # --- Package the Release Artifact ---
       - name: Prepare Release Artifact
         run: |
           mkdir -p dist
-          # Compress the production build bundles across apps and packages
           tar -czf dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz apps packages
 
-      # --- Setup Cosign and Sign Artifact ---
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.5.0
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # v3.5.0
 
       - name: Sign Release Artifact
         run: |
           cosign sign-blob --yes \
-            --output-signature dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz.sig \
-            --output-certificate dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz.pem \
+            --bundle dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz.sigstore.json \
             dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz
 
-      # --- Create Release and Upload Assets ---
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz
-            dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz.sig
-            dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz.pem
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            dist/jordan-devs-platform-${{ github.ref_name }}.tar.gz.sigstore.json
