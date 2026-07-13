@@ -2,10 +2,19 @@ import { existsSync, readFileSync } from "node:fs";
 
 import { parse as parseDotenv } from "dotenv";
 
-import { autoSync, syncConfigWithSchema } from "./auto-sync.js";
-import { envToNestedObject, syncEnvFile } from "./dotenv-loader.js";
+import {
+	autoSync,
+	syncConfigWithSchema,
+} from "./auto-sync.js";
+import {
+	envToNestedObject,
+	syncEnvFile,
+} from "./dotenv-loader.js";
 import { compileSchema } from "./schema.js";
-import { yamlFileExists, loadYamlFile } from "./yaml-utils.js";
+import {
+	yamlFileExists,
+	loadYamlFile,
+} from "./yaml-utils.js";
 import type { CompiledSchema } from "./schema.js";
 
 export interface CreateConfigOptions {
@@ -22,7 +31,10 @@ export interface Config {
 	validate(): void;
 }
 
-function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+function deepMerge(
+	target: Record<string, unknown>,
+	source: Record<string, unknown>,
+): Record<string, unknown> {
 	const result: Record<string, unknown> = { ...target };
 	for (const [key, value] of Object.entries(source)) {
 		if (
@@ -44,17 +56,23 @@ function deepMerge(target: Record<string, unknown>, source: Record<string, unkno
 	return result;
 }
 
-function getNested(obj: Record<string, unknown>, path: string): unknown {
+function getNested(
+	obj: Record<string, unknown>,
+	path: string,
+): unknown {
 	const parts = path.split(".");
 	let current: unknown = obj;
 	for (const part of parts) {
-		if (typeof current !== "object" || current === null) return undefined;
+		if (typeof current !== "object" || current === null)
+			return undefined;
 		current = (current as Record<string, unknown>)[part];
 	}
 	return current;
 }
 
-export function createConfig(options: CreateConfigOptions): Config {
+export function createConfig(
+	options: CreateConfigOptions,
+): Config {
 	let compiledSchema: CompiledSchema | null = null;
 	let merged: Record<string, unknown> = {};
 	let validated = false;
@@ -64,21 +82,44 @@ export function createConfig(options: CreateConfigOptions): Config {
 		merged = { ...compiledSchema.defaults };
 	}
 
-	if (options.autoSyncEnabled && options.configPath && compiledSchema) {
-		merged = syncConfigWithSchema(options.configPath, compiledSchema.flatKeys);
-	} else if (options.configPath && yamlFileExists(options.configPath)) {
+	if (
+		options.autoSyncEnabled &&
+		options.configPath &&
+		compiledSchema
+	) {
+		merged = syncConfigWithSchema(
+			options.configPath,
+			compiledSchema.flatKeys,
+		);
+	} else if (
+		options.configPath &&
+		yamlFileExists(options.configPath)
+	) {
 		const configData = loadYamlFile(options.configPath);
 		merged = deepMerge(merged, configData);
 	}
 
-	if (options.autoSyncEnabled && options.envFilePath && compiledSchema) {
-		syncEnvFile(options.envFilePath, compiledSchema.flatKeys);
+	if (
+		options.autoSyncEnabled &&
+		options.envFilePath &&
+		compiledSchema
+	) {
+		syncEnvFile(
+			options.envFilePath,
+			compiledSchema.flatKeys,
+		);
 	}
 
 	const envObj: Record<string, string> = {};
 
-	if (options.envFilePath && existsSync(options.envFilePath)) {
-		const envContent = readFileSync(options.envFilePath, "utf-8");
+	if (
+		options.envFilePath &&
+		existsSync(options.envFilePath)
+	) {
+		const envContent = readFileSync(
+			options.envFilePath,
+			"utf-8",
+		);
 		const parsed = parseDotenv(envContent);
 		Object.assign(envObj, parsed);
 	}
@@ -123,12 +164,18 @@ export function createConfig(options: CreateConfigOptions): Config {
 		validate(): void {
 			if (validated) return;
 			if (!compiledSchema) return;
-			const result = compiledSchema.schema.safeParse(merged);
+			const result =
+				compiledSchema.schema.safeParse(merged);
 			if (!result.success) {
-			const issues = result.error.issues ?? [];
-			const lines = issues.map((e) => `  ${e.path.map(String).join(".")}: ${e.message}`);
-			throw new Error(`Config validation failed:\n${lines.join("\n")}`);
-		}
+				const issues = result.error.issues ?? [];
+				const lines = issues.map(
+					(e) =>
+						`  ${e.path.map(String).join(".")}: ${e.message}`,
+				);
+				throw new Error(
+					`Config validation failed:\n${lines.join("\n")}`,
+				);
+			}
 			merged = result.data as Record<string, unknown>;
 			validated = true;
 		},

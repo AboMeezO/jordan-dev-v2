@@ -8,9 +8,11 @@ import { ClerkAuthGuard } from "./clerk-auth.guard.js";
 
 @Global()
 @Module({
-	imports: [BackendConfigModule, forwardRef(() => UserModule)],
+	imports: [
+		BackendConfigModule,
+		forwardRef(() => UserModule),
+	],
 	providers: [AuthService, ClerkAuthGuard, BotAuthGuard],
 	exports: [AuthService, ClerkAuthGuard, BotAuthGuard],
 })
 export class AuthModule {}
-

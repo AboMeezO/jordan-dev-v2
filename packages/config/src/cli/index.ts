@@ -13,15 +13,19 @@ switch (command) {
 			configPath: args["--config-path"],
 			schemaPath: args["--schema-path"],
 			envExamplePath: args["--env-example-path"],
-			force: args["--force"] === "true" || args["-f"] === "true",
+			force:
+				args["--force"] === "true" || args["-f"] === "true",
 		});
 		break;
 	}
 	case "typegen": {
 		const args = parseArgs(process.argv.slice(3));
-		const schemaPath = args["--schema-path"] ?? args["_schema"];
+		const schemaPath =
+			args["--schema-path"] ?? args["_schema"];
 		if (!schemaPath) {
-			console.error("Usage: jd-config typegen --schema-path <path> [--output <path>]");
+			console.error(
+				"Usage: jd-config typegen --schema-path <path> [--output <path>]",
+			);
 			process.exit(1);
 		}
 		runTypegen({
@@ -49,7 +53,10 @@ function parseArgs(args: string[]): Record<string, string> {
 			} else {
 				result[arg] = "true";
 			}
-		} else if (arg.startsWith("-") && !arg.startsWith("--")) {
+		} else if (
+			arg.startsWith("-") &&
+			!arg.startsWith("--")
+		) {
 			const val = args[i + 1];
 			if (val && !val.startsWith("-")) {
 				result[arg] = val;

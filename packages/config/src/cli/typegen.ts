@@ -7,25 +7,45 @@ import type { SchemaField } from "../schema.js";
 
 function inferTypeName(type?: string): string {
 	switch (type) {
-		case "string": return "string";
-		case "number": return "number";
-		case "boolean": return "boolean";
-		case "array": return "unknown[]";
-		default: return "unknown";
+		case "string":
+			return "string";
+		case "number":
+			return "number";
+		case "boolean":
+			return "boolean";
+		case "array":
+			return "unknown[]";
+		default:
+			return "unknown";
 	}
 }
 
-function generateInterface(def: Record<string, unknown>, indent = "\t"): string {
+function generateInterface(
+	def: Record<string, unknown>,
+	indent = "\t",
+): string {
 	const lines: string[] = [];
 	for (const [key, value] of Object.entries(def)) {
 		if (isSchemaField(value)) {
 			const field = value as SchemaField;
 			const typeName = inferTypeName(field.type);
-			const optional = Boolean(field.optional || field.default !== undefined);
-			lines.push(`${indent}${key}${optional ? "?" : ""}: ${typeName};`);
-		} else if (typeof value === "object" && value !== null) {
+			const optional = Boolean(
+				field.optional || field.default !== undefined,
+			);
+			lines.push(
+				`${indent}${key}${optional ? "?" : ""}: ${typeName};`,
+			);
+		} else if (
+			typeof value === "object" &&
+			value !== null
+		) {
 			lines.push(`${indent}${key}: {`);
-			lines.push(generateInterface(value as Record<string, unknown>, `${indent}\t`));
+			lines.push(
+				generateInterface(
+					value as Record<string, unknown>,
+					`${indent}\t`,
+				),
+			);
 			lines.push(`${indent}};`);
 		}
 	}
@@ -40,7 +60,9 @@ export interface TypegenOptions {
 export function runTypegen(options: TypegenOptions): void {
 	const raw = loadYamlFile(options.schemaPath);
 
-	const outputPath = options.output ?? resolve(process.cwd(), "config.types.ts");
+	const outputPath =
+		options.output ??
+		resolve(process.cwd(), "config.types.ts");
 
 	const iface = generateInterface(raw);
 

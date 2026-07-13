@@ -1,7 +1,9 @@
 import { createRequire } from "node:module";
 
 import { CommandKit } from "commandkit";
-import type * as DiscordJs from "discord.js" with { "resolution-mode": "require" };
+import type * as DiscordJs from "discord.js" with {
+	"resolution-mode": "require",
+};
 import path from "path";
 
 import { migrateAuditSchema } from "#AuditLog";
@@ -10,9 +12,8 @@ import { Logger } from "#Logger";
 
 const log = new Logger("bot");
 const require = createRequire(import.meta.url);
-const { Client, GatewayIntentBits } = require(
-	"discord.js",
-) as typeof DiscordJs;
+const { Client, GatewayIntentBits } =
+	require("discord.js") as typeof DiscordJs;
 
 export class Bot {
 	private client: DiscordJs.Client;
@@ -38,7 +39,9 @@ export class Bot {
 
 		new CommandKit({
 			client: this.client,
-			commandsPath: path.resolve("src/Commands/SlashCommands"),
+			commandsPath: path.resolve(
+				"src/Commands/SlashCommands",
+			),
 			eventsPath: path.resolve("src/Events"),
 			devGuildIds: process.env.DEV_GUILD_ID
 				? [process.env.DEV_GUILD_ID]

@@ -30,11 +30,11 @@ A senior product designer's toolkit trained in Swiss typography, industrial desi
 
 Every screen has exactly **three layers of importance.** Not two, not five. Three.
 
-| Layer | What | How |
-|-------|------|-----|
-| **Primary** | The ONE thing the user sees first. A number, a headline, a state. | Doto or Space Grotesk at display size. `--text-display`. 48–96px breathing room. |
-| **Secondary** | Supporting context. Labels, descriptions, related data. | Space Grotesk at body/subheading. `--text-primary`. Grouped tight (8–16px) to the primary. |
-| **Tertiary** | Metadata, navigation, system info. Visible but never competing. | Space Mono at caption/label. `--text-secondary` or `--text-disabled`. ALL CAPS. Pushed to edges or bottom. |
+| Layer         | What                                                              | How                                                                                                        |
+| ------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Primary**   | The ONE thing the user sees first. A number, a headline, a state. | Doto or Space Grotesk at display size. `--text-display`. 48–96px breathing room.                           |
+| **Secondary** | Supporting context. Labels, descriptions, related data.           | Space Grotesk at body/subheading. `--text-primary`. Grouped tight (8–16px) to the primary.                 |
+| **Tertiary**  | Metadata, navigation, system info. Visible but never competing.   | Space Mono at caption/label. `--text-secondary` or `--text-disabled`. ALL CAPS. Pushed to edges or bottom. |
 
 **The test:** Squint at the screen. Can you still tell what's most important? If two things compete, one needs to shrink, fade, or move.
 
@@ -43,19 +43,20 @@ Every screen has exactly **three layers of importance.** Not two, not five. Thre
 ### 2.2 Font Discipline
 
 Per screen, use maximum:
+
 - **2 font families** (Space Grotesk + Space Mono. Doto only for hero moments.)
 - **3 font sizes** (one large, one medium, one small)
 - **2 font weights** (Regular + one other — usually Light or Medium, rarely Bold)
 
 Think of it as a budget. Every additional size/weight costs visual coherence. Before adding a new size, ask: can I create this distinction with spacing or color instead?
 
-| Decision | Size | Weight | Color |
-|----------|:---:|:---:|:---:|
-| Heading vs. body | Yes | No | No |
-| Label vs. value | No | No | Yes |
-| Active vs. inactive nav | No | No | Yes |
-| Hero number vs. unit | Yes | No | No |
-| Section title vs. content | Yes | Optional | No |
+| Decision                  | Size |  Weight  | Color |
+| ------------------------- | :--: | :------: | :---: |
+| Heading vs. body          | Yes  |    No    |  No   |
+| Label vs. value           |  No  |    No    |  Yes  |
+| Active vs. inactive nav   |  No  |    No    |  Yes  |
+| Hero number vs. unit      | Yes  |    No    |  No   |
+| Section title vs. content | Yes  | Optional |  No   |
 
 **Rule of thumb:** If reaching for a new font-size, it's probably a spacing problem. Add distance instead.
 
@@ -107,6 +108,7 @@ This single break IS the design. Without it: sterile grid. With more than one: v
 ### 2.7 Compositional Balance
 
 **Asymmetry > symmetry.** Centered layouts feel generic. Favor deliberately unbalanced composition:
+
 - **Large left, small right:** Hero metric + metadata stack.
 - **Top-heavy:** Big headline near top, sparse content below.
 - **Edge-anchored:** Important elements pinned to screen edges, negative space in center.
@@ -126,15 +128,15 @@ Balance heavy elements with more empty space, not with more heavy elements.
 
 When 3+ data sections appear on one screen, vary the visual form:
 
-| Form | Best for | Weight |
-|------|----------|--------|
-| Hero number (large Doto/Space Mono) | Single key metric | Heavy — use once |
-| Segmented progress bar | Progress toward goal | Medium |
-| Concentric rings / arcs | Multiple related percentages | Medium |
-| Inline compact bar | Secondary metrics in rows | Light |
-| Number-only with status color | Values without proportion | Lightest |
-| Sparkline | Trends over time | Medium |
-| Stat row (label + value) | Simple data points | Light |
+| Form                                | Best for                     | Weight           |
+| ----------------------------------- | ---------------------------- | ---------------- |
+| Hero number (large Doto/Space Mono) | Single key metric            | Heavy — use once |
+| Segmented progress bar              | Progress toward goal         | Medium           |
+| Concentric rings / arcs             | Multiple related percentages | Medium           |
+| Inline compact bar                  | Secondary metrics in rows    | Light            |
+| Number-only with status color       | Values without proportion    | Lightest         |
+| Sparkline                           | Trends over time             | Medium           |
+| Stat row (label + value)            | Simple data points           | Light            |
 
 Lead section → heaviest treatment. Secondary → different form. Tertiary → lightest. The FORM varies, the VOICE stays the same.
 

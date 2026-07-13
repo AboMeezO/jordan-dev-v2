@@ -42,7 +42,8 @@ export const SECTIONS: FormSection[] = [
 	{
 		key: "project",
 		title: "Your Strongest Project",
-		description: "Tell us about the project you're most proud of.",
+		description:
+			"Tell us about the project you're most proud of.",
 		fields: [
 			{
 				customId: "strongestProject",
@@ -73,7 +74,8 @@ export const SECTIONS: FormSection[] = [
 				label: "Your main tech stack",
 				style: "short",
 				required: true,
-				placeholder: "e.g. TypeScript, React, Node.js, PostgreSQL",
+				placeholder:
+					"e.g. TypeScript, React, Node.js, PostgreSQL",
 				maxLength: 500,
 			},
 			{
@@ -96,7 +98,8 @@ export const SECTIONS: FormSection[] = [
 				label: "What's your purpose of joining?",
 				style: "paragraph",
 				required: true,
-				placeholder: "What are you hoping to get out of this community?",
+				placeholder:
+					"What are you hoping to get out of this community?",
 				minLength: 10,
 				maxLength: 1000,
 			},
@@ -105,7 +108,8 @@ export const SECTIONS: FormSection[] = [
 				label: "Short self-introduction",
 				style: "paragraph",
 				required: true,
-				placeholder: "Tell us a bit about yourself as a developer",
+				placeholder:
+					"Tell us a bit about yourself as a developer",
 				minLength: 20,
 				maxLength: 2000,
 			},
@@ -114,14 +118,16 @@ export const SECTIONS: FormSection[] = [
 	{
 		key: "referral",
 		title: "How did you find us?",
-		description: "One last thing — how did you hear about the community?",
+		description:
+			"One last thing — how did you hear about the community?",
 		fields: [
 			{
 				customId: "referralSource",
 				label: "How did you hear about us?",
 				style: "short",
 				required: true,
-				placeholder: "reddit / friend_invite / web_search / github / other",
+				placeholder:
+					"reddit / friend_invite / web_search / github / other",
 				maxLength: 50,
 			},
 			{
@@ -137,7 +143,8 @@ export const SECTIONS: FormSection[] = [
 	{
 		key: "links",
 		title: "Optional Links",
-		description: "Any additional links you'd like to share?",
+		description:
+			"Any additional links you'd like to share?",
 		fields: [
 			{
 				customId: "linkedInUrl",
@@ -163,13 +170,18 @@ export function getSectionIndex(key: string): number {
 	return SECTIONS.findIndex((s) => s.key === key);
 }
 
-export function getNextSection(currentKey: string): FormSection | null {
+export function getNextSection(
+	currentKey: string,
+): FormSection | null {
 	const index = getSectionIndex(currentKey);
-	if (index === -1 || index >= SECTIONS.length - 1) return null;
+	if (index === -1 || index >= SECTIONS.length - 1)
+		return null;
 	return SECTIONS[index + 1] ?? null;
 }
 
-export function getPreviousSection(currentKey: string): FormSection | null {
+export function getPreviousSection(
+	currentKey: string,
+): FormSection | null {
 	const index = getSectionIndex(currentKey);
 	if (index <= 0) return null;
 	return SECTIONS[index - 1] ?? null;

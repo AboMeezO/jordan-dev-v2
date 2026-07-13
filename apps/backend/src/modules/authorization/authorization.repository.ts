@@ -1,4 +1,7 @@
-import { type Permission, permissionDescriptions } from "@jordan-devs/shared";
+import {
+	type Permission,
+	permissionDescriptions,
+} from "@jordan-devs/shared";
 import { Injectable } from "@nestjs/common";
 
 import {
@@ -54,10 +57,12 @@ export class AuthorizationRepository {
 					where: { id: permissionId },
 					create: {
 						id: permissionId,
-						description: permissionDescriptions[permissionId] ?? null,
+						description:
+							permissionDescriptions[permissionId] ?? null,
 					},
 					update: {
-						description: permissionDescriptions[permissionId] ?? null,
+						description:
+							permissionDescriptions[permissionId] ?? null,
 					},
 				}),
 			),
@@ -66,7 +71,9 @@ export class AuthorizationRepository {
 
 	async listPermissions(
 		client: DatabaseClient = this.database,
-	): Promise<readonly { id: string; description: string | null }[]> {
+	): Promise<
+		readonly { id: string; description: string | null }[]
+	> {
 		return client.permission.findMany({
 			orderBy: { id: "asc" },
 			select: { id: true, description: true },

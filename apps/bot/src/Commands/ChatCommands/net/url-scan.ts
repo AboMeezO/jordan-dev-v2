@@ -34,7 +34,8 @@ export const urlScanCommand = subcommand({
 		examples: [
 			{
 				command: "url-scan https://example.com",
-				description: "Check URL safety with available scanners.",
+				description:
+					"Check URL safety with available scanners.",
 			},
 		],
 	},
@@ -63,26 +64,31 @@ export const urlScanCommand = subcommand({
 			return;
 		}
 
-		const isVtConfigured = !!botConfig.scanning.virustotalApiKey;
+		const isVtConfigured =
+			!!botConfig.scanning.virustotalApiKey;
 
 		const result = await scanUrl(url);
 
 		const lines: string[] = [
-			isVtConfigured && "privacy=URL was sent to VirusTotal for analysis",
+			isVtConfigured &&
+				"privacy=URL was sent to VirusTotal for analysis",
 			`url=${url}`,
 			`scanner=${result.scanner}`,
 			`safe=${result.safe}`,
 			`cached=${result.cached}`,
 		].filter(Boolean) as string[];
 
-		if (result.positives !== undefined && result.total !== undefined) {
-			lines.push(`virustotal_positives=${result.positives}/${result.total}`);
+		if (
+			result.positives !== undefined &&
+			result.total !== undefined
+		) {
+			lines.push(
+				`virustotal_positives=${result.positives}/${result.total}`,
+			);
 		}
 
 		lines.push(...result.scanDetails);
 
-		await message.reply(
-			safeInline(lines.join("\n"), 1900),
-		);
+		await message.reply(safeInline(lines.join("\n"), 1900));
 	},
 });

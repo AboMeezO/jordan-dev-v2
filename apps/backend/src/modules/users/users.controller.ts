@@ -19,7 +19,12 @@ import { UserService } from "./user.service.js";
 
 const listQuerySchema = z.object({
 	page: z.coerce.number().int().positive().default(1),
-	limit: z.coerce.number().int().positive().max(100).default(20),
+	limit: z.coerce
+		.number()
+		.int()
+		.positive()
+		.max(100)
+		.default(20),
 	search: z.string().optional(),
 	roleId: z.string().optional(),
 });
@@ -48,7 +53,10 @@ export class UsersController {
 
 	@Patch(":id")
 	@RequirePermissions(permissions.userUpdate)
-	async update(@Param("id") id: string, @Body() dto: unknown) {
+	async update(
+		@Param("id") id: string,
+		@Body() dto: unknown,
+	) {
 		const data = updateUserSchema.parse(dto);
 		return this.users.update(id, {
 			displayName: data.displayName ?? undefined,
@@ -58,7 +66,10 @@ export class UsersController {
 
 	@Put(":id/roles")
 	@RequirePermissions(permissions.userUpdate)
-	async assignRoles(@Param("id") id: string, @Body() dto: unknown) {
+	async assignRoles(
+		@Param("id") id: string,
+		@Body() dto: unknown,
+	) {
 		const { roleIds } = userRoleAssignmentSchema.parse(dto);
 		return this.users.assignRoles(id, roleIds);
 	}

@@ -2,9 +2,15 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import type { Message } from "discord.js";
 import { AiContext } from "./context.js";
 
-const worker = new AsyncLocalStorage<{ message: Message; ctx: AiContext }>();
+const worker = new AsyncLocalStorage<{
+	message: Message;
+	ctx: AiContext;
+}>();
 
-export function getAiWorkerContext(): { message: Message; ctx: AiContext } {
+export function getAiWorkerContext(): {
+	message: Message;
+	ctx: AiContext;
+} {
 	const ctx = worker.getStore();
 
 	if (!ctx) {

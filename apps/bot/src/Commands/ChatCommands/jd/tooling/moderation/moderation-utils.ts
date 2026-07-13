@@ -7,8 +7,7 @@ import {
 } from "discord.js";
 
 import type { ChatCommandContext } from "#ChatCommands";
-
-import { formatMs, shellOutput } from "#ChatCommands";
+import { shellOutput } from "#ChatCommands";
 
 const DISCORD_ID_PATTERN = /^\d{17,20}$/;
 const MENTION_PATTERN = /^<@!?(\d{17,20})>$/;

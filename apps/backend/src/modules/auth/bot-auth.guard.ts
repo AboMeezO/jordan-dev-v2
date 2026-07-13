@@ -10,14 +10,18 @@ import { BackendConfigService } from "../../config/app.config.js";
 
 @Injectable()
 export class BotAuthGuard implements CanActivate {
-	public constructor(private readonly config: BackendConfigService) {}
+	public constructor(
+		private readonly config: BackendConfigService,
+	) {}
 
-	public async canActivate(context: ExecutionContext): Promise<boolean> {
+	public canActivate(context: ExecutionContext): boolean {
 		const request = context
 			.switchToHttp()
 			.getRequest<BotAuthenticatedRequest>();
 
-		const token = this.extractBotToken(request.headers.authorization);
+		const token = this.extractBotToken(
+			request.headers.authorization,
+		);
 
 		if (token === undefined) {
 			throw new UnauthorizedException("Missing Bot token.");

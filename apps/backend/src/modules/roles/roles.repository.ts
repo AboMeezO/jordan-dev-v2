@@ -5,13 +5,17 @@ import {
 	type DatabaseTransactionClient,
 } from "../../database/database.service.js";
 
-type DatabaseClient = DatabaseService | DatabaseTransactionClient;
+type DatabaseClient =
+	| DatabaseService
+	| DatabaseTransactionClient;
 
 @Injectable()
 export class RolesRepository {
 	constructor(private readonly database: DatabaseService) {}
 
-	async findAllWithCount(client: DatabaseClient = this.database) {
+	async findAllWithCount(
+		client: DatabaseClient = this.database,
+	) {
 		const roles = await client.role.findMany({
 			orderBy: { name: "asc" },
 			select: {
@@ -34,7 +38,10 @@ export class RolesRepository {
 		}));
 	}
 
-	async findByIdWithPermissions(id: string, client: DatabaseClient = this.database) {
+	async findByIdWithPermissions(
+		id: string,
+		client: DatabaseClient = this.database,
+	) {
 		const role = await client.role.findUnique({
 			where: { id },
 			select: {
@@ -64,7 +71,9 @@ export class RolesRepository {
 			description: role.description,
 			createdAt: role.createdAt.toISOString(),
 			updatedAt: role.updatedAt.toISOString(),
-			permissions: role.permissions.map((rp) => rp.permissionId),
+			permissions: role.permissions.map(
+				(rp) => rp.permissionId,
+			),
 			userCount: role._count.users,
 		};
 	}
@@ -85,7 +94,10 @@ export class RolesRepository {
 
 	async update(
 		id: string,
-		data: { name: string | undefined; description: string | null | undefined },
+		data: {
+			name: string | undefined;
+			description: string | null | undefined;
+		},
 		client: DatabaseClient = this.database,
 	) {
 		const updateData: Record<string, unknown> = {};
@@ -101,13 +113,21 @@ export class RolesRepository {
 		});
 	}
 
-	async delete(id: string, client: DatabaseClient = this.database) {
+	async delete(
+		id: string,
+		client: DatabaseClient = this.database,
+	) {
 		await client.role.delete({ where: { id } });
 	}
 
-	async setPermissions(roleId: string, permissionIds: readonly string[]) {
+	async setPermissions(
+		roleId: string,
+		permissionIds: readonly string[],
+	) {
 		return this.database.transaction(async (tx) => {
-			await tx.rolePermission.deleteMany({ where: { roleId } });
+			await tx.rolePermission.deleteMany({
+				where: { roleId },
+			});
 
 			if (permissionIds.length > 0) {
 				await tx.rolePermission.createMany({
@@ -139,7 +159,9 @@ export class RolesRepository {
 				description: role!.description,
 				createdAt: role!.createdAt.toISOString(),
 				updatedAt: role!.updatedAt.toISOString(),
-				permissions: role!.permissions.map((rp) => rp.permissionId),
+				permissions: role!.permissions.map(
+					(rp) => rp.permissionId,
+				),
 				userCount: role!._count.users,
 			};
 		});

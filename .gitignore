@@ -35,7 +35,7 @@ Thumbs.db
 .temp/
 
 # Local deployment tooling
-tools/
+/tools/
 
 # But allow the bot's chat command tools directory
 !apps/bot/src/ChatCommands/commands/tools/

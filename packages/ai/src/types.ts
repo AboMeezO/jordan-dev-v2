@@ -3,8 +3,11 @@ import type { Message } from "discord.js";
 import type { z } from "zod";
 import type { z as z3 } from "zod/v3";
 import type { AiContext } from "./context.js";
+export type { AiContext } from "./context.js";
 
-export type AIGenerateResult = Awaited<ReturnType<typeof generateText>>;
+export type AIGenerateResult = Awaited<
+	ReturnType<typeof generateText>
+>;
 
 export type SelectAiModel = (
 	ctx: AiContext,
@@ -59,9 +62,14 @@ export interface ConfigureAI {
 	) => Promise<void>;
 }
 
-export type AiMessage = Parameters<typeof generateText>[0]["messages"] & {};
+export type AiMessage = Parameters<
+	typeof generateText
+>[0]["messages"] & {};
 
-export type ToolParameterType = z.ZodType | z3.ZodType | Schema<any>;
+export type ToolParameterType =
+	| z.ZodType
+	| z3.ZodType
+	| Schema<any>;
 
 export type InferParameters<T extends ToolParameterType> =
 	T extends Schema<any>
@@ -72,14 +80,20 @@ export type InferParameters<T extends ToolParameterType> =
 				? z3.infer<T>
 				: never;
 
-export interface CreateToolOptions<T extends ToolParameterType, R = unknown> {
+export interface CreateToolOptions<
+	T extends ToolParameterType,
+	R = unknown,
+> {
 	name: string;
 	description: string;
 	inputSchema: T;
 	execute: ToolExecuteFunction<T, R>;
 }
 
-export type ToolExecuteFunction<T extends ToolParameterType, R> = (
+export type ToolExecuteFunction<
+	T extends ToolParameterType,
+	R,
+> = (
 	ctx: AiContext,
 	input: InferParameters<T>,
 ) => R | Promise<R>;

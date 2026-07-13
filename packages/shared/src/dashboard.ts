@@ -24,14 +24,15 @@ export const dashboardRecentUserSchema = z.object({
 	createdAt: z.string().datetime(),
 });
 
-export const dashboardRecentVerificationEventSchema = z.object({
-	id: z.string().min(1),
-	type: z.string().min(1),
-	status: z.string().min(1),
-	message: z.string().nullable(),
-	createdAt: z.string().datetime(),
-	user: dashboardRecentUserSchema.nullable(),
-});
+export const dashboardRecentVerificationEventSchema =
+	z.object({
+		id: z.string().min(1),
+		type: z.string().min(1),
+		status: z.string().min(1),
+		message: z.string().nullable(),
+		createdAt: z.string().datetime(),
+		user: dashboardRecentUserSchema.nullable(),
+	});
 
 export const dashboardOverviewSchema = z.object({
 	stats: z.object({
@@ -42,10 +43,14 @@ export const dashboardOverviewSchema = z.object({
 		unverifiedUsers: z.number().int().nonnegative(),
 		pendingRoleGrants: z.number().int().nonnegative(),
 	}),
-	verificationStatusCounts: z.array(dashboardStatusCountSchema),
+	verificationStatusCounts: z.array(
+		dashboardStatusCountSchema,
+	),
 	usersByRole: z.array(dashboardRoleCountSchema),
 	recentUsers: z.array(dashboardRecentUserSchema),
-	recentVerificationEvents: z.array(dashboardRecentVerificationEventSchema),
+	recentVerificationEvents: z.array(
+		dashboardRecentVerificationEventSchema,
+	),
 	system: z.object({
 		databaseReady: z.boolean(),
 		generatedAt: z.string().datetime(),
@@ -57,7 +62,9 @@ export const dashboardOverviewResponseSchema = z.object({
 	data: dashboardOverviewSchema,
 });
 
-export type DashboardOverview = z.infer<typeof dashboardOverviewSchema>;
+export type DashboardOverview = z.infer<
+	typeof dashboardOverviewSchema
+>;
 export type DashboardOverviewResponse = z.infer<
 	typeof dashboardOverviewResponseSchema
 >;

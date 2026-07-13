@@ -1,5 +1,11 @@
-import { createClerkClient, verifyToken } from "@clerk/backend";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+	createClerkClient,
+	verifyToken,
+} from "@clerk/backend";
+import {
+	Injectable,
+	UnauthorizedException,
+} from "@nestjs/common";
 
 import type { AuthenticatedUser } from "../../common/types/authenticated-request.js";
 import { BackendConfigService } from "../../config/app.config.js";
@@ -24,7 +30,9 @@ type ClerkProfile = {
 
 @Injectable()
 export class AuthService {
-	private readonly clerkClient: ReturnType<typeof createClerkClient>;
+	private readonly clerkClient: ReturnType<
+		typeof createClerkClient
+	>;
 
 	constructor(
 		private readonly config: BackendConfigService,
@@ -35,7 +43,9 @@ export class AuthService {
 		});
 	}
 
-	extractBearerToken(authorization: string | undefined): string | undefined {
+	extractBearerToken(
+		authorization: string | undefined,
+	): string | undefined {
 		const [scheme, token] = authorization?.split(" ") ?? [];
 
 		if (
@@ -49,10 +59,13 @@ export class AuthService {
 		return token;
 	}
 
-	async authenticateBearerToken(token: string): Promise<AuthenticatedUser> {
+	async authenticateBearerToken(
+		token: string,
+	): Promise<AuthenticatedUser> {
 		const claims = await this.verifyClerkToken(token);
 		const identity = await this.toClerkIdentity(claims);
-		const user = await this.users.upsertFromClerkIdentity(identity);
+		const user =
+			await this.users.upsertFromClerkIdentity(identity);
 
 		return {
 			clerkUserId: identity.clerkUserId,
@@ -63,10 +76,13 @@ export class AuthService {
 		};
 	}
 
-	private async verifyClerkToken(token: string): Promise<ClerkClaims> {
+	private async verifyClerkToken(
+		token: string,
+	): Promise<ClerkClaims> {
 		try {
 			return await verifyToken(token, {
-				authorizedParties: this.config.clerkAuthorizedParties,
+				authorizedParties:
+					this.config.clerkAuthorizedParties,
 				jwtKey: this.config.clerkJwtKey,
 				secretKey: this.config.clerkSecretKey,
 			});
@@ -80,7 +96,10 @@ export class AuthService {
 	private async toClerkIdentity(
 		claims: ClerkClaims,
 	): Promise<ClerkUserIdentity> {
-		if (typeof claims.sub !== "string" || claims.sub.length === 0) {
+		if (
+			typeof claims.sub !== "string" ||
+			claims.sub.length === 0
+		) {
 			throw new UnauthorizedException(
 				"Clerk token did not include a user subject.",
 			);
@@ -88,12 +107,23 @@ export class AuthService {
 
 		const identity: ClerkUserIdentity = {
 			clerkUserId: claims.sub,
-			email: firstString(claims.email, claims.email_address),
-			displayName: firstString(claims.name, claims.full_name),
-			avatarUrl: firstString(claims.image_url, claims.picture),
+			email: firstString(
+				claims.email,
+				claims.email_address,
+			),
+			displayName: firstString(
+				claims.name,
+				claims.full_name,
+			),
+			avatarUrl: firstString(
+				claims.image_url,
+				claims.picture,
+			),
 		};
 
-		const fetched = await this.fetchClerkProfile(identity.clerkUserId);
+		const fetched = await this.fetchClerkProfile(
+			identity.clerkUserId,
+		);
 
 		if (fetched !== null) {
 			if (identity.email === null) {
@@ -133,7 +163,9 @@ export class AuthService {
 	}
 }
 
-function firstString(...values: readonly unknown[]): string | null {
+function firstString(
+	...values: readonly unknown[]
+): string | null {
 	for (const value of values) {
 		if (typeof value === "string" && value.length > 0) {
 			return value;
@@ -142,4 +174,3 @@ function firstString(...values: readonly unknown[]): string | null {
 
 	return null;
 }
-

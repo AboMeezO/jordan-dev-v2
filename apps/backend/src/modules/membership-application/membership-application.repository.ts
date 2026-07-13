@@ -1,12 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import type { $Enums, ApplicationStatus, MembershipApplication } from "@prisma/client";
+import type {
+	$Enums,
+	ApplicationStatus,
+	MembershipApplication,
+} from "@prisma/client";
 
 import {
 	DatabaseService,
 	type DatabaseTransactionClient,
 } from "../../database/database.service.js";
 
-type DatabaseClient = DatabaseService | DatabaseTransactionClient;
+type DatabaseClient =
+	| DatabaseService
+	| DatabaseTransactionClient;
 
 export type ApplicationCreateInput = {
 	userId: string;
@@ -27,7 +33,9 @@ export type ApplicationCreateInput = {
 
 @Injectable()
 export class MembershipApplicationRepository {
-	public constructor(private readonly database: DatabaseService) {}
+	public constructor(
+		private readonly database: DatabaseService,
+	) {}
 
 	public async create(
 		input: ApplicationCreateInput,
@@ -43,12 +51,14 @@ export class MembershipApplicationRepository {
 				strongestProject: input.strongestProject,
 				projectExplanation: input.projectExplanation,
 				techStack: input.techStack,
-				experienceLevel: input.experienceLevel as $Enums.ExperienceLevel,
+				experienceLevel:
+					input.experienceLevel as $Enums.ExperienceLevel,
 				purposeOfJoining: input.purposeOfJoining,
 				selfIntroduction: input.selfIntroduction,
 				linkedInUrl: input.linkedInUrl ?? null,
 				portfolioUrl: input.portfolioUrl ?? null,
-				referralSource: input.referralSource as $Enums.ReferralSource,
+				referralSource:
+					input.referralSource as $Enums.ReferralSource,
 				referralOtherText: input.referralOtherText ?? null,
 			},
 		});

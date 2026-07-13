@@ -1,13 +1,19 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
-
 import type { GuildConfig } from "@jordan-devs/shared";
 import { permissions } from "@jordan-devs/shared";
+import {
+	Body,
+	Controller,
+	Get,
+	Param,
+	Post,
+	UseGuards,
+} from "@nestjs/common";
 
 import { RequirePermissions } from "../../common/decorators/require-permissions.decorator.js";
 import { ZodValidationPipe } from "../../common/validation/zod-validation.pipe.js";
 import { BotAuthGuard } from "../auth/bot-auth.guard.js";
-import { GuildConfigService } from "./guild-config.service.js";
 import { guildConfigUpsertSchema } from "./guild-config.schema.js";
+import { GuildConfigService } from "./guild-config.service.js";
 
 @Controller("guild-configs")
 export class GuildConfigController {

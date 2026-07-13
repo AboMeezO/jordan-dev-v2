@@ -1,7 +1,10 @@
 import { Bot } from "./src/app.js";
 
 process.on("unhandledRejection", (reason) => {
-	console.error("[FATAL] Unhandled promise rejection:", reason);
+	console.error(
+		"[FATAL] Unhandled promise rejection:",
+		reason,
+	);
 });
 
 process.on("uncaughtException", (error) => {
@@ -11,7 +14,9 @@ process.on("uncaughtException", (error) => {
 import { botConfig } from "#Config";
 
 if (!botConfig.discord.token) {
-	console.error("FATAL: DISCORD.TOKEN environment variable is required.");
+	console.error(
+		"FATAL: DISCORD.TOKEN environment variable is required.",
+	);
 	process.exit(1);
 }
 

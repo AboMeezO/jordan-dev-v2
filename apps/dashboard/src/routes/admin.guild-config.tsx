@@ -103,15 +103,27 @@ function AdminGuildConfigPage() {
           <div className="nd-panel max-w-lg space-y-4 p-4">
             <div className="grid grid-cols-[180px_1fr] gap-2 font-mono text-xs">
               <span className="text-(--nd-text-muted)">Guild ID</span>
-              <span className="text-(--nd-text-primary)">{guildConfigQuery.data.guildId}</span>
+              <span className="text-(--nd-text-primary)">
+                {guildConfigQuery.data.guildId}
+              </span>
               <span className="text-(--nd-text-muted)">Unverified Role</span>
-              <span className="text-(--nd-text-primary)">{guildConfigQuery.data.unverifiedRoleId}</span>
+              <span className="text-(--nd-text-primary)">
+                {guildConfigQuery.data.unverifiedRoleId}
+              </span>
               <span className="text-(--nd-text-muted)">Verified Role</span>
-              <span className="text-(--nd-text-primary)">{guildConfigQuery.data.verifiedRoleId}</span>
+              <span className="text-(--nd-text-primary)">
+                {guildConfigQuery.data.verifiedRoleId}
+              </span>
               <span className="text-(--nd-text-muted)">Reviewer Role</span>
-              <span className="text-(--nd-text-primary)">{guildConfigQuery.data.reviewerRoleId}</span>
-              <span className="text-(--nd-text-muted)">Verification Channel</span>
-              <span className="text-(--nd-text-primary)">{guildConfigQuery.data.verificationChannelId}</span>
+              <span className="text-(--nd-text-primary)">
+                {guildConfigQuery.data.reviewerRoleId}
+              </span>
+              <span className="text-(--nd-text-muted)">
+                Verification Channel
+              </span>
+              <span className="text-(--nd-text-primary)">
+                {guildConfigQuery.data.verificationChannelId}
+              </span>
             </div>
             <PermissionGate permission="guild:update">
               <Button onClick={handleEdit} size="sm" variant="outline">
@@ -120,7 +132,10 @@ function AdminGuildConfigPage() {
             </PermissionGate>
           </div>
         ) : editMode ? (
-          <form className="nd-panel max-w-lg space-y-4 p-4" onSubmit={handleSave}>
+          <form
+            className="nd-panel max-w-lg space-y-4 p-4"
+            onSubmit={handleSave}
+          >
             <div className="space-y-4">
               <FormField label="Unverified Role ID">
                 <Input

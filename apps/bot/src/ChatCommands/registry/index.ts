@@ -1,5 +1,5 @@
-import { createInvocation } from "../parser/index.js";
 import { maxPermissionLevel } from "../guards/permissions.js";
+import { createInvocation } from "../parser/index.js";
 import type {
 	ChatCommandDefinition,
 	ChatCommandInvocation,
@@ -165,7 +165,11 @@ export class ChatCommandRegistry {
 		for (const command of this.commands.values()) {
 			if (seen.has(command.definition)) continue;
 			seen.add(command.definition);
-			nodes.push(toTreeNode(command.definition, [command.definition.name]));
+			nodes.push(
+				toTreeNode(command.definition, [
+					command.definition.name,
+				]),
+			);
 		}
 
 		return nodes;
@@ -233,13 +237,17 @@ export function toTreeNode(
 								s !== undefined,
 						)
 						.map((sub) =>
-							toTreeNode(sub, [...path, sub.name], depth + 1),
+							toTreeNode(
+								sub,
+								[...path, sub.name],
+								depth + 1,
+							),
 						)
 				: [],
 		cooldown: definition.cooldown ?? null,
 		description: definition.description,
 		enabled: definition.enabled !== false,
-		kind: definition.kind ?? ("command"),
+		kind: definition.kind ?? "command",
 		name: definition.name,
 		path,
 		permission: definition.permission ?? "public",

@@ -143,7 +143,9 @@ const incidentEmojiConfig = {
 const renderer = new DiscordIncidentRenderer(
 	new ProductionIncidentEmojiRegistry(incidentEmojiConfig),
 );
-const emojiRegistry = new ProductionIncidentEmojiRegistry(incidentEmojiConfig);
+const emojiRegistry = new ProductionIncidentEmojiRegistry(
+	incidentEmojiConfig,
+);
 const guildOnlyEmojiSummary = emojiRegistry.sync([
 	{
 		animated: false,

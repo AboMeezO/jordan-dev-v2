@@ -4,15 +4,16 @@ import { describe, expect, it, vi } from "vitest";
 import type { BackendConfigService } from "../../config/app.config.js";
 import type { AuthorizationService } from "./authorization.service.js";
 
-const expectedPermissionCount = Object.values(permissions).length;
+const expectedPermissionCount =
+	Object.values(permissions).length;
 
 describe("AuthorizationBootstrapService", () => {
 	it("calls bootstrapPermissions with empty array when no admin configured", async () => {
-		const { authorization } = createAuthorizationServiceMock();
+		const { authorization } =
+			createAuthorizationServiceMock();
 		const config = createConfigServiceMock(undefined);
-		const { AuthorizationBootstrapService } = await import(
-			"./authorization-bootstrap.service.js"
-		);
+		const { AuthorizationBootstrapService } =
+			await import("./authorization-bootstrap.service.js");
 		const service = new AuthorizationBootstrapService(
 			authorization as unknown as AuthorizationService,
 			config,
@@ -20,15 +21,17 @@ describe("AuthorizationBootstrapService", () => {
 
 		await service.onApplicationBootstrap();
 
-		expect(authorization.bootstrapPermissions).toHaveBeenCalledWith([]);
+		expect(
+			authorization.bootstrapPermissions,
+		).toHaveBeenCalledWith([]);
 	});
 
 	it("calls bootstrapPermissions with admin user ID when configured", async () => {
-		const { authorization } = createAuthorizationServiceMock();
+		const { authorization } =
+			createAuthorizationServiceMock();
 		const config = createConfigServiceMock("user_2abc123");
-		const { AuthorizationBootstrapService } = await import(
-			"./authorization-bootstrap.service.js"
-		);
+		const { AuthorizationBootstrapService } =
+			await import("./authorization-bootstrap.service.js");
 		const service = new AuthorizationBootstrapService(
 			authorization as unknown as AuthorizationService,
 			config,
@@ -42,11 +45,11 @@ describe("AuthorizationBootstrapService", () => {
 	});
 
 	it("resolves without error", async () => {
-		const { authorization } = createAuthorizationServiceMock();
+		const { authorization } =
+			createAuthorizationServiceMock();
 		const config = createConfigServiceMock("user_2abc123");
-		const { AuthorizationBootstrapService } = await import(
-			"./authorization-bootstrap.service.js"
-		);
+		const { AuthorizationBootstrapService } =
+			await import("./authorization-bootstrap.service.js");
 		const service = new AuthorizationBootstrapService(
 			authorization as unknown as AuthorizationService,
 			config,

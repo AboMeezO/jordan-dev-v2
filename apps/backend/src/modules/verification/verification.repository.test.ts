@@ -24,14 +24,18 @@ describe("VerificationRepository", () => {
 
 		expect(mocks.verificationUpsert).toHaveBeenCalledOnce();
 		expect(mocks.roleGrantJobUpsert).toHaveBeenCalledOnce();
-		expect(mocks.verificationEventCreate).toHaveBeenCalledTimes(2);
+		expect(
+			mocks.verificationEventCreate,
+		).toHaveBeenCalledTimes(2);
 	});
 });
 
 function createDatabaseMocks(): {
 	readonly database: DatabaseService;
 	readonly roleGrantJobUpsert: ReturnType<typeof vi.fn>;
-	readonly verificationEventCreate: ReturnType<typeof vi.fn>;
+	readonly verificationEventCreate: ReturnType<
+		typeof vi.fn
+	>;
 	readonly verificationUpsert: ReturnType<typeof vi.fn>;
 } {
 	const verificationUpsert = vi.fn(() =>

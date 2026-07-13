@@ -8,14 +8,14 @@ import {
 	checkCooldown,
 	formatRemainingTime,
 } from "../guards/cooldown.js";
-import { parseChatCommandInput } from "../parser/index.js";
 import { canUseChatCommand } from "../guards/permissions.js";
+import { renderUsageGuide } from "../output/usage-guide.js";
+import { parseChatCommandInput } from "../parser/index.js";
 import type {
 	ChatCommandRegistry,
 	ChatCommandResolution,
 } from "../registry/index.js";
 import type { ChatCommandParseResult } from "../types.js";
-import { renderUsageGuide } from "../output/usage-guide.js";
 
 const log = new Logger("dispatch");
 

@@ -24,7 +24,9 @@ export const sessionBootstrapResponseSchema = z.object({
 });
 
 export type SessionUser = z.infer<typeof sessionUserSchema>;
-export type SessionBootstrap = z.infer<typeof sessionBootstrapSchema>;
+export type SessionBootstrap = z.infer<
+	typeof sessionBootstrapSchema
+>;
 export type SessionBootstrapResponse = z.infer<
 	typeof sessionBootstrapResponseSchema
 >;

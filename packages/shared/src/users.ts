@@ -7,15 +7,22 @@ export const userListItemSchema = z.object({
 	displayName: z.string().nullable(),
 	avatarUrl: z.string().url().nullable(),
 	createdAt: z.string().datetime(),
-	roles: z.array(z.object({
-		id: z.string().min(1),
-		name: z.string().min(1),
-	})),
+	roles: z.array(
+		z.object({
+			id: z.string().min(1),
+			name: z.string().min(1),
+		}),
+	),
 });
 
 export const userListRequestSchema = z.object({
 	page: z.coerce.number().int().positive().default(1),
-	limit: z.coerce.number().int().positive().max(100).default(20),
+	limit: z.coerce
+		.number()
+		.int()
+		.positive()
+		.max(100)
+		.default(20),
 	search: z.string().optional(),
 	roleId: z.string().optional(),
 });
@@ -38,10 +45,12 @@ export const userDetailSchema = z.object({
 	avatarUrl: z.string().url().nullable(),
 	createdAt: z.string().datetime(),
 	updatedAt: z.string().datetime(),
-	roles: z.array(z.object({
-		id: z.string().min(1),
-		name: z.string().min(1),
-	})),
+	roles: z.array(
+		z.object({
+			id: z.string().min(1),
+			name: z.string().min(1),
+		}),
+	),
 });
 
 export const userDetailResponseSchema = z.object({
@@ -68,9 +77,17 @@ export const userRoleAssignmentResponseSchema = z.object({
 	data: userDetailSchema,
 });
 
-export type UserListItem = z.infer<typeof userListItemSchema>;
-export type UserListRequest = z.infer<typeof userListRequestSchema>;
-export type UserListResponse = z.infer<typeof userListResponseSchema>;
+export type UserListItem = z.infer<
+	typeof userListItemSchema
+>;
+export type UserListRequest = z.infer<
+	typeof userListRequestSchema
+>;
+export type UserListResponse = z.infer<
+	typeof userListResponseSchema
+>;
 export type UserDetail = z.infer<typeof userDetailSchema>;
 export type UpdateUser = z.infer<typeof updateUserSchema>;
-export type UserRoleAssignment = z.infer<typeof userRoleAssignmentSchema>;
+export type UserRoleAssignment = z.infer<
+	typeof userRoleAssignmentSchema
+>;

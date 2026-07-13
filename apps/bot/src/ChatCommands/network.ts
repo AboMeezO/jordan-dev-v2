@@ -226,7 +226,9 @@ async function readBodyWithLimit(
 	response: Response,
 	limit: number,
 ): Promise<string> {
-	const contentLength = response.headers.get("content-length");
+	const contentLength = response.headers.get(
+		"content-length",
+	);
 	if (contentLength && Number(contentLength) > limit) {
 		return "";
 	}
@@ -235,7 +237,8 @@ async function readBodyWithLimit(
 		return "";
 	}
 
-	const reader = response.body.getReader();
+	const reader =
+		response.body.getReader() as ReadableStreamDefaultReader<Uint8Array>;
 	const decoder = new TextDecoder();
 	const chunks: string[] = [];
 	let totalBytes = 0;
@@ -259,9 +262,7 @@ async function readBodyWithLimit(
 				break;
 			}
 
-			chunks.push(
-				decoder.decode(value, { stream: true }),
-			);
+			chunks.push(decoder.decode(value, { stream: true }));
 		}
 	} finally {
 		reader.releaseLock();

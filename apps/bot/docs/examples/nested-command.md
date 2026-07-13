@@ -6,18 +6,18 @@
 import { commandTree } from "#ChatCommands";
 
 export const githubCommandTree = commandTree({
-    name: "github",
-    aliases: ["gh"],
-    description: "GitHub and Git tools.",
-    category: "Git / GitHub Tools",
-    cooldown: 1000,
-    allowPrefixless: true,
-    subcommands: [
-        githubUserCommand,
-        githubRepoCommand,
-        githubIssueCommand,
-        gitignoreCommand,
-    ],
+	name: "github",
+	aliases: ["gh"],
+	description: "GitHub and Git tools.",
+	category: "Git / GitHub Tools",
+	cooldown: 1000,
+	allowPrefixless: true,
+	subcommands: [
+		githubUserCommand,
+		githubRepoCommand,
+		githubIssueCommand,
+		gitignoreCommand,
+	],
 });
 ```
 

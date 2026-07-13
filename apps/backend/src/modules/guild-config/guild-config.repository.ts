@@ -1,12 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import type { GuildConfig, Prisma } from "@prisma/client";
+import type { GuildConfig } from "@prisma/client";
 
 import {
 	DatabaseService,
 	type DatabaseTransactionClient,
 } from "../../database/database.service.js";
 
-type DatabaseClient = DatabaseService | DatabaseTransactionClient;
+type DatabaseClient =
+	| DatabaseService
+	| DatabaseTransactionClient;
 
 export type GuildConfigInput = {
 	guildId: string;
@@ -18,7 +20,9 @@ export type GuildConfigInput = {
 
 @Injectable()
 export class GuildConfigRepository {
-	public constructor(private readonly database: DatabaseService) {}
+	public constructor(
+		private readonly database: DatabaseService,
+	) {}
 
 	public async upsert(
 		input: GuildConfigInput,

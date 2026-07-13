@@ -45,22 +45,24 @@ export class DashboardService {
 				totalRoles,
 				totalPermissions,
 				verifiedUsers,
-				unverifiedUsers: Math.max(totalUsers - verifiedUsers, 0),
+				unverifiedUsers: Math.max(
+					totalUsers - verifiedUsers,
+					0,
+				),
 				pendingRoleGrants,
 			},
-			verificationStatusCounts: verificationStatusCounts.map(
-				(statusCount) => ({
+			verificationStatusCounts:
+				verificationStatusCounts.map((statusCount) => ({
 					label: statusCount.status,
 					value: statusCount._count._all,
-				}),
-			),
+				})),
 			usersByRole,
 			recentUsers: recentUsers.map((user) => ({
 				...user,
 				createdAt: user.createdAt.toISOString(),
 			})),
-			recentVerificationEvents: recentVerificationEvents.map(
-				(event) => ({
+			recentVerificationEvents:
+				recentVerificationEvents.map((event) => ({
 					...event,
 					type: event.type,
 					status: event.status,
@@ -73,8 +75,7 @@ export class DashboardService {
 									createdAt:
 										event.user.createdAt.toISOString(),
 								},
-				}),
-			),
+				})),
 			system: {
 				databaseReady: true,
 				generatedAt: new Date().toISOString(),

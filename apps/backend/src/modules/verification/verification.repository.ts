@@ -27,7 +27,9 @@ export type CompletedVerificationRecord = {
 
 @Injectable()
 export class VerificationRepository {
-	public constructor(private readonly database: DatabaseService) {}
+	public constructor(
+		private readonly database: DatabaseService,
+	) {}
 
 	public async completeVerification(
 		input: CompleteVerificationInput,

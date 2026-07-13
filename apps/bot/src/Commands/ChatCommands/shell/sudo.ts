@@ -6,9 +6,8 @@ import {
 	executeChatCommandResolution,
 	parseChatCommandInput,
 } from "#ChatCommands";
-import { Logger } from "#Logger";
-
 import { shellOutput } from "#ChatCommands";
+import { Logger } from "#Logger";
 
 const log = new Logger("sudo");
 
@@ -130,7 +129,9 @@ export const sudoCommand = commandTree({
 			sudo: true,
 			elevated: true,
 			args: resolution.invocation.rawArgs.join(" "),
-		}).catch((error) => log.error("audit log failed:", error));
+		}).catch((error) =>
+			log.error("audit log failed:", error),
+		);
 
 		await context.message.reply(
 			shellOutput([

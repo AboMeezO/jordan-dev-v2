@@ -24,7 +24,10 @@ describe("VerificationService", () => {
 				roleGrantJobId: "job_123",
 				status: VerificationStatus.ROLE_GRANT_PENDING,
 			}),
-		} as Pick<VerificationRepository, "completeVerification">;
+		} as Pick<
+			VerificationRepository,
+			"completeVerification"
+		>;
 		const service = new VerificationService(
 			database as DatabaseService,
 			verifications as VerificationRepository,
@@ -54,7 +57,9 @@ describe("VerificationService", () => {
 			roleGrantPending: true,
 			roleGrantJobId: "job_123",
 		});
-		expect(verifications.completeVerification).toHaveBeenCalledWith(
+		expect(
+			verifications.completeVerification,
+		).toHaveBeenCalledWith(
 			{
 				discordUserId: "discord_123",
 				guildId: "guild_123",

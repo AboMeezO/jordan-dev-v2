@@ -206,11 +206,12 @@ export function renderCommandTree(
 		const isLast = i === nodes.length - 1;
 		const connector = isLast ? "└─ " : "├─ ";
 		const label = `${node.allowPrefixless ? "" : "!"}${node.name}`;
-		const suffix = node.children.length === 0
-			? " \x1b[90m(λ)\x1b[0m"
-			: node.kind === "group"
-				? " \x1b[35m[\x1b[95mgroup\x1b[35m]\x1b[0m"
-				: "";
+		const suffix =
+			node.children.length === 0
+				? " \x1b[90m(λ)\x1b[0m"
+				: node.kind === "group"
+					? " \x1b[35m[\x1b[95mgroup\x1b[35m]\x1b[0m"
+					: "";
 		const meta = buildNodeMeta(node);
 		const line = `${prefix}${connector}${label}${suffix}${meta}`;
 		lines.push(line);
@@ -224,7 +225,9 @@ export function renderCommandTree(
 	}
 
 	const result = lines.join("\n");
-	return prefix === "" ? `\`\`\`ansi\n${result}\n\`\`\`` : result;
+	return prefix === ""
+		? `\`\`\`ansi\n${result}\n\`\`\``
+		: result;
 }
 
 export function renderCommandTreeShell(
@@ -239,7 +242,8 @@ export function renderCommandTreeShell(
 		for (const node of treeNodes) {
 			const fullPath = [...parentPath, node.name];
 			const pathStr = fullPath.join(" ");
-			const kind = node.kind === "subcommand" ? "sub" : node.kind;
+			const kind =
+				node.kind === "subcommand" ? "sub" : node.kind;
 
 			result.push(`command=${pathStr}`);
 			result.push(`  kind=${kind}`);
@@ -264,7 +268,9 @@ function buildNodeMeta(node: CommandTreeNode): string {
 	const parts: string[] = [];
 
 	if (node.category) {
-		parts.push(`\x1b[35m[\x1b[95m${node.category}\x1b[35m]\x1b[0m`);
+		parts.push(
+			`\x1b[35m[\x1b[95m${node.category}\x1b[35m]\x1b[0m`,
+		);
 	}
 
 	if (!node.enabled) {
@@ -272,7 +278,9 @@ function buildNodeMeta(node: CommandTreeNode): string {
 	}
 
 	if (node.permission !== "public") {
-		parts.push(`\x1b[31m(\x1b[91m${node.permission}\x1b[31m)\x1b[0m`);
+		parts.push(
+			`\x1b[31m(\x1b[91m${node.permission}\x1b[31m)\x1b[0m`,
+		);
 	}
 
 	return parts.length > 0 ? ` ${parts.join(" ")}` : "";

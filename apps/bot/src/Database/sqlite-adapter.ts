@@ -70,15 +70,11 @@ export class SqliteDatabaseAdapter implements DatabaseAdapter {
 
 		if (depth > 0) {
 			const savepointName = `sp_${depth}`;
-			this.database.exec(
-				`SAVEPOINT ${savepointName}`,
-			);
+			this.database.exec(`SAVEPOINT ${savepointName}`);
 
 			try {
 				const result = await work(
-					new SqliteDatabaseTransaction(
-						this.database,
-					),
+					new SqliteDatabaseTransaction(this.database),
 				);
 				this.database.exec(
 					`RELEASE SAVEPOINT ${savepointName}`,

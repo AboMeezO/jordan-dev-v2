@@ -12,7 +12,9 @@ import { AuthService } from "./auth.service.js";
 export class ClerkAuthGuard implements CanActivate {
 	constructor(private readonly auth: AuthService) {}
 
-	async canActivate(context: ExecutionContext): Promise<boolean> {
+	async canActivate(
+		context: ExecutionContext,
+	): Promise<boolean> {
 		const request = context
 			.switchToHttp()
 			.getRequest<AuthenticatedRequest>();
@@ -21,11 +23,13 @@ export class ClerkAuthGuard implements CanActivate {
 		);
 
 		if (token === undefined) {
-			throw new UnauthorizedException("Missing Bearer token.");
+			throw new UnauthorizedException(
+				"Missing Bearer token.",
+			);
 		}
 
-		request.user = await this.auth.authenticateBearerToken(token);
+		request.user =
+			await this.auth.authenticateBearerToken(token);
 		return true;
 	}
 }
-

@@ -1,16 +1,20 @@
-import { UnauthorizedException } from "@nestjs/common";
 import type { ExecutionContext } from "@nestjs/common";
+import { UnauthorizedException } from "@nestjs/common";
 import { describe, expect, it } from "vitest";
-import { BotAuthGuard } from "./bot-auth.guard.js";
-import type { BackendConfigService } from "../../config/app.config.js";
+
 import type { BotAuthenticatedRequest } from "../../common/types/bot-request.js";
+import type { BackendConfigService } from "../../config/app.config.js";
+import { BotAuthGuard } from "./bot-auth.guard.js";
 
 describe("BotAuthGuard", () => {
 	const createContext = (
 		authorization: string | undefined,
-	): { context: ExecutionContext; request: Partial<BotAuthenticatedRequest> } => {
+	): {
+		context: ExecutionContext;
+		request: Partial<BotAuthenticatedRequest>;
+	} => {
 		const request: Partial<BotAuthenticatedRequest> = {
-			headers: { authorization } as never,
+			headers: { authorization },
 		};
 
 		const context = {
@@ -23,9 +27,11 @@ describe("BotAuthGuard", () => {
 	};
 
 	describe("extractBotToken branches (via canActivate)", () => {
-		it("throws when authorization header is undefined", async () => {
+		it("throws when authorization header is undefined", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext(undefined);
 
@@ -33,14 +39,16 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Missing Bot token."),
 			);
 		});
 
-		it("throws when authorization header is an empty string", async () => {
+		it("throws when authorization header is an empty string", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("");
 
@@ -48,29 +56,35 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Missing Bot token."),
 			);
 		});
 
-		it("throws when scheme is not 'bot'", async () => {
+		it("throws when scheme is not 'bot'", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
-			const { context } = createContext("Bearer expected-token");
+			const { context } = createContext(
+				"Bearer expected-token",
+			);
 
 			// Act
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Missing Bot token."),
 			);
 		});
 
-		it("throws when scheme is 'bot' but token part is missing", async () => {
+		it("throws when scheme is 'bot' but token part is missing", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot");
 
@@ -78,15 +92,17 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Missing Bot token."),
 			);
 		});
 
-		it("throws when scheme is 'bot' but token is an empty string", async () => {
+		it("throws when scheme is 'bot' but token is an empty string", () => {
 			// Arrange
 			// "Bot " split by " " => ["Bot", ""]
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot ");
 
@@ -94,19 +110,23 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Missing Bot token."),
 			);
 		});
 
-		it("accepts scheme case-insensitively (e.g. 'BOT')", async () => {
+		it("accepts scheme case-insensitively (e.g. 'BOT')", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
-			const { context, request } = createContext("BOT expected-token");
+			const { context, request } = createContext(
+				"BOT expected-token",
+			);
 
 			// Act
-			const result = await guard.canActivate(context);
+			const result = guard.canActivate(context);
 
 			// Assert
 			expect(result).toBe(true);
@@ -115,7 +135,7 @@ describe("BotAuthGuard", () => {
 	});
 
 	describe("token validation branches", () => {
-		it("throws when config.botToken is falsy (undefined)", async () => {
+		it("throws when config.botToken is falsy (undefined)", () => {
 			// Arrange
 			const config = {
 				botToken: undefined,
@@ -127,14 +147,16 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Invalid Bot token."),
 			);
 		});
 
-		it("throws when config.botToken is an empty string", async () => {
+		it("throws when config.botToken is an empty string", () => {
 			// Arrange
-			const config = { botToken: "" } as BackendConfigService;
+			const config = {
+				botToken: "",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot some-token");
 
@@ -142,14 +164,16 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Invalid Bot token."),
 			);
 		});
 
-		it("throws when provided token does not match expected token", async () => {
+		it("throws when provided token does not match expected token", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
 			const { context } = createContext("Bot wrong-token");
 
@@ -157,19 +181,23 @@ describe("BotAuthGuard", () => {
 			const act = () => guard.canActivate(context);
 
 			// Assert
-			await expect(act()).rejects.toThrow(
+			expect(act).toThrow(
 				new UnauthorizedException("Invalid Bot token."),
 			);
 		});
 
-		it("returns true and sets isBot=true when token matches expected token", async () => {
+		it("returns true and sets isBot=true when token matches expected token", () => {
 			// Arrange
-			const config = { botToken: "expected-token" } as BackendConfigService;
+			const config = {
+				botToken: "expected-token",
+			} as BackendConfigService;
 			const guard = new BotAuthGuard(config);
-			const { context, request } = createContext("Bot expected-token");
+			const { context, request } = createContext(
+				"Bot expected-token",
+			);
 
 			// Act
-			const result = await guard.canActivate(context);
+			const result = guard.canActivate(context);
 
 			// Assert
 			expect(result).toBe(true);
