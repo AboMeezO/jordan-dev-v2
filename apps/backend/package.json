@@ -14,7 +14,7 @@
 		"db:validate": "prisma validate"
 	},
 	"dependencies": {
-		"@clerk/backend": "^2.22.0",
+		"@clerk/backend": "^3.11.4",
 		"@jordan-devs/config": "workspace:*",
 		"@jordan-devs/shared": "workspace:*",
 		"@nestjs/common": "^11.1.7",
