@@ -1,4 +1,8 @@
-import { DynamicModule, Global, Module } from "@nestjs/common";
+import {
+	DynamicModule,
+	Global,
+	Module,
+} from "@nestjs/common";
 
 import { createConfig } from "../create-config.js";
 import type { Config } from "../create-config.js";
@@ -17,7 +21,9 @@ export const JD_CONFIG = "JD_CONFIG";
 @Global()
 @Module({})
 export class JDConfigModule {
-	static forRoot(options: JDConfigModuleOptions): DynamicModule {
+	static forRoot(
+		options: JDConfigModuleOptions,
+	): DynamicModule {
 		const config = createConfig({
 			configPath: options.configPath,
 			schemaPath: options.schemaPath,

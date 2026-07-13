@@ -6,15 +6,13 @@ import {
 
 import type { ButtonInput } from "./types.js";
 
-const STYLE_MAP: Record<
-	ButtonInput["style"],
-	ButtonStyle
-> = {
-	danger: ButtonStyle.Danger,
-	primary: ButtonStyle.Primary,
-	secondary: ButtonStyle.Secondary,
-	success: ButtonStyle.Success,
-};
+const STYLE_MAP: Record<ButtonInput["style"], ButtonStyle> =
+	{
+		danger: ButtonStyle.Danger,
+		primary: ButtonStyle.Primary,
+		secondary: ButtonStyle.Secondary,
+		success: ButtonStyle.Success,
+	};
 
 export function buildButtonRow(
 	buttons: ButtonInput[],

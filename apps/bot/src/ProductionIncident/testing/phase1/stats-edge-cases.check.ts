@@ -1,7 +1,5 @@
 import { strict as assert } from "node:assert";
 
-import type { UnixMillis } from "../../engine/index.js";
-
 import {
 	assertSessionStatus,
 	createPhase1Harness,
@@ -21,10 +19,14 @@ const sessionId = created.value.id;
 
 const p1 = createPlayer(idGenerator, "a", "A", clock.now());
 requireOk(
-	await kernel.sessionManager.joinSession({ player: p1, sessionId }),
+	await kernel.sessionManager.joinSession({
+		player: p1,
+		sessionId,
+	}),
 );
 
-const initialState = kernel.stateManager.getSnapshot(sessionId)!;
+const initialState =
+	kernel.stateManager.getSnapshot(sessionId)!;
 assert.deepEqual(initialState.stats, {
 	developerSanity: 100,
 	infrastructureCost: 0,
@@ -33,12 +35,15 @@ assert.deepEqual(initialState.stats, {
 });
 
 // Large negative delta: clamp to 0
-const clampedLow = await kernel.stateManager.applyStatDelta(sessionId, {
-	developerSanity: -999,
-	infrastructureCost: -999,
-	serverStability: -999,
-	userHappiness: -999,
-});
+const clampedLow = await kernel.stateManager.applyStatDelta(
+	sessionId,
+	{
+		developerSanity: -999,
+		infrastructureCost: -999,
+		serverStability: -999,
+		userHappiness: -999,
+	},
+);
 assert.equal(clampedLow.value.stats.developerSanity, 0);
 assert.equal(clampedLow.value.stats.infrastructureCost, 0);
 assert.equal(clampedLow.value.stats.serverStability, 0);
@@ -46,14 +51,18 @@ assert.equal(clampedLow.value.stats.userHappiness, 0);
 
 // Large positive delta: developerSanity, serverStability, userHappiness clamp to 100
 // infrastructureCost has NO upper bound
-const clampedHigh = await kernel.stateManager.applyStatDelta(sessionId, {
-	developerSanity: 999,
-	infrastructureCost: 999,
-	serverStability: 999,
-	userHappiness: 999,
-});
+const clampedHigh =
+	await kernel.stateManager.applyStatDelta(sessionId, {
+		developerSanity: 999,
+		infrastructureCost: 999,
+		serverStability: 999,
+		userHappiness: 999,
+	});
 assert.equal(clampedHigh.value.stats.developerSanity, 100);
-assert.equal(clampedHigh.value.stats.infrastructureCost, 999);
+assert.equal(
+	clampedHigh.value.stats.infrastructureCost,
+	999,
+);
 assert.equal(clampedHigh.value.stats.serverStability, 100);
 assert.equal(clampedHigh.value.stats.userHappiness, 100);
 

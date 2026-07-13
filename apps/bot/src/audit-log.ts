@@ -1,4 +1,7 @@
-import type { DatabaseAdapter, DatabaseTransaction } from "#Database";
+import type {
+	DatabaseAdapter,
+	DatabaseTransaction,
+} from "#Database";
 import { getDatabase } from "#Database";
 import { Logger } from "#Logger";
 
@@ -62,27 +65,29 @@ export async function logCommandExecution(
 ): Promise<void> {
 	try {
 		const db = await getAuditDb();
-		await db.transaction(async (tx: DatabaseTransaction) => {
-			await tx.execute(
-				`
+		await db.transaction(
+			async (tx: DatabaseTransaction) => {
+				await tx.execute(
+					`
 				INSERT INTO command_audit_log (
 					command, user_id, user_tag, guild_id, channel_id,
 					timestamp, sudo, elevated, args
 				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 				`,
-				[
-					entry.command,
-					entry.userId,
-					entry.userTag,
-					entry.guildId,
-					entry.channelId,
-					entry.timestamp,
-					entry.sudo ? 1 : 0,
-					entry.elevated ? 1 : 0,
-					entry.args.slice(0, 500),
-				],
-			);
-		});
+					[
+						entry.command,
+						entry.userId,
+						entry.userTag,
+						entry.guildId,
+						entry.channelId,
+						entry.timestamp,
+						entry.sudo ? 1 : 0,
+						entry.elevated ? 1 : 0,
+						entry.args.slice(0, 500),
+					],
+				);
+			},
+		);
 	} catch (error) {
 		log.error("Failed to write audit entry:", error);
 	}

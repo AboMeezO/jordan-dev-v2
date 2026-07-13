@@ -5,6 +5,7 @@ The platform is self-hosted with no public Clerk callbacks, so Discord identity 
 **Status:** `accepted`
 
 **Considered Options:**
+
 - **Clerk-only** — requires public hosting and Clerk callbacks. Cannot work today.
 - **Discord-only now, remodel at Clerk migration** — would require a data migration and service rewrite later. More disruption than the nullable approach.
 - **Dual identity (chosen)** — one extra nullable column now, zero disruption later.

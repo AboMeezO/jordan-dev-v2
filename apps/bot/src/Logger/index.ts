@@ -32,7 +32,9 @@ function shouldLog(
 	messageLevel: LogLevel,
 	minLevel: LogLevel,
 ): boolean {
-	return LEVEL_WEIGHT[messageLevel] >= LEVEL_WEIGHT[minLevel];
+	return (
+		LEVEL_WEIGHT[messageLevel] >= LEVEL_WEIGHT[minLevel]
+	);
 }
 
 function formatTimestamp(): string {
@@ -52,7 +54,11 @@ export class Logger {
 		this.minLevel = level;
 	}
 
-	private log(level: LogLevel, message: string, ...args: unknown[]): void {
+	private log(
+		level: LogLevel,
+		message: string,
+		...args: unknown[]
+	): void {
 		if (!shouldLog(level, this.minLevel)) return;
 
 		const ts = formatTimestamp();
@@ -64,11 +70,29 @@ export class Logger {
 
 		if (args.length > 0) {
 			if (level === "error") {
-				console.error(ts, styledLevel, styledTag, message, ...args);
+				console.error(
+					ts,
+					styledLevel,
+					styledTag,
+					message,
+					...args,
+				);
 			} else if (level === "warn") {
-				console.warn(ts, styledLevel, styledTag, message, ...args);
+				console.warn(
+					ts,
+					styledLevel,
+					styledTag,
+					message,
+					...args,
+				);
 			} else {
-				console.log(ts, styledLevel, styledTag, message, ...args);
+				console.log(
+					ts,
+					styledLevel,
+					styledTag,
+					message,
+					...args,
+				);
 			}
 		} else {
 			const line = `${ts} ${styledLevel} ${styledTag} ${message}`;

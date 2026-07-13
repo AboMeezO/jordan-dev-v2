@@ -6,12 +6,12 @@ Slash commands use CommandKit (`github:AboMeezO/DevRoots-Commandkit`). Configura
 
 ```ts
 new CommandKit({
-    client: this.client,
-    commandsPath: path.resolve("src/Commands"),
-    eventsPath: path.resolve("src/Events"),
-    validationsPath: path.resolve("src/Validations"),
-    devGuildIds: [process.env.DEV_GUILD_ID!],
-    bulkRegister: true,
+	client: this.client,
+	commandsPath: path.resolve("src/Commands"),
+	eventsPath: path.resolve("src/Events"),
+	validationsPath: path.resolve("src/Validations"),
+	devGuildIds: [process.env.DEV_GUILD_ID!],
+	bulkRegister: true,
 });
 ```
 

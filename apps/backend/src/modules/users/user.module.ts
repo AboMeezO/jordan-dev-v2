@@ -13,4 +13,3 @@ import { UsersController } from "./users.controller.js";
 	exports: [UserService, UserRepository],
 })
 export class UserModule {}
-

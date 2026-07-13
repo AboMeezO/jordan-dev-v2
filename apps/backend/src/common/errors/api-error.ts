@@ -22,4 +22,3 @@ export function createApiError(
 		? { code, message }
 		: { code, message, fieldErrors };
 }
-

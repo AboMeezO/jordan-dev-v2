@@ -9,12 +9,12 @@ Place it in the appropriate subdirectory of `src/ChatCommands/commands/`:
 import { commandTree } from "#ChatCommands";
 
 export const helloCommand = commandTree({
-    name: "hello",
-    description: "Say hello.",
-    permission: "public",
-    async execute({ message }) {
-        await message.reply("Hello!");
-    },
+	name: "hello",
+	description: "Say hello.",
+	permission: "public",
+	async execute({ message }) {
+		await message.reply("Hello!");
+	},
 });
 ```
 
@@ -28,9 +28,9 @@ For a command with subcommands, create a group:
 
 ```ts
 export const myGroup = commandGroup({
-    name: "mygroup",
-    description: "A group of commands.",
-    subcommands: [subCommand1, subCommand2],
+	name: "mygroup",
+	description: "A group of commands.",
+	subcommands: [subCommand1, subCommand2],
 });
 ```
 
@@ -41,6 +41,7 @@ Place the file in `src/Commands/`. CommandKit auto-discovers it.
 ## 5. Test
 
 Run existing tests to verify nothing broke:
+
 ```bash
 pnpm --dir apps/bot exec tsx src/ChatCommands/shell-commands.test.ts
 ```

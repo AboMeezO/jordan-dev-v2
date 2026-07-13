@@ -1,12 +1,14 @@
 import { distance } from "fastest-levenshtein";
 
-import type { ChatCommandRegistry, CommandTreeNode } from "#ChatCommands";
+import type {
+	ChatCommandRegistry,
+	CommandTreeNode,
+} from "#ChatCommands";
 import {
 	commandTree,
 	renderCommandTree,
 	toTreeNode,
 } from "#ChatCommands";
-
 import { shellOutput } from "#ChatCommands";
 
 interface FlatEntry {
@@ -20,9 +22,7 @@ function collectFlatNames(
 ): FlatEntry[] {
 	const entries: FlatEntry[] = [];
 
-	function walk(
-		nodes: CommandTreeNode[],
-	): void {
+	function walk(nodes: CommandTreeNode[]): void {
 		for (const node of nodes) {
 			entries.push({
 				aliases: node.aliases,
@@ -95,13 +95,15 @@ export const whichCommand = commandTree({
 		const resolved = registry.find(path, "");
 
 		if (resolved) {
-			const treeNode = toTreeNode(
-				resolved.command,
-				path,
-			);
+			const treeNode = toTreeNode(resolved.command, path);
 			const tree = renderCommandTree([treeNode]);
 			await message.reply(
-				shellOutput([`found=true`, `path=${path.join(" ")}`, "", tree]),
+				shellOutput([
+					`found=true`,
+					`path=${path.join(" ")}`,
+					"",
+					tree,
+				]),
 			);
 			return;
 		}

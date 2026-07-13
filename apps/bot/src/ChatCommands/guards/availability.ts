@@ -1,13 +1,8 @@
 import type { Message } from "discord.js";
 
-import {
-	getDevIds,
-	getOwnerIds,
-} from "#Config";
+import { getDevIds, getOwnerIds } from "#Config";
 
-import type {
-	ChatCommandDefinition,
-} from "../types.js";
+import type { ChatCommandDefinition } from "../types.js";
 
 export type AvailabilityResult =
 	| { readonly allowed: true }

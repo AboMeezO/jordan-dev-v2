@@ -11,7 +11,11 @@ import {
 } from "discord.js";
 import { z } from "zod";
 
-import { commandTree, discordSnowflakeSchema, extractOptionString } from "#ChatCommands";
+import {
+	commandTree,
+	discordSnowflakeSchema,
+	extractOptionString,
+} from "#ChatCommands";
 
 const SUPPORTED_SIZES = [
 	16, 32, 64, 128, 256, 512, 1024, 2048, 4096,

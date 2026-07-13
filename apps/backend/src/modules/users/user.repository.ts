@@ -5,15 +5,23 @@ import {
 	DatabaseService,
 	type DatabaseTransactionClient,
 } from "../../database/database.service.js";
-import type { ClerkUserIdentity, DiscordUserIdentity } from "./user.types.js";
+import type {
+	ClerkUserIdentity,
+	DiscordUserIdentity,
+} from "./user.types.js";
 
-type DatabaseClient = DatabaseService | DatabaseTransactionClient;
+type DatabaseClient =
+	| DatabaseService
+	| DatabaseTransactionClient;
 
 @Injectable()
 export class UserRepository {
 	constructor(private readonly database: DatabaseService) {}
 
-	findById(id: string, client: DatabaseClient = this.database): Promise<User | null> {
+	findById(
+		id: string,
+		client: DatabaseClient = this.database,
+	): Promise<User | null> {
 		return client.user.findUnique({ where: { id } });
 	}
 
@@ -21,14 +29,18 @@ export class UserRepository {
 		clerkUserId: string,
 		client: DatabaseClient = this.database,
 	): Promise<User | null> {
-		return client.user.findUnique({ where: { clerkUserId } });
+		return client.user.findUnique({
+			where: { clerkUserId },
+		});
 	}
 
 	findByDiscordUserId(
 		discordUserId: string,
 		client: DatabaseClient = this.database,
 	): Promise<User | null> {
-		return client.user.findUnique({ where: { discordUserId } });
+		return client.user.findUnique({
+			where: { discordUserId },
+		});
 	}
 
 	upsertFromDiscordIdentity(
@@ -61,7 +73,9 @@ export class UserRepository {
 		});
 	}
 
-	private toUserData(identity: ClerkUserIdentity): Prisma.UserUncheckedCreateInput {
+	private toUserData(
+		identity: ClerkUserIdentity,
+	): Prisma.UserUncheckedCreateInput {
 		return {
 			clerkUserId: identity.clerkUserId,
 			email: identity.email ?? null,
@@ -80,8 +94,18 @@ export class UserRepository {
 
 		if (query.search) {
 			where.OR = [
-				{ displayName: { contains: query.search, mode: "insensitive" } },
-				{ email: { contains: query.search, mode: "insensitive" } },
+				{
+					displayName: {
+						contains: query.search,
+						mode: "insensitive",
+					},
+				},
+				{
+					email: {
+						contains: query.search,
+						mode: "insensitive",
+					},
+				},
 			];
 		}
 
@@ -183,7 +207,10 @@ export class UserRepository {
 
 	async updateUser(
 		id: string,
-		data: { displayName: string | undefined; email: string | undefined },
+		data: {
+			displayName: string | undefined;
+			email: string | undefined;
+		},
 	) {
 		const updateData: Record<string, string> = {};
 		if (data.displayName !== undefined) {
@@ -232,13 +259,19 @@ export class UserRepository {
 		};
 	}
 
-	async setUserRoles(userId: string, roleIds: readonly string[]) {
+	async setUserRoles(
+		userId: string,
+		roleIds: readonly string[],
+	) {
 		return this.database.transaction(async (tx) => {
 			await tx.userRole.deleteMany({ where: { userId } });
 
 			if (roleIds.length > 0) {
 				await tx.userRole.createMany({
-					data: roleIds.map((roleId) => ({ userId, roleId })),
+					data: roleIds.map((roleId) => ({
+						userId,
+						roleId,
+					})),
 				});
 			}
 
@@ -281,4 +314,3 @@ export class UserRepository {
 		});
 	}
 }
-

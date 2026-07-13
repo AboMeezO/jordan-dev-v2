@@ -1,7 +1,6 @@
-import { Inject, Injectable } from "@nestjs/common";
-
-import { JD_CONFIG } from "@jordan-devs/config/nest";
 import type { Config } from "@jordan-devs/config";
+import { JD_CONFIG } from "@jordan-devs/config/nest";
+import { Inject, Injectable } from "@nestjs/common";
 
 @Injectable()
 export class BackendConfigService {
@@ -22,9 +21,14 @@ export class BackendConfigService {
 	}
 
 	public get frontendOrigins(): string[] | undefined {
-		const raw = this.config.get<string | undefined>("server.frontendOrigins");
+		const raw = this.config.get<string | undefined>(
+			"server.frontendOrigins",
+		);
 		return raw
-			? raw.split(",").map((s) => s.trim()).filter(Boolean)
+			? raw
+					.split(",")
+					.map((s) => s.trim())
+					.filter(Boolean)
 			: undefined;
 	}
 
@@ -40,15 +44,24 @@ export class BackendConfigService {
 		return this.config.get<string>("clerk.jwtKey");
 	}
 
-	public get clerkAuthorizedParties(): string[] | undefined {
-		const raw = this.config.get<string | undefined>("clerk.authorizedParties");
+	public get clerkAuthorizedParties():
+		| string[]
+		| undefined {
+		const raw = this.config.get<string | undefined>(
+			"clerk.authorizedParties",
+		);
 		return raw
-			? raw.split(",").map((s) => s.trim()).filter(Boolean)
+			? raw
+					.split(",")
+					.map((s) => s.trim())
+					.filter(Boolean)
 			: undefined;
 	}
 
 	public get initialAdminClerkUserId(): string | undefined {
-		return this.config.get<string | undefined>("initialAdminClerkUserId");
+		return this.config.get<string | undefined>(
+			"initialAdminClerkUserId",
+		);
 	}
 
 	public get botToken(): string | undefined {

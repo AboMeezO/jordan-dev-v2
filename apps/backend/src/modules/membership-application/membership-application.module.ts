@@ -11,8 +11,20 @@ import { MembershipApplicationService } from "./membership-application.service.j
 
 @Module({
 	controllers: [MembershipApplicationController],
-	imports: [AuthModule, AuthorizationModule, BackendConfigModule, DatabaseModule, UserModule],
-	providers: [MembershipApplicationRepository, MembershipApplicationService],
-	exports: [MembershipApplicationService, MembershipApplicationRepository],
+	imports: [
+		AuthModule,
+		AuthorizationModule,
+		BackendConfigModule,
+		DatabaseModule,
+		UserModule,
+	],
+	providers: [
+		MembershipApplicationRepository,
+		MembershipApplicationService,
+	],
+	exports: [
+		MembershipApplicationService,
+		MembershipApplicationRepository,
+	],
 })
 export class MembershipApplicationModule {}

@@ -24,9 +24,13 @@ database:
 import { writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { randomUUID } from "node:crypto";
 
 function withTempDir(fn: (dir: string) => void): void {
-	const dir = join(tmpdir(), `jd-config-test-${Date.now()}`);
+	const dir = join(
+		tmpdir(),
+		`jd-config-test-${randomUUID()}`,
+	);
 	mkdirSync(dir, { recursive: true });
 	fn(dir);
 }
@@ -55,13 +59,17 @@ describe("compileSchema", () => {
 				default: "0.0.0.0",
 			});
 
-			expect(compiled.flatKeys.get("database.url")).toEqual({
-				type: "string",
-				required: true,
-				default: undefined,
-			});
+			expect(compiled.flatKeys.get("database.url")).toEqual(
+				{
+					type: "string",
+					required: true,
+					default: undefined,
+				},
+			);
 
-			expect(compiled.flatKeys.get("database.password")).toEqual({
+			expect(
+				compiled.flatKeys.get("database.password"),
+			).toEqual({
 				type: "string",
 				required: false,
 				default: undefined,
@@ -88,7 +96,8 @@ describe("compileSchema", () => {
 				server: { port: -1, host: "localhost" },
 			};
 
-			const invalidResult = compiled.schema.safeParse(invalidConfig);
+			const invalidResult =
+				compiled.schema.safeParse(invalidConfig);
 			expect(invalidResult.success).toBe(false);
 		});
 	});

@@ -8,12 +8,21 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"#Database": resolve(srcDir, "Database/index.ts"),
-			"#ChatCommands": resolve(srcDir, "ChatCommands/index.ts"),
+			"#ChatCommands": resolve(
+				srcDir,
+				"ChatCommands/index.ts",
+			),
 			"#Config": resolve(srcDir, "config.ts"),
 			"#AuditLog": resolve(srcDir, "audit-log.ts"),
 			"#Logger": resolve(srcDir, "Logger/index.ts"),
-			"#ComponentsV2": resolve(srcDir, "ComponentsV2/index.ts"),
-			"#EmojiRegistry": resolve(srcDir, "EmojiRegistry/index.ts"),
+			"#ComponentsV2": resolve(
+				srcDir,
+				"ComponentsV2/index.ts",
+			),
+			"#EmojiRegistry": resolve(
+				srcDir,
+				"EmojiRegistry/index.ts",
+			),
 		},
 	},
 	test: {

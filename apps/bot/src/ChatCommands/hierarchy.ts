@@ -78,7 +78,8 @@ function buildNode(
 		...(kind === "command"
 			? {
 					allowPrefixless:
-						(input as ChatCommandTreeInput).allowPrefixless ?? true,
+						(input as ChatCommandTreeInput)
+							.allowPrefixless ?? true,
 				}
 			: {}),
 		description: input.description,

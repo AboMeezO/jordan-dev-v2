@@ -6,7 +6,10 @@ import type {
 	EmojiSyncSummary,
 } from "./types.js";
 
-export type { EmojiConfigEntry, EmojiSyncSummary } from "./types.js";
+export type {
+	EmojiConfigEntry,
+	EmojiSyncSummary,
+} from "./types.js";
 
 export interface AvailableEmoji {
 	readonly animated?: boolean;
@@ -32,7 +35,10 @@ export class EmojiRegistry {
 	}
 
 	public emoji(key: string | undefined): string {
-		if (key === undefined || !Object.hasOwn(this.config, key)) {
+		if (
+			key === undefined ||
+			!Object.hasOwn(this.config, key)
+		) {
 			return "";
 		}
 

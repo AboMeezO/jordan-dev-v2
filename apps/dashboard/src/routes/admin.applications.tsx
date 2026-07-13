@@ -79,7 +79,10 @@ function AdminApplicationsPage() {
                       <th className="px-4 py-3 font-normal">Level</th>
                       <th className="px-4 py-3 font-normal">Status</th>
                       <th className="px-4 py-3 font-normal">Submitted</th>
-                      <th className="px-4 py-3 font-normal" aria-label="Actions" />
+                      <th
+                        className="px-4 py-3 font-normal"
+                        aria-label="Actions"
+                      />
                     </tr>
                   </thead>
                   <tbody>

@@ -16,9 +16,9 @@ export type ApiSuccessResponse<T> = {
 };
 
 @Injectable()
-export class ApiResponseInterceptor<T>
-	implements NestInterceptor<T, ApiSuccessResponse<T> | T>
-{
+export class ApiResponseInterceptor<
+	T,
+> implements NestInterceptor<T, ApiSuccessResponse<T> | T> {
 	constructor(private readonly reflector: Reflector) {}
 
 	intercept(

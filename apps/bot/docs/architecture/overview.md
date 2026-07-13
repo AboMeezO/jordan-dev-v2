@@ -6,9 +6,14 @@
 
 ```ts
 // index.ts
-config({ path: resolve(import.meta.dirname, "../../.env") });
+config({
+	path: resolve(import.meta.dirname, "../../.env"),
+});
 config({ path: resolve(import.meta.dirname, ".env") });
-config({ path: resolve(import.meta.dirname, ".env.local"), override: true });
+config({
+	path: resolve(import.meta.dirname, ".env.local"),
+	override: true,
+});
 ```
 
 ## Bot Class
@@ -32,11 +37,11 @@ Discord Gateway → Client → Events/
 
 ## Key Modules
 
-| Module | Path | Purpose |
-|--------|------|---------|
-| Logger | `src/Logger/` | Zero-dependency logging with levels |
-| Config | `src/config.ts` | Environment config accessors |
-| Database | `src/Database/` | Multi-driver database abstraction |
-| AuditLog | `src/audit-log.ts` | Command execution audit trail |
-| ComponentsV2 | `src/ComponentsV2/` | Reusable Discord Components V2 builders |
-| EmojiRegistry | `src/EmojiRegistry/` | Emoji config management |
+| Module        | Path                 | Purpose                                 |
+| ------------- | -------------------- | --------------------------------------- |
+| Logger        | `src/Logger/`        | Zero-dependency logging with levels     |
+| Config        | `src/config.ts`      | Environment config accessors            |
+| Database      | `src/Database/`      | Multi-driver database abstraction       |
+| AuditLog      | `src/audit-log.ts`   | Command execution audit trail           |
+| ComponentsV2  | `src/ComponentsV2/`  | Reusable Discord Components V2 builders |
+| EmojiRegistry | `src/EmojiRegistry/` | Emoji config management                 |

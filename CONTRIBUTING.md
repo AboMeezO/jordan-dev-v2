@@ -22,16 +22,16 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Types
 
-| Type | Usage |
-|------|-------|
-| `feat` | New feature or command |
-| `fix` | Bug fix |
-| `chore` | Tooling, dependencies, config |
+| Type       | Usage                               |
+| ---------- | ----------------------------------- |
+| `feat`     | New feature or command              |
+| `fix`      | Bug fix                             |
+| `chore`    | Tooling, dependencies, config       |
 | `refactor` | Code change with no behavior change |
-| `style` | Formatting, lint fixes only |
-| `docs` | Documentation |
-| `test` | Adding or fixing tests |
-| `perf` | Performance improvement |
+| `style`    | Formatting, lint fixes only         |
+| `docs`     | Documentation                       |
+| `test`     | Adding or fixing tests              |
+| `perf`     | Performance improvement             |
 
 ### Scopes
 

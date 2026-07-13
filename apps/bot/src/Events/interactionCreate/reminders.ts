@@ -27,8 +27,6 @@ import {
 	buildReminderPanel,
 	buildReminderTimeModal,
 	parseReminderCustomId,
-	reminderInteractionFlags,
-	reminderMessageFlags,
 } from "../../Reminders/reminder-panel.js";
 import type { ReminderRecord } from "../../Reminders/reminder-service.js";
 
@@ -59,7 +57,11 @@ export default async function (
 	}
 
 	if (interaction.isChannelSelectMenu()) {
-		await handleChannelSelect(interaction, client, parsed.reminderId);
+		await handleChannelSelect(
+			interaction,
+			client,
+			parsed.reminderId,
+		);
 		return;
 	}
 
@@ -109,10 +111,7 @@ async function handleButton(
 	action: string,
 	reminderId: string | undefined,
 ): Promise<void> {
-	if (
-		action === "toggle-delivery" ||
-		action === "cancel"
-	) {
+	if (action === "toggle-delivery" || action === "cancel") {
 		await interaction.deferUpdate();
 	}
 
@@ -126,12 +125,11 @@ async function handleButton(
 		if (interaction.deferred) {
 			await interaction.editReply({
 				components: [
-					new ContainerBuilder()
-						.addTextDisplayComponents(
-							new TextDisplayBuilder().setContent(
-								"That reminder is no longer active.",
-							),
+					new ContainerBuilder().addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(
+							"That reminder is no longer active.",
 						),
+					),
 				],
 			});
 		} else {
@@ -175,7 +173,7 @@ async function handleButton(
 		const originalMessageId = interaction.message.id;
 
 		const channelSelectContainer = new ContainerBuilder()
-			.setAccentColor(0x00FFFF)
+			.setAccentColor(0x00ffff)
 			.addTextDisplayComponents(
 				new TextDisplayBuilder().setContent(
 					"Select a channel for delivery:",
@@ -252,7 +250,11 @@ async function handleChannelSelect(
 	}
 
 	try {
-		await updateReminderChannel(client, reminder.id, channelId);
+		await updateReminderChannel(
+			client,
+			reminder.id,
+			channelId,
+		);
 
 		const reminders = await listUserReminders(
 			client,
@@ -270,7 +272,7 @@ async function handleChannelSelect(
 		await interaction.update({
 			components: [
 				new ContainerBuilder()
-					.setAccentColor(0x00FFFF)
+					.setAccentColor(0x00ffff)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(
 							"✅ Channel updated!",
@@ -281,9 +283,12 @@ async function handleChannelSelect(
 
 		// Update the original panel
 		try {
-			await interaction.webhook.editMessage(originalMessageId, {
-				components: [newPanel],
-			});
+			await interaction.webhook.editMessage(
+				originalMessageId,
+				{
+					components: [newPanel],
+				},
+			);
 		} catch {
 			try {
 				if (interaction.channel?.isTextBased()) {
@@ -303,7 +308,7 @@ async function handleChannelSelect(
 		await interaction.update({
 			components: [
 				new ContainerBuilder()
-					.setAccentColor(0x00FFFF)
+					.setAccentColor(0x00ffff)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(
 							error instanceof Error
@@ -333,12 +338,11 @@ async function handleModal(
 	if (!reminder) {
 		await interaction.editReply({
 			components: [
-				new ContainerBuilder()
-					.addTextDisplayComponents(
-						new TextDisplayBuilder().setContent(
-							"That reminder is no longer active.",
-						),
+				new ContainerBuilder().addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(
+						"That reminder is no longer active.",
 					),
+				),
 			],
 		});
 		return;
@@ -374,7 +378,10 @@ async function handleModal(
 		if (selectedReminder) {
 			await interaction.editReply({
 				components: [
-					buildReminderPanel({ reminders, selectedReminder }),
+					buildReminderPanel({
+						reminders,
+						selectedReminder,
+					}),
 				],
 			});
 		} else {
@@ -385,14 +392,13 @@ async function handleModal(
 	} catch (error) {
 		await interaction.editReply({
 			components: [
-				new ContainerBuilder()
-					.addTextDisplayComponents(
-						new TextDisplayBuilder().setContent(
-							error instanceof Error
-								? error.message
-								: "Failed to update reminder.",
-						),
+				new ContainerBuilder().addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(
+						error instanceof Error
+							? error.message
+							: "Failed to update reminder.",
 					),
+				),
 			],
 		});
 	}

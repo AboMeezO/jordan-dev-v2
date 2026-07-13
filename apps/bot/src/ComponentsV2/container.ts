@@ -26,9 +26,7 @@ export function buildContainer(
 		);
 
 		for (const row of input.buttons) {
-			container.addActionRowComponents(
-				buildButtonRow(row),
-			);
+			container.addActionRowComponents(buildButtonRow(row));
 		}
 	}
 

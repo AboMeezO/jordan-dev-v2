@@ -7,11 +7,16 @@ import {
 
 import { chatCommandTrees } from "./commands.js";
 
-export async function createDefaultChatCommandRegistry(
-): Promise<ChatCommandRegistry> {
+export async function createDefaultChatCommandRegistry(): Promise<ChatCommandRegistry> {
 	const registry = new ChatCommandRegistry();
-	const basePath = resolve(import.meta.dirname, "../ChatCommands");
-	const commands = await loadCommandDefinitions(basePath, chatCommandTrees);
+	const basePath = resolve(
+		import.meta.dirname,
+		"../ChatCommands",
+	);
+	const commands = await loadCommandDefinitions(
+		basePath,
+		chatCommandTrees,
+	);
 
 	for (const command of commands) {
 		registry.register(command);

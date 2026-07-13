@@ -1,5 +1,5 @@
-import { Module } from "@nestjs/common";
 import { JDConfigModule } from "@jordan-devs/config/nest";
+import { Module } from "@nestjs/common";
 
 import { BackendConfigService } from "./app.config.js";
 

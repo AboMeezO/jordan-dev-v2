@@ -9,7 +9,11 @@ import { DashboardService } from "./dashboard.service.js";
 
 @Module({
 	controllers: [DashboardController],
-	imports: [AuthModule, AuthorizationModule, DatabaseModule],
+	imports: [
+		AuthModule,
+		AuthorizationModule,
+		DatabaseModule,
+	],
 	providers: [DashboardRepository, DashboardService],
 })
 export class DashboardModule {}

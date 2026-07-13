@@ -9,7 +9,11 @@ import { RolesService } from "./roles.service.js";
 
 @Module({
 	controllers: [RolesController],
-	imports: [AuthModule, AuthorizationModule, DatabaseModule],
+	imports: [
+		AuthModule,
+		AuthorizationModule,
+		DatabaseModule,
+	],
 	providers: [RolesRepository, RolesService],
 })
 export class RolesModule {}

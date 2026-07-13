@@ -23,7 +23,10 @@ async function request<T>(
 		requestInit.body = JSON.stringify(body);
 	}
 
-	const response = await fetch(`${BASE_URL}${path}`, requestInit);
+	const response = await fetch(
+		`${BASE_URL}${path}`,
+		requestInit,
+	);
 
 	if (!response.ok) {
 		const text = await response.text();
@@ -82,13 +85,20 @@ export type GuildConfig = {
 export async function upsertGuildConfig(
 	config: GuildConfig,
 ): Promise<GuildConfig> {
-	return request<GuildConfig>("POST", "/guild-configs", config);
+	return request<GuildConfig>(
+		"POST",
+		"/guild-configs",
+		config,
+	);
 }
 
 export async function getGuildConfig(
 	guildId: string,
 ): Promise<GuildConfig> {
-	return request<GuildConfig>("GET", `/guild-configs/${guildId}`);
+	return request<GuildConfig>(
+		"GET",
+		`/guild-configs/${guildId}`,
+	);
 }
 
 export async function createApplication(data: {
@@ -194,7 +204,12 @@ export async function rejectApplication(
 
 export async function listSubmittedApplications(
 	guildId: string,
-): Promise<{ applications: ApplicationSummary[]; total: number; page: number; limit: number }> {
+): Promise<{
+	applications: ApplicationSummary[];
+	total: number;
+	page: number;
+	limit: number;
+}> {
 	return request(
 		"GET",
 		`/membership-applications/guild/${guildId}/submitted`,

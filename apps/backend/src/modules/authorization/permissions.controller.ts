@@ -6,7 +6,9 @@ import { AuthorizationService } from "./authorization.service.js";
 
 @Controller("admin/permissions")
 export class PermissionsController {
-	constructor(private readonly authorization: AuthorizationService) {}
+	constructor(
+		private readonly authorization: AuthorizationService,
+	) {}
 
 	@Get()
 	@RequirePermissions(permissions.permissionsRead)

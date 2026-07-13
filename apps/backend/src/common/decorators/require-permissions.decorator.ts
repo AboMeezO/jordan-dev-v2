@@ -1,5 +1,9 @@
 import type { Permission } from "@jordan-devs/shared";
-import { applyDecorators, SetMetadata, UseGuards } from "@nestjs/common";
+import {
+	applyDecorators,
+	SetMetadata,
+	UseGuards,
+} from "@nestjs/common";
 
 import { ClerkAuthGuard } from "../../modules/auth/clerk-auth.guard.js";
 import { PermissionGuard } from "../../modules/authorization/permission.guard.js";

@@ -22,10 +22,12 @@ Commands are built with `commandTree()`, `commandGroup()`, or `subcommand()` fro
 
 ```ts
 const myCommand = commandTree({
-    name: "example",
-    description: "An example command.",
-    permission: "public",
-    async execute(context) { /* ... */ },
+	name: "example",
+	description: "An example command.",
+	permission: "public",
+	async execute(context) {
+		/* ... */
+	},
 });
 ```
 
@@ -36,6 +38,7 @@ Commands are loaded dynamically by `src/ChatCommands/loader.ts`, which scans the
 ## Tree Rendering
 
 The system supports rendering command trees as:
+
 - Discord-formatted trees with `├──`/`└──` connectors (`renderCommandTree()`)
 - Shell-style `key=value` output (`renderCommandTreeShell()`)
 

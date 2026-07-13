@@ -1,7 +1,4 @@
-import type {
-  ApplicationDetail,
-  ApplicationList,
-} from '@jordan-devs/shared'
+import type { ApplicationDetail, ApplicationList } from '@jordan-devs/shared'
 import {
   applicationDetailResponseSchema,
   applicationListResponseSchema,

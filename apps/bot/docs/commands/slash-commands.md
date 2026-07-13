@@ -8,11 +8,11 @@ Slash command files are standard discord.js slash commands placed in `src/Comman
 import { SlashCommandBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
-    .setName("mycommand")
-    .setDescription("Does something");
+	.setName("mycommand")
+	.setDescription("Does something");
 
 export async function execute(interaction) {
-    await interaction.reply("Done!");
+	await interaction.reply("Done!");
 }
 ```
 
