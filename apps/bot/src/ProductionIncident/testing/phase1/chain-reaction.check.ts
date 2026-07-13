@@ -43,14 +43,12 @@ const clock1 = new TestClock();
 const idGen1 = new TestIdGenerator();
 const rs1 = new SeededRandomSource("chain-test-1");
 const sched1 = new RecordingScheduler();
-let inactiveCalled = false;
-
 const chain1 = new ChainReactionSystem(
 	clock1,
 	idGen1,
 	rs1,
 	sched1,
-	async () => { inactiveCalled = true; },
+	async () => {},
 	() => false, // isSessionActive always false
 );
 
@@ -66,14 +64,12 @@ const clock2 = new TestClock();
 const idGen2 = new TestIdGenerator();
 const rs2 = new SeededRandomSource("chain-test-2");
 const sched2 = new RecordingScheduler();
-let chainGenerated = false;
-
 const chain2 = new ChainReactionSystem(
 	clock2,
 	idGen2,
 	rs2,
 	sched2,
-	async () => { chainGenerated = true; },
+	async () => {},
 	() => true, // isSessionActive always true
 );
 
