@@ -19,7 +19,7 @@
 		"test:phase1": "tsx src/ProductionIncident/testing/phase1/phase1-smoke.test.ts"
 	},
 	"dependencies": {
-		"@ai-sdk/google": "^2.0.19",
+		"@ai-sdk/google": "^4.0.12",
 		"@jordan-devs/ai": "workspace:*",
 		"@jordan-devs/config": "workspace:*",
 		"@octokit/rest": "^22.0.1",
