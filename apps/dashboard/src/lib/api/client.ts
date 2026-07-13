@@ -5,7 +5,7 @@ import { ApiClientError, normalizeApiError } from './errors'
 import type { ApiError } from './errors'
 import type { z } from 'zod'
 
-type HttpMethod = 'DELETE' | 'GET' | 'PATCH' | 'POST'
+type HttpMethod = 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT'
 
 type ApiRequestOptions = Omit<
   RequestInit,
