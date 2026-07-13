@@ -17,7 +17,7 @@ import { useBackendSession } from '#/features/session'
 type UserMenuItem = {
   id: string
   label: string
-  icon?: ComponentType<{ className?: string }>
+  icon?: ComponentType<{ className?: string; strokeWidth?: number }>
   href?: string
   onSelect?: () => void
   destructive?: boolean
