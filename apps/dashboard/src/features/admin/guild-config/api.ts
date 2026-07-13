@@ -1,8 +1,5 @@
 import type { GuildConfig } from '@jordan-devs/shared'
-import {
-  guildConfigResponseSchema,
-  guildConfigSchema,
-} from '@jordan-devs/shared'
+import { guildConfigResponseSchema } from '@jordan-devs/shared'
 
 import { apiRequest } from '#/lib/api'
 
