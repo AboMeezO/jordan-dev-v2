@@ -27,6 +27,6 @@ export default async function (
 		) {
 			return;
 		}
-		await handleModalSubmit(interaction, client);
+		await handleModalSubmit(interaction);
 	}
 }

@@ -1,6 +1,7 @@
 import type {
 	ButtonInteraction,
 	Client,
+	GuildMember,
 	ModalSubmitInteraction,
 	TextChannel,
 } from "discord.js";
@@ -66,7 +67,7 @@ async function sendSectionModal(
 	}
 }
 
-async function sendVerifyButton(channel: TextChannel, config: api.GuildConfig): Promise<void> {
+async function sendVerifyButton(channel: TextChannel): Promise<void> {
 	const embed = new EmbedBuilder()
 		.setTitle("Welcome to Jordan Devs!")
 		.setDescription(
@@ -86,8 +87,7 @@ async function sendVerifyButton(channel: TextChannel, config: api.GuildConfig): 
 }
 
 export async function handleGuildMemberAdd(
-	member: import("discord.js").GuildMember,
-	client: Client,
+	member: GuildMember,
 ): Promise<void> {
 	try {
 		const config = await api.getGuildConfig(member.guild.id);
@@ -103,7 +103,7 @@ export async function handleButton(
 	client: Client,
 ): Promise<void> {
 	if (interaction.customId === "verify:start") {
-		await handleVerifyStart(interaction, client);
+		await handleVerifyStart(interaction);
 		return;
 	}
 
@@ -128,7 +128,7 @@ export async function handleButton(
 	}
 
 	if (interaction.customId.startsWith("admin:claim:")) {
-		await handleAdminClaim(interaction, client);
+		await handleAdminClaim(interaction);
 		return;
 	}
 
@@ -145,7 +145,6 @@ export async function handleButton(
 
 async function handleVerifyStart(
 	interaction: ButtonInteraction,
-	client: Client,
 ): Promise<void> {
 	await interaction.deferReply({ ephemeral: true });
 
@@ -191,8 +190,6 @@ async function handlePrevSection(interaction: ButtonInteraction): Promise<void> 
 	const prevSection = getPreviousSection(sectionKey);
 	if (!prevSection) return;
 
-	const data = getAppData(interaction.user.id);
-
 	const embed = createSectionEmbed(prevSection, getSectionIndex(prevSection.key));
 
 	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -209,7 +206,6 @@ async function handlePrevSection(interaction: ButtonInteraction): Promise<void> 
 
 export async function handleModalSubmit(
 	interaction: ModalSubmitInteraction,
-	client: Client,
 ): Promise<void> {
 	if (interaction.customId.startsWith("verify_reject:")) {
 		await handleRejectConfirm(interaction);
@@ -347,7 +343,7 @@ async function notifyAdmins(
 		const reviewerRole = guild.roles.cache.get(config.reviewerRoleId);
 		const mention = reviewerRole ? `<@&${config.reviewerRoleId}>` : "@here";
 
-		const channel = guild.channels.cache.get(config.verificationChannelId) as import("discord.js").TextChannel | undefined;
+		const channel = guild.channels.cache.get(config.verificationChannelId) as TextChannel | undefined;
 		if (!channel) return;
 
 
@@ -528,7 +524,6 @@ async function handleAdminRejectStart(interaction: ButtonInteraction): Promise<v
 
 async function handleAdminClaim(
 	interaction: ButtonInteraction,
-	client: Client,
 ): Promise<void> {
 	const parts = interaction.customId.split(":");
 	const applicationId = parts[2]!;
