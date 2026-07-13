@@ -98,7 +98,6 @@ export class MembershipApplicationService {
 
 	public async claimReview(
 		applicationId: string,
-		_reviewerUserId: string,
 	): Promise<ApplicationDetail> {
 		const application = await this.applications.findById(applicationId);
 		if (!application) {

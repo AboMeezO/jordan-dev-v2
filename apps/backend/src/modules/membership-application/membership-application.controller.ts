@@ -1,5 +1,5 @@
 import type { ApplicationDetail, ApplicationList, ApplicationSummary, CreateApplicationRequest } from "@jordan-devs/shared";
-import { claimReviewSchema, createApplicationSchema, rejectApplicationSchema, submitApplicationSchema, updateApplicationSchema } from "@jordan-devs/shared";
+import { createApplicationSchema, rejectApplicationSchema, submitApplicationSchema, updateApplicationSchema } from "@jordan-devs/shared";
 import { permissions } from "@jordan-devs/shared";
 import { Body, Controller, Get, NotFoundException, Param, Patch, Post, UseGuards } from "@nestjs/common";
 
@@ -83,13 +83,8 @@ export class MembershipApplicationController {
 	@UseGuards(BotAuthGuard)
 	public async claim(
 		@Param("id") id: string,
-		@Body(new ZodValidationPipe(claimReviewSchema))
-		request: { applicationId: string; reviewerDiscordUserId: string },
 	): Promise<ApplicationDetail> {
-		const reviewer = await this.users.upsertFromDiscordIdentity({
-			discordUserId: request.reviewerDiscordUserId,
-		});
-		return this.applications.claimReview(id, reviewer.id);
+		return this.applications.claimReview(id);
 	}
 
 	@Post(":id/approve")
