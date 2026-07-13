@@ -3,7 +3,6 @@ import { useState } from 'react'
 
 import { PermissionGate } from '#/components/auth/permission-gate'
 import { FormField, InlineError, LoadingState } from '#/components/app'
-import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { useSubmittedApplicationsQuery } from '#/features/admin'
 
