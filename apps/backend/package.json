@@ -17,7 +17,7 @@
 		"@clerk/backend": "^2.22.0",
 		"@jordan-devs/config": "workspace:*",
 		"@jordan-devs/shared": "workspace:*",
-		"@nestjs/common": "^11.1.7",
+		"@nestjs/common": "^11.1.28",
 		"@nestjs/core": "^11.1.7",
 		"@nestjs/platform-fastify": "^11.1.7",
 		"@prisma/client": "6.16.3",
