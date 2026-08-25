@@ -38,6 +38,149 @@ const DURATION_MS: Readonly<Record<string, number>> = {
 	weeks: 604_800_000,
 };
 
+const GUILD_REQUIRED_RESPONSES = [
+	"Moderating in DMs? What the fuck are you arresting them with, private-message energy?",
+	"This command needs a server, dude. You cannot enforce the law in a hallway.",
+	"You brought the ban hammer to a DM. That is not jurisdiction; that is cosplay.",
+	"Moderation in DMs is like calling the cops on a loading screen. Go to the server.",
+	"No guild, no gavel. The courtroom is literally not here.",
+	"Bro tried to run server law in a private chat. The audacity is impressive; the jurisdiction is nonexistent.",
+	"You are outside the server, my guy. Even Batman needs a city before he can do paperwork.",
+	"This is a DM, not the moderation arena. Take the command where the suspects actually live.",
+] as const;
+
+const PERMISSION_DENIED_RESPONSES = [
+	"You have the confidence of a supervillain and the permissions of a background NPC.",
+	"Discord checked your badge and said: nice try, champ.",
+	"You reached for the {label} lever with zero clearance. Bold. Incorrect. Hilarious.",
+	"Bro brought main-character energy to a permission check and got defeated by a checkbox.",
+	"The vibes said moderator. The permissions said absolutely fucking not.",
+	"You are trying to operate the server machinery with a butter knife, dude.",
+	"Access denied. Even the tutorial boss had more authority than this.",
+	"You cannot invoke {label} by pure audacity. I checked.",
+] as const;
+
+const BOT_PERMISSION_MISSING_RESPONSES = [
+	"I would help, but Discord did not give me the {label} keys. I am a locked-out bouncer.",
+	"The bot has arrived at the crime scene and forgotten its badge. Spectacular.",
+	"Discord said I can watch the chaos, but I cannot touch the {label} button.",
+	"I have the enthusiasm of a SWAT team and the permissions of a houseplant.",
+	"The {label} permission is missing. Somebody gave me a cape but no superpowers.",
+	"Bro, I cannot do server law without the server-law DLC installed.",
+	"I tried to open the door and Discord hit me with the invisible slap.",
+	"No {label}, no action. Even the bot is getting nerfed by paperwork.",
+] as const;
+
+const TARGET_MISSING_RESPONSES = [
+	"You brought the hammer, but forgot the person. Fantastic work, champ.",
+	"The command is loaded, the target is not. Who the fuck am I supposed to bonk?",
+	"Please provide a target, dude. I am good, but I am not psychic.",
+	"You pointed the moderation cannon at absolutely nothing. Incredible aim.",
+	"No target detected. The victim must be hiding behind your unfinished command.",
+	"Bro submitted an arrest warrant with the name field blank.",
+	"The ban hammer is waiting patiently for you to tell it where to swing.",
+	"Target missing. This is less Judge Dredd and more confused intern.",
+] as const;
+
+const TARGET_NOT_FOUND_RESPONSES = [
+	"I searched everywhere. Either that user entered the Shadow Realm or you typed the ID like a sleep-deprived goblin.",
+	"That user is not here, dude. The target has successfully escaped the plot.",
+	"User not found. Even the server detective board has no idea who you mean.",
+	"I looked through the records and found nothing but your questionable target selection.",
+	"That ID led nowhere. Congratulations, you have subpoenaed a ghost.",
+	"No such user found. Either they vanished or Discord is gaslighting both of us.",
+	"The server says this person does not exist here. Bro tried to moderate a myth.",
+	"Target not found. The witness stand is empty and the courtroom is embarrassed for you.",
+] as const;
+
+const SELF_MODERATION_RESPONSES = [
+	"You tried to {action} yourself. That is not moderation; that is a resignation letter with extra steps.",
+	"Bro is beefing with himself so hard he requested a timeout. Absolute cinema.",
+	"You cannot {action} yourself, dude. If you need to leave, use the door like an adult.",
+	"Self-{action} is unavailable. Please resolve your internal character arc first.",
+	"The enemy was inside you all along, but Discord still will not let you {action} yourself.",
+	"What the fuck is this, a one-person intervention? Self-{action} denied.",
+	"You selected yourself as the target. The server recommends touching grass instead.",
+	"Trying to {action} yourself is bold. The self-destruct button is decorative, my guy.",
+] as const;
+
+const BOT_MODERATION_RESPONSES = [
+	"You tried to {action} the bot? That is like challenging John Wick with a pool noodle.",
+	"You cannot {action} the one thing doing the paperwork. Bold strategy. Completely unavailable.",
+	"Bro attacked the staff member who runs the staff room. Please rethink this master plan.",
+	"I am not going to {action} myself just because you asked nicely. I have standards.",
+	"Targeting the bot is crazy. That is like unplugging the fire alarm during a fire drill.",
+	"You aimed the {action} button at the server machinery. What is next, punching the Wi-Fi?",
+	"Nice attempt, dude. The bot has plot armor and an extremely strict self-preservation policy.",
+	"You want me to {action} me? That sentence alone should get you assigned a support ticket.",
+] as const;
+
+const OWNER_MODERATION_RESPONSES = [
+	"Bro aimed the {action} hammer at the final boss. Put it down before the server lore gets rewritten.",
+	"You tried to {action} the throne. The crown has diplomatic immunity, my guy.",
+	"That is the server owner. You do not {action} the landlord because the wallpaper is ugly.",
+	"The owner remains protected from {action}. Please direct your rebellion toward a legal target.",
+	"You walked into the boss arena and selected the boss as your victim. Incredible confidence.",
+	"Attempting to {action} the owner is how side characters become server legends for the wrong reason.",
+	"The crown stays on. Your {action} request has been rejected by the monarchy.",
+	"What the fuck was the plan there? The person who owns the server was never going to be an easy target.",
+] as const;
+
+const ROLE_HIERARCHY_RESPONSES = [
+	"Sit down, little moderator. That target's role is higher than your entire career arc.",
+	"You tried to {action} someone standing above your pay grade. Discord folded its arms.",
+	"Role hierarchy says no. Your ban hammer cannot reach that shelf, dude.",
+	"You have entered a boss fight with a wooden sword. That target outranks you.",
+	"The target is on an equal or higher step. Translation: stop trying to speedrun a demotion.",
+	"Bro challenged a higher role with pure confidence and no vertical clearance.",
+	"Discord looked at the role ladder and told you to stay in your lane.",
+	"That target is outside your jurisdiction. Please return to a level-appropriate villain.",
+] as const;
+
+const BOT_HIERARCHY_RESPONSES = [
+	"I tried to {action} them, but my highest role is not tall enough for that shelf.",
+	"The target's role is built different. My permissions just got hit with the short-kings update.",
+	"I have reached the role ceiling, dude. Discord has put the target behind glass.",
+	"My ban hammer bounced off their role and landed in the paperwork department.",
+	"The hierarchy said I am not that guy. Apparently my role needs to hit the gym.",
+	"I can see the target, but I cannot reach them. This is a moderation-themed tragedy.",
+	"Discord gave me a ladder, then removed the last three steps. Absolutely disrespectful.",
+	"That role is too high for me to {action}. I am powerful in theory and vertically challenged in practice.",
+] as const;
+
+const MODERATION_FAILURE_RESPONSES = [
+	"Discord rejected the paperwork at the counter. The bureaucracy wins again.",
+	"The {action} failed, dude. The server gods have denied your offering.",
+	"I tried to {action} them and Discord hit me with the 'nuh uh' of the century.",
+	"The command exploded somewhere between confidence and execution. What the fuck happened?",
+	"{action} failed. Even the error message looks disappointed in us.",
+	"The moderation machine made a sad noise and refused to elaborate.",
+	"Discord said no, and unlike your group chat, Discord actually had a reason.",
+	"The {action} attempt has been sent to the shadow realm. Check the technical details below.",
+] as const;
+
+function randomResponse(
+	responses: readonly string[],
+): string {
+	const index = Math.floor(Math.random() * responses.length);
+
+	return responses[index] ?? responses[0] ?? "Moderation denied.";
+}
+
+function actionResponse(
+	responses: readonly string[],
+	action: string,
+): string {
+	return randomResponse(responses).replaceAll("{action}", action);
+}
+
+function labelResponse(
+	responses: readonly string[],
+	label: string,
+): string {
+	return randomResponse(responses).replaceAll("{label}", label);
+}
+
 export const BAN_PERMISSION =
 	PermissionFlagsBits.BanMembers;
 export const KICK_PERMISSION =
@@ -132,7 +275,7 @@ export async function requireGuild(
 		await context.message.reply(
 			moderationDenyOutput(
 				"guild required",
-				"Moderation in DMs is just yelling into the void. Try this inside the server.",
+				randomResponse(GUILD_REQUIRED_RESPONSES),
 			),
 		);
 		return undefined;
@@ -153,7 +296,7 @@ export async function requirePermission(
 	await context.message.reply(
 		moderationDenyOutput(
 			"permission denied",
-			`You reached for the ${label} lever, but Discord looked at your badge and said no.`,
+			labelResponse(PERMISSION_DENIED_RESPONSES, label),
 			[`missing=${label}`],
 		),
 	);
@@ -175,7 +318,7 @@ export async function requireBotPermission(
 	await context.message.reply(
 		moderationDenyOutput(
 			"bot permission missing",
-			`I would help, but Discord did not give me the ${label} keys.`,
+			labelResponse(BOT_PERMISSION_MISSING_RESPONSES, label),
 			[`missing=${label}`],
 		),
 	);
@@ -191,7 +334,7 @@ export async function resolveModerationTarget(
 		await context.message.reply(
 			moderationDenyOutput(
 				"target missing",
-				"You brought the hammer but forgot to point at anything.",
+				randomResponse(TARGET_MISSING_RESPONSES),
 			),
 		);
 		return undefined;
@@ -210,7 +353,7 @@ export async function resolveModerationTarget(
 		await context.message.reply(
 			moderationDenyOutput(
 				"target not found",
-				"I searched the castle records. Nobody by that ID lives here.",
+				randomResponse(TARGET_NOT_FOUND_RESPONSES),
 				[`id=${targetId}`],
 			),
 		);
@@ -279,7 +422,7 @@ export async function ensureCanModerateMember(
 		await context.message.reply(
 			moderationDenyOutput(
 				"self moderation blocked",
-				`Trying to ${action} yourself is bold. The self-destruct button is decorative.`,
+				actionResponse(SELF_MODERATION_RESPONSES, action),
 				[`target=${member.user.tag}`],
 			),
 		);
@@ -290,7 +433,7 @@ export async function ensureCanModerateMember(
 		await context.message.reply(
 			moderationDenyOutput(
 				"bot moderation blocked",
-				`Trying to ${action} me with my own hands? That is not how this kingdom works.`,
+				actionResponse(BOT_MODERATION_RESPONSES, action),
 				[`target=${member.user.tag}`],
 			),
 		);
@@ -301,7 +444,7 @@ export async function ensureCanModerateMember(
 		await context.message.reply(
 			moderationDenyOutput(
 				"owner moderation blocked",
-				`You just tried to ${action} the crown. The throne remains occupied.`,
+				actionResponse(OWNER_MODERATION_RESPONSES, action),
 				[`target=${member.user.tag}`],
 			),
 		);
@@ -319,7 +462,7 @@ export async function ensureCanModerateMember(
 		await context.message.reply(
 			moderationDenyOutput(
 				"role hierarchy blocked",
-				`You tried to ${action} someone standing on an equal or higher step. Discord folded its arms.`,
+				actionResponse(ROLE_HIERARCHY_RESPONSES, action),
 				[
 					`target=${member.user.tag}`,
 					`target_role=${member.roles.highest.name}`,
@@ -341,7 +484,7 @@ export async function ensureCanModerateMember(
 		await context.message.reply(
 			moderationDenyOutput(
 				"bot hierarchy blocked",
-				`I tried to ${action} them, but my highest role is not tall enough for that shelf.`,
+				actionResponse(BOT_HIERARCHY_RESPONSES, action),
 				[
 					`target=${member.user.tag}`,
 					`target_role=${member.roles.highest.name}`,
@@ -379,7 +522,7 @@ export function moderationFailureOutput(
 ): string {
 	return moderationDenyOutput(
 		`${action} failed`,
-		"Discord rejected the paperwork at the counter.",
+		actionResponse(MODERATION_FAILURE_RESPONSES, action),
 		[
 			`details=${error instanceof Error ? error.message : "unknown error"}`,
 		],
