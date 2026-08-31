@@ -162,23 +162,33 @@ const MODERATION_FAILURE_RESPONSES = [
 function randomResponse(
 	responses: readonly string[],
 ): string {
-	const index = Math.floor(Math.random() * responses.length);
+	const index = Math.floor(
+		Math.random() * responses.length,
+	);
 
-	return responses[index] ?? responses[0] ?? "Moderation denied.";
+	return (
+		responses[index] ?? responses[0] ?? "Moderation denied."
+	);
 }
 
 function actionResponse(
 	responses: readonly string[],
 	action: string,
 ): string {
-	return randomResponse(responses).replaceAll("{action}", action);
+	return randomResponse(responses).replaceAll(
+		"{action}",
+		action,
+	);
 }
 
 function labelResponse(
 	responses: readonly string[],
 	label: string,
 ): string {
-	return randomResponse(responses).replaceAll("{label}", label);
+	return randomResponse(responses).replaceAll(
+		"{label}",
+		label,
+	);
 }
 
 export const BAN_PERMISSION =
@@ -318,7 +328,10 @@ export async function requireBotPermission(
 	await context.message.reply(
 		moderationDenyOutput(
 			"bot permission missing",
-			labelResponse(BOT_PERMISSION_MISSING_RESPONSES, label),
+			labelResponse(
+				BOT_PERMISSION_MISSING_RESPONSES,
+				label,
+			),
 			[`missing=${label}`],
 		),
 	);
